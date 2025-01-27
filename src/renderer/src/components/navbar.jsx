@@ -1,9 +1,12 @@
-import { IconPlus, IconSettings, IconSparkles } from '@tabler/icons-react'
+import { IconEdit, IconHistory, IconPlus, IconSettings } from '@tabler/icons-react'
 import { SettingsModalId } from '../modal/settings'
+import { UpdateAssistantModalId } from '../modal/update'
+import { AddAssistantModalId } from '../modal/add'
+import { HistoryModalId } from '../modal/history'
 
 export default function Navbar() {
-  const openSettingsModal = () => {
-    document.getElementById(SettingsModalId).showModal()
+  const openModal = (id) => {
+    document.getElementById(id).showModal()
   }
 
   return (
@@ -12,13 +15,10 @@ export default function Navbar() {
         <ul className="menu menu-horizontal px-1">
           <li>
             <details>
-              <summary>Current model</summary>
-              <ul className="bg-base-100 rounded-t-none p-2 z-300">
+              <summary>Assistant A</summary>
+              <ul className="bg-base-200 rounded-t-none p-2 z-300 w-max">
                 <li>
-                  <a>Link 1</a>
-                </li>
-                <li>
-                  <a>Link 2</a>
+                  <a>Assistant B</a>
                 </li>
               </ul>
             </details>
@@ -26,18 +26,35 @@ export default function Navbar() {
         </ul>
       </div>
       <div className="navbar-end">
-        <div className="tooltip tooltip-bottom" data-tip="Add new model">
+        <div
+          className="tooltip tooltip-bottom"
+          data-tip="Add Assistant"
+          onClick={() => openModal(AddAssistantModalId)}
+        >
           <button className="btn btn-ghost btn-circle">
             <IconPlus className="h-6 w-6" />
           </button>
         </div>
-        <div className="tooltip tooltip-bottom" data-tip="Personalisation">
+        <div
+          className="tooltip tooltip-bottom"
+          data-tip="Update Assistant"
+          onClick={() => openModal(UpdateAssistantModalId)}
+        >
           <button className="btn btn-ghost btn-circle">
-            <IconSparkles className="h-6 w-6" />
+            <IconEdit className="h-6 w-6" />
+          </button>
+        </div>
+        <div
+          className="tooltip tooltip-bottom"
+          data-tip="History"
+          onClick={() => openModal(HistoryModalId)}
+        >
+          <button className="btn btn-ghost btn-circle">
+            <IconHistory className="h-6 w-6" />
           </button>
         </div>
         <div className="tooltip tooltip-bottom" data-tip="Settings">
-          <button className="btn btn-ghost btn-circle" onClick={openSettingsModal}>
+          <button className="btn btn-ghost btn-circle" onClick={() => openModal(SettingsModalId)}>
             <IconSettings className="h-6 w-6" />
           </button>
         </div>

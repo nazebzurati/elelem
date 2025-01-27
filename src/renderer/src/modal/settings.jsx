@@ -28,7 +28,7 @@ export default function SettingsModal() {
   return (
     <dialog id={SettingsModalId} className="modal">
       <div className="modal-box">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Settings</h3>
           <form method="dialog">
             <button className="btn btn-circle btn-ghost">
@@ -63,8 +63,8 @@ export default function SettingsModal() {
               )}
             </fieldset>
           </div>
-          <div className="modal-action">
-            <button className="btn btn-primary" disabled={isLoading || isSubmitting}>
+          <div className="modal-action flex">
+            <button className="btn btn-primary flex-1" disabled={isLoading || isSubmitting}>
               Save
             </button>
           </div>
