@@ -1,2 +1,6 @@
 @import 'tailwindcss';
 @plugin "daisyui";
+
+html {
+  scrollbar-gutter: auto !important;
+}

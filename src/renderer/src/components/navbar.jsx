@@ -1,6 +1,11 @@
-import { IconSettings } from '@tabler/icons-react'
+import { IconPlus, IconSettings, IconSparkles } from '@tabler/icons-react'
+import { SettingsModalId } from '../modal/settings'
 
 export default function Navbar() {
+  const openSettingsModal = () => {
+    document.getElementById(SettingsModalId).showModal()
+  }
+
   return (
     <div className="navbar bg-base-100">
       <div className="flex-1">
@@ -21,9 +26,21 @@ export default function Navbar() {
         </ul>
       </div>
       <div className="navbar-end">
-        <button className="btn btn-ghost btn-circle">
-          <IconSettings className="h-6 w-6" />
-        </button>
+        <div className="tooltip tooltip-bottom" data-tip="Add new model">
+          <button className="btn btn-ghost btn-circle">
+            <IconPlus className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="tooltip tooltip-bottom" data-tip="Personalisation">
+          <button className="btn btn-ghost btn-circle">
+            <IconSparkles className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="tooltip tooltip-bottom" data-tip="Settings">
+          <button className="btn btn-ghost btn-circle" onClick={openSettingsModal}>
+            <IconSettings className="h-6 w-6" />
+          </button>
+        </div>
       </div>
     </div>
   )

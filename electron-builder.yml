@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: net.fionix.elelem
 productName: elelem
 directories:
   buildResources: build

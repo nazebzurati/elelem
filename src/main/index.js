@@ -17,6 +17,8 @@ function createWindow() {
     }
   })
 
+  mainWindow.removeMenu()
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -40,7 +42,7 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('net.fionix')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
