@@ -17,7 +17,7 @@ export default function ChatInput() {
 
   const inputRef = useRef(null);
   const onSubmit = (data) => {
-    console.log('chat-input.jsx:17', data);
+    // TODO
 
     // reset and refocus
     reset();

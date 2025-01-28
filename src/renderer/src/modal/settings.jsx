@@ -41,34 +41,32 @@ export default function SettingsModal() {
           </form>
         </div>
         <form onSubmit={handleSubmit(onSave)}>
-          <div>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">OpenAI API Key</legend>
-              <input
-                type="text"
-                className="input w-full"
-                placeholder="sk-*****"
-                {...register('openAiApiKey')}
-              />
-              <p className="fieldset-label">
-                Don&apos;t worry, we keep the key to yourself and secure.
-              </p>
-            </fieldset>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Ollama API URL</legend>
-              <input
-                type="text"
-                className="input w-full"
-                placeholder="http://localhost:11434"
-                {...register('ollamaUrl')}
-              />
-              {errors.ollamaUrl ? (
-                <p className="fieldset-label text-error">{errors.ollamaUrl.message}</p>
-              ) : (
-                <p className="fieldset-label">Set as empty to disable.</p>
-              )}
-            </fieldset>
-          </div>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">OpenAI API Key</legend>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="sk-*****"
+              {...register('openAiApiKey')}
+            />
+            <p className="fieldset-label">
+              Don&apos;t worry, we keep the key to yourself and secure.
+            </p>
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Ollama API URL</legend>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="http://localhost:11434"
+              {...register('ollamaUrl')}
+            />
+            {errors.ollamaUrl ? (
+              <p className="fieldset-label text-error">{errors.ollamaUrl.message}</p>
+            ) : (
+              <p className="fieldset-label">Set as empty to disable.</p>
+            )}
+          </fieldset>
           <div className="modal-action flex">
             <SubmitButton
               isLoading={isLoading || isSubmitting || !isDirty}
