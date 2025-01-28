@@ -6,7 +6,7 @@
   "author": "Nazeb Zurati",
   "scripts": {
     "format": "prettier --write .",
-    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "lint": "eslint . --fix",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
@@ -22,7 +22,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@tabler/icons-react": "^3.29.0",
     "@tailwindcss/vite": "^4.0.0",
-    "electron-updater": "^6.1.7",
+    "electron-updater": "^6.3.9",
     "react-hook-form": "^7.54.2",
     "tailwindcss": "^4.0.0",
     "yup": "^1.6.1",
@@ -31,16 +31,16 @@
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "daisyui": "^5.0.0-beta.2",
-    "electron": "^31.0.2",
-    "electron-builder": "^24.13.3",
+    "electron": "^34.0.1",
+    "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react": "^7.34.3",
-    "prettier": "^3.3.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vite": "^5.3.1"
+    "eslint": "^9.19.0",
+    "eslint-plugin-react": "^7.37.4",
+    "prettier": "^3.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vite": "<6.0"
   }
 }
