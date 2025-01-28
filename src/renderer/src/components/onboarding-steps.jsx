@@ -1,5 +1,11 @@
-import { IconBrandWindowsFilled, IconSpace } from '@tabler/icons-react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { IconBrandWindowsFilled, IconCircleX, IconSpace } from '@tabler/icons-react';
+import OpenAI from 'openai';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import * as yup from 'yup';
+import useSettings from '../store/settings';
 
 function Step1({ setStep }) {
   return (
@@ -37,6 +43,71 @@ function Step1({ setStep }) {
 }
 
 function Step2({ setStep }) {
+  const settingsStore = useSettings();
+  const schema = yup
+    .object({ openAiApiKey: yup.string(), ollamaUrl: yup.string() })
+    .test(
+      'openAiApiKey or ollamaUrl',
+      'At least one of OpenAi API key or Ollama URL is required.',
+      (value) => value.openAiApiKey || value.ollamaUrl
+    );
+  const {
+    reset,
+    register,
+    handleSubmit,
+    formState: { errors, isLoading, isSubmitting }
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      openAiApiKey: window.api.decrypt(settingsStore.openAiApiKey),
+      ollamaUrl: settingsStore.ollamaUrl
+    }
+  });
+
+  const [error, setError] = useState();
+  const onNext = async (data) => {
+    // Get OpenAI models
+    if (data.openAiApiKey) {
+      try {
+        const client = new OpenAI({
+          apiKey: data.openAiApiKey,
+          dangerouslyAllowBrowser: true
+        });
+        const models = await client.models.list();
+        if (models.data.length <= 0) {
+          setError('No model available.');
+          return;
+        }
+      } catch (error) {
+        setError('Unable to get OpenAI models.');
+        return;
+      }
+    }
+
+    // Get Ollama models
+    if (data.ollamaUrl) {
+      try {
+        const response = await fetch(`${data.ollamaUrl}/api/tags`);
+        const responseData = await response.json();
+        if (responseData.models.map((m) => m.model).length <= 0) {
+          setError('No model available.');
+          return;
+        }
+      } catch (error) {
+        setError('Unable to get Ollama models.');
+        return;
+      }
+    }
+
+    // Proceed
+    setError('');
+    settingsStore.update({
+      ollamaUrl: data.ollamaUrl,
+      openAiApiKey: window.api.encrypt(data.openAiApiKey)
+    });
+    setStep(3);
+  };
+
   return (
     <>
       <div className="w-full text-center space-y-6">
@@ -47,23 +118,52 @@ function Step2({ setStep }) {
         </p>
         <div className="text-start">
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">OpenAI API Key (required)</legend>
-            <input type="text" className="input w-full" placeholder="sk-*****" />
-            <p className="fieldset-label">
-              Don&apos;t worry, we keep the key to yourself and secure.
-            </p>
+            <legend className="fieldset-legend">OpenAI API Key</legend>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="sk-*****"
+              {...register('openAiApiKey')}
+            />
+            {errors.openAiApiKey ? (
+              <p className="fieldset-label text-error">{errors.openAiApiKey.message}</p>
+            ) : (
+              <p className="fieldset-label">
+                Create an API key at https://platform.openai.com/api-keys.
+              </p>
+            )}
           </fieldset>
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">Ollama API URL</legend>
-            <input type="text" className="input w-full" placeholder="http://localhost:11434" />
+            <legend className="fieldset-legend">Ollama URL</legend>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="http://localhost:11434"
+              {...register('ollamaUrl')}
+            />
+            {errors.ollamaUrl ? (
+              <p className="fieldset-label text-error">{errors.ollamaUrl.message}</p>
+            ) : (
+              <p className="fieldset-label">Learn more at https://ollama.com.</p>
+            )}
           </fieldset>
         </div>
+        {(errors[''] || error) && (
+          <div role="alert" className="alert alert-error">
+            <IconCircleX />
+            <span>{error || errors['']?.message}</span>
+          </div>
+        )}
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button className="btn btn-neutral" onClick={() => setStep(1)}>
           Previous
         </button>
-        <button className="btn btn-primary" onClick={() => setStep(3)}>
+        <button
+          className="btn btn-primary"
+          onClick={handleSubmit(onNext)}
+          disabled={isLoading || isSubmitting}
+        >
           Next
         </button>
       </div>
