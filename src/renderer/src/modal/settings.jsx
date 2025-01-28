@@ -69,8 +69,9 @@ export default function SettingsModal() {
           </fieldset>
           <div className="modal-action flex">
             <SubmitButton
-              isLoading={isLoading || isSubmitting || !isDirty}
+              text="Save"
               isSubmitted={isSubmitted}
+              isLoading={isLoading || isSubmitting || !isDirty}
             />
           </div>
         </form>

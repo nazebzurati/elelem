@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 const BUTTON_ANIMATION_TIMEOUT = 3000;
 
-export default function SubmitButton({ isLoading, isSubmitted }) {
+export default function SubmitButton({ isLoading, isSubmitted, onClick, text }) {
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
     if (isSubmitted) {
@@ -24,8 +24,8 @@ export default function SubmitButton({ isLoading, isSubmitted }) {
     );
   }
   return (
-    <button type="submit" className="btn btn-primary flex-1" disabled={isLoading}>
-      Save
+    <button type="submit" className="btn btn-primary flex-1" disabled={isLoading} onClick={onClick}>
+      {!isLoading ? text : <span className="loading loading-spinner loading-sm" />}
     </button>
   );
 }

@@ -1,11 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconBrandWindowsFilled, IconCircleX, IconSpace } from '@tabler/icons-react';
-import OpenAI from 'openai';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import * as yup from 'yup';
+import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
 import useSettings from '../store/settings';
+import SubmitButton from './submit-button';
 
 function Step1({ setStep }) {
   return (
@@ -66,45 +67,24 @@ function Step2({ setStep }) {
 
   const [error, setError] = useState();
   const onNext = async (data) => {
-    // Get OpenAI models
-    if (data.openAiApiKey) {
-      try {
-        const client = new OpenAI({
-          apiKey: data.openAiApiKey,
-          dangerouslyAllowBrowser: true
-        });
-        const models = await client.models.list();
-        if (models.data.length <= 0) {
-          setError('No model available.');
-          return;
-        }
-      } catch (error) {
+    const openAiModels = data.openAiApiKey ? await fetchOpenAiModels(data.openAiApiKey) : true;
+    const ollamaModels = data.ollamaUrl ? await fetchOllamaModels(data.ollamaUrl) : true;
+    if (!openAiModels || !ollamaModels) {
+      if (!openAiModels) {
         setError('Unable to get OpenAI models.');
         return;
-      }
-    }
-
-    // Get Ollama models
-    if (data.ollamaUrl) {
-      try {
-        const response = await fetch(`${data.ollamaUrl}/api/tags`);
-        const responseData = await response.json();
-        if (responseData.models.map((m) => m.model).length <= 0) {
-          setError('No model available.');
-          return;
-        }
-      } catch (error) {
+      } else if (!ollamaModels) {
         setError('Unable to get Ollama models.');
         return;
       }
     }
 
-    // Proceed
     setError('');
     settingsStore.update({
       ollamaUrl: data.ollamaUrl,
       openAiApiKey: window.api.encrypt(data.openAiApiKey)
     });
+    reset({});
     setStep(3);
   };
 
@@ -159,13 +139,11 @@ function Step2({ setStep }) {
         <button className="btn btn-neutral" onClick={() => setStep(1)}>
           Previous
         </button>
-        <button
-          className="btn btn-primary"
+        <SubmitButton
+          text="Next"
           onClick={handleSubmit(onNext)}
-          disabled={isLoading || isSubmitting}
-        >
-          Next
-        </button>
+          isLoading={isLoading || isSubmitting}
+        />
       </div>
     </>
   );
