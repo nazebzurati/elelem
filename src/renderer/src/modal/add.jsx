@@ -1,23 +1,27 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import { IconX } from '@tabler/icons-react'
-import { useForm } from 'react-hook-form'
-import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup';
+import { IconX } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
-export const AddAssistantModalId = 'addAssistantModal'
+export const AddAssistantModalId = 'addAssistantModal';
 
 export default function AddAssistantModal() {
   const schema = yup
-    .object({ model: yup.string().required(), name: yup.string().required(), prompt: yup.string() })
-    .required()
+    .object({
+      model: yup.string().required(),
+      name: yup.string().required(),
+      prompt: yup.string()
+    })
+    .required();
   const {
     register,
     handleSubmit,
     formState: { isLoading, isSubmitting }
   } = useForm({
     resolver: yupResolver(schema)
-  })
+  });
 
-  const onSave = () => {}
+  const onSave = () => {};
 
   return (
     <dialog id={AddAssistantModalId} className="modal">
@@ -57,5 +61,5 @@ export default function AddAssistantModal() {
         </form>
       </div>
     </dialog>
-  )
+  );
 }

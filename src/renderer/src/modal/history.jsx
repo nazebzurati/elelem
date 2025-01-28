@@ -1,6 +1,6 @@
-import { IconExternalLink, IconTrash, IconX } from '@tabler/icons-react'
+import { IconExternalLink, IconTrash, IconX } from '@tabler/icons-react';
 
-export const HistoryModalId = 'historyModal'
+export const HistoryModalId = 'historyModal';
 
 export default function HistoryModal() {
   return (
@@ -34,5 +34,5 @@ export default function HistoryModal() {
         </div>
       </div>
     </dialog>
-  )
+  );
 }

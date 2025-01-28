@@ -1,29 +1,33 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import { IconX } from '@tabler/icons-react'
-import { useForm } from 'react-hook-form'
-import * as yup from 'yup'
-import useSettings from '../store/settings'
+import { yupResolver } from '@hookform/resolvers/yup';
+import { IconX } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import SubmitButton from '../components/submit-button';
+import useSettings from '../store/settings';
 
-export const SettingsModalId = 'settingsModal'
+export const SettingsModalId = 'settingsModal';
 
 export default function SettingsModal() {
   const schema = yup
-    .object({ openaiApiKey: yup.string(), ollamaUrl: yup.string().url() })
-    .required()
+    .object({ openAiApiKey: yup.string(), ollamaUrl: yup.string().url() })
+    .required();
   const {
     reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting }
+    formState: { errors, isLoading, isSubmitting, isSubmitted, isDirty }
   } = useForm({
     resolver: yupResolver(schema)
-  })
+  });
 
-  const settingsStore = useSettings()
+  const settingsStore = useSettings();
   const onSave = (data) => {
-    settingsStore.update({ ollamaUrl: data.ollamaUrl, openaiApiKey: data.openaiApiKey })
-    reset()
-  }
+    settingsStore.update({
+      ollamaUrl: data.ollamaUrl,
+      openAiApiKey: window.api.encrypt(data.openAiApiKey)
+    });
+    reset({ ollamaUrl: data.ollamaUrl, openAiApiKey: undefined });
+  };
 
   return (
     <dialog id={SettingsModalId} className="modal">
@@ -44,7 +48,7 @@ export default function SettingsModal() {
                 type="text"
                 className="input w-full"
                 placeholder="sk-*****"
-                {...register('openaiApiKey')}
+                {...register('openAiApiKey')}
               />
               <p className="fieldset-label">
                 Don&apos;t worry, we keep the key to yourself and secure.
@@ -58,18 +62,21 @@ export default function SettingsModal() {
                 placeholder="http://localhost:11434"
                 {...register('ollamaUrl')}
               />
-              {errors.ollamaUrl && (
+              {errors.ollamaUrl ? (
                 <p className="fieldset-label text-error">{errors.ollamaUrl.message}</p>
+              ) : (
+                <p className="fieldset-label">Set as empty to disable.</p>
               )}
             </fieldset>
           </div>
           <div className="modal-action flex">
-            <button className="btn btn-primary flex-1" disabled={isLoading || isSubmitting}>
-              Save
-            </button>
+            <SubmitButton
+              isLoading={isLoading || isSubmitting || !isDirty}
+              isSubmitted={isSubmitted}
+            />
           </div>
         </form>
       </div>
     </dialog>
-  )
+  );
 }

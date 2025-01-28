@@ -1,10 +1,10 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useEffect, useRef } from 'react'
-import { useForm } from 'react-hook-form'
-import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
 export default function ChatInput() {
-  const schema = yup.object({ input: yup.string().required() }).required()
+  const schema = yup.object({ input: yup.string().required() }).required();
   const {
     reset,
     register,
@@ -13,33 +13,33 @@ export default function ChatInput() {
     formState: { isLoading, isSubmitting }
   } = useForm({
     resolver: yupResolver(schema)
-  })
+  });
 
-  const inputRef = useRef(null)
+  const inputRef = useRef(null);
   const onSubmit = (data) => {
-    console.log('chat-input.jsx:17', data)
+    console.log('chat-input.jsx:17', data);
 
     // reset and refocus
-    reset()
+    reset();
     setTimeout(() => {
-      setFocus('input')
-    }, 1000)
-  }
+      setFocus('input');
+    }, 1000);
+  };
 
   useEffect(() => {
     // shift enter to send
     const handleKeyDown = (event) => {
       if (event.shiftKey && event.key === 'Enter') {
-        handleSubmit(onSubmit)()
+        handleSubmit(onSubmit)();
       }
-    }
+    };
 
     // register event listener
-    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
     <form className="w-svw absolute bottom-0 left-0 p-6" onSubmit={handleSubmit(onSubmit)}>
@@ -55,5 +55,5 @@ export default function ChatInput() {
         <div className="fieldset-label">Shift+Enter to send.</div>
       </fieldset>
     </form>
-  )
+  );
 }

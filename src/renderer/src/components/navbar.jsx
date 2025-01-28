@@ -1,13 +1,13 @@
-import { IconEdit, IconHistory, IconPlus, IconSettings } from '@tabler/icons-react'
-import { SettingsModalId } from '../modal/settings'
-import { UpdateAssistantModalId } from '../modal/update'
-import { AddAssistantModalId } from '../modal/add'
-import { HistoryModalId } from '../modal/history'
+import { IconEdit, IconHistory, IconPlus, IconSettings } from '@tabler/icons-react';
+import { AddAssistantModalId } from '../modal/add';
+import { HistoryModalId } from '../modal/history';
+import { SettingsModalId } from '../modal/settings';
+import { UpdateAssistantModalId } from '../modal/update';
 
 export default function Navbar() {
   const openModal = (id) => {
-    document.getElementById(id).showModal()
-  }
+    document.getElementById(id).showModal();
+  };
 
   return (
     <div className="navbar bg-base-100">
@@ -60,5 +60,5 @@ export default function Navbar() {
         </div>
       </div>
     </div>
-  )
+  );
 }

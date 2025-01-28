@@ -12,5 +12,5 @@ export default function Chat() {
         <div className="chat-footer opacity-50">Received on 12:05PM</div>
       </div>
     </div>
-  )
+  );
 }
