@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import * as yup from 'yup';
 import { db } from '../lib/database';
-import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
+import { fetchOllamaModels, fetchOpenAiModels, updateModelList } from '../lib/model';
 import useSettings from '../store/settings';
 import SubmitButton from './submit-button';
 
@@ -68,6 +68,7 @@ function Step2({ setStep }) {
 
   const [error, setError] = useState();
   const onNext = async (data) => {
+    setError('');
     let modelList = [];
 
     if (data.openAiApiKey) {
@@ -88,16 +89,8 @@ function Step2({ setStep }) {
       modelList = modelList.concat(models);
     }
 
-    try {
-      for (const m of modelList) {
-        const isExisted = (await db.model.where({ id: m }).count()) > 0;
-        if (!isExisted) await db.model.add({ id: m });
-      }
-    } catch (error) {
-      setError('Unable to save retrieved models.');
-      return;
-    }
-
+    const existingModelList = await db.model.toArray();
+    await updateModelList(existingModelList, modelList);
     settingsStore.update({
       ollamaUrl: data.ollamaUrl,
       openAiApiKey: window.api.encrypt(data.openAiApiKey)
@@ -180,27 +173,41 @@ function Step3({ setStep }) {
     resolver: yupResolver(schema)
   });
 
-  const [activeAssistantId, setActiveAssistantId] = useState(undefined);
+  const settingsStore = useSettings();
   useEffect(() => {
     if (assistant && assistant.length > 0) {
-      setActiveAssistantId(assistant[0].id);
+      settingsStore.setActiveAssistantId(assistant[0].id);
       reset(assistant[0]);
     }
   }, [assistant]);
 
+  useEffect(() => {
+    if (assistant && assistant.length > 0) return;
+    if (modelList && modelList.length > 0) {
+      reset({ modelId: modelList[0].id });
+    }
+  }, [modelList]);
+
   const [error, setError] = useState();
   const onNext = async (data) => {
     try {
-      if (!activeAssistantId) {
-        await db.assistant.add({ name: data.name, modelId: data.modelId, prompt: data.prompt });
+      if (!settingsStore.activeAssistantId) {
+        const assistant = await db.assistant.add({
+          name: data.name,
+          modelId: data.modelId,
+          prompt: data.prompt
+        });
+        settingsStore.setActiveAssistant(assistant.id);
       } else {
-        await db.assistant.update(activeAssistantId, {
+        await db.assistant.update(settingsStore.activeAssistantId, {
           name: data.name,
           prompt: data.prompt,
           modelId: data.modelId
         });
       }
     } catch (error) {
+      console.error(error.message);
+
       setError('Unable to create assistant.');
       return;
     }
@@ -230,7 +237,11 @@ function Step3({ setStep }) {
                 </option>
               ))}
             </select>
-            <p className="fieldset-label">Only chat completion models are supported.</p>
+            {!errors.modelId ? (
+              <p className="fieldset-label">Only chat completion models are supported.</p>
+            ) : (
+              <p className="fieldset-label text-error">{errors.modelId.message}</p>
+            )}
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Prompt</legend>
@@ -244,9 +255,6 @@ function Step3({ setStep }) {
               }
               {...register('prompt')}
             />
-            {errors.modelId && (
-              <p className="fieldset-label text-error">{errors.modelId.message}</p>
-            )}
           </fieldset>
         </div>
         {error && (
@@ -271,7 +279,7 @@ function Step3({ setStep }) {
 }
 
 function Step4({ setStep }) {
-  const settings = useSettings();
+  const settingsStore = useSettings();
   const navigation = useNavigate();
   return (
     <>
@@ -298,7 +306,7 @@ function Step4({ setStep }) {
         <button
           className="btn btn-success"
           onClick={() => {
-            settings.setOnboardingComplete();
+            settingsStore.setOnboardingComplete();
             navigation('/app');
           }}
         >

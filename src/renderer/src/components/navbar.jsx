@@ -1,13 +1,30 @@
 import { IconEdit, IconHistory, IconPlus, IconSettings } from '@tabler/icons-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useEffect, useMemo } from 'react';
+import { db } from '../lib/database';
 import { AddAssistantModalId } from '../modal/add';
 import { HistoryModalId } from '../modal/history';
 import { SettingsModalId } from '../modal/settings';
 import { UpdateAssistantModalId } from '../modal/update';
+import useSettings from '../store/settings';
 
 export default function Navbar() {
   const openModal = (id) => {
     document.getElementById(id).showModal();
   };
+
+  const settings = useSettings();
+  const assistants = useLiveQuery(async () => await db.assistant.toArray());
+  useEffect(() => {
+    if (!settings.activeAssistantId && assistants && assistants.length > 0) {
+      settings.setActiveAssistant(assistants[0].id);
+    }
+  }, [assistants]);
+
+  const activeAssistant = useMemo(
+    () => assistants?.find((a) => a.id === settings.activeAssistantId),
+    [assistants, settings.activeAssistantId]
+  );
 
   return (
     <div className="navbar bg-base-100">
@@ -15,10 +32,15 @@ export default function Navbar() {
         <ul className="menu menu-horizontal px-1">
           <li>
             <details>
-              <summary>Assistant A</summary>
+              <summary>
+                <div>
+                  <kbd className="kbd kbd-sm">CTRL</kbd>+<kbd className="kbd kbd-sm">1</kbd>
+                </div>{' '}
+                {activeAssistant?.name ?? 'n/a'}
+              </summary>
               <ul className="bg-base-200 rounded-t-none p-2 z-300 w-max">
                 <li>
-                  <a>Assistant B</a>
+                  <a>ABC</a>
                 </li>
               </ul>
             </details>

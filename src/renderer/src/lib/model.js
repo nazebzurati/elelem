@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { db } from './database';
 
 const OPENAI_CHAT_COMPLETION_MODELS = [
   'chatgpt-4o-latest',
@@ -48,4 +49,16 @@ const fetchOllamaModels = async (url) => {
   }
 };
 
-export { fetchOllamaModels, fetchOpenAiModels };
+const updateModelList = async (existingList, newList) => {
+  const modelToBeAdded = newList.filter((model) => !existingList.includes(model));
+  for (const model of modelToBeAdded) {
+    await db.model.add({ id: model });
+  }
+
+  const modelToBeRemoved = existingList.filter((model) => !newList.includes(model));
+  for (const model of modelToBeRemoved) {
+    await db.model.remove({ id: model });
+  }
+};
+
+export { fetchOllamaModels, fetchOpenAiModels, updateModelList };
