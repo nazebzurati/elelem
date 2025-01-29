@@ -8,12 +8,17 @@ import AddAssistantModal from '../modal/add';
 import HistoryModal from '../modal/history';
 import SettingsModal from '../modal/settings';
 import UpdateAssistantModal from '../modal/update';
+import useSettings from '../store/settings';
 
 function App() {
+  const settings = useSettings();
   const navigation = useNavigate();
   useEffect(() => {
     db.assistant.count().then((count) => {
-      if (count <= 0) navigation('/');
+      if (count <= 0) {
+        settings.resetOnboardingFlag();
+        navigation('/');
+      }
     });
   }, []);
 

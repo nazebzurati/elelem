@@ -6,8 +6,11 @@ const useSettings = create(
     (set) => ({
       ollamaUrl: '',
       openAiApiKey: '',
+      isOnboardingCompleted: false,
       update: ({ openAiApiKey, ollamaUrl }) =>
-        set((state) => ({ ...state, openAiApiKey, ollamaUrl }))
+        set((state) => ({ ...state, openAiApiKey, ollamaUrl })),
+      resetOnboardingFlag: () => set((state) => ({ ...state, isOnboardingCompleted: false })),
+      setOnboardingComplete: () => set((state) => ({ ...state, isOnboardingCompleted: true }))
     }),
     { name: 'settings' }
   )
