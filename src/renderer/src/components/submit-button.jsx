@@ -7,7 +7,6 @@ const BUTTON_ANIMATION_TIMEOUT = 2000;
 export default function SubmitButton({ isLoading, isSubmitted, onClick, isFailed, text }) {
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
-    if (!isSubmitted || isLoading) return;
     setIsActive(true);
     const timer = setTimeout(() => {
       setIsActive(false);

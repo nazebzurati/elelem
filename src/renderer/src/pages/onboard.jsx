@@ -5,11 +5,11 @@ import { db } from '../lib/database';
 import useSettings from '../store/settings';
 
 export default function Onboard() {
-  const settings = useSettings();
+  const settingsStore = useSettings();
   const navigation = useNavigate();
   useEffect(() => {
     db.assistant.count().then((count) => {
-      if (count > 0 && settings.isOnboardingCompleted) {
+      if (count > 0 && settingsStore.isOnboardingCompleted) {
         navigation('/app');
       }
     });

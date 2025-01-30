@@ -49,7 +49,9 @@ const fetchOllamaModels = async (url) => {
   }
 };
 
-const updateModelList = async (existingList, newList) => {
+const updateModelList = async (newList) => {
+  const existingList = (await db.model.toArray()).map((m) => m.id);
+
   const modelToBeAdded = newList.filter((model) => !existingList.includes(model));
   for (const model of modelToBeAdded) {
     await db.model.add({ id: model });

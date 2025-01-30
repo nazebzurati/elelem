@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import SubmitButton from '../components/submit-button';
-import { db } from '../lib/database';
 import { fetchOllamaModels, fetchOpenAiModels, updateModelList } from '../lib/model';
 import useSettings from '../store/settings';
 
@@ -56,8 +55,7 @@ export default function SettingsModal() {
       newModelList = newModelList.concat(models);
     }
 
-    const existingModelList = (await db.model.toArray()).map((m) => m.id);
-    await updateModelList(existingModelList, newModelList);
+    await updateModelList(newModelList);
     settingsStore.update({
       ollamaUrl: data.ollamaUrl,
       openAiApiKey: window.api.encrypt(data.openAiApiKey)

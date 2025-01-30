@@ -9,19 +9,25 @@ import HistoryModal from '../modal/history';
 import SettingsModal from '../modal/settings';
 import UpdateAssistantModal from '../modal/update';
 import useSettings from '../store/settings';
+import Loading from './loading';
 
 function App() {
-  const settings = useSettings();
   const navigation = useNavigate();
-  useEffect(() => {
-    db.assistant.count().then((count) => {
-      if (count <= 0) {
-        settings.resetOnboardingFlag();
-        navigation('/');
-      }
-    });
-  }, []);
+  const settingsStore = useSettings();
 
+  useEffect(() => {
+    (async () => {
+      const assistants = await db.assistant.toArray();
+      if (assistants.length <= 0) {
+        settingsStore.resetOnboardingFlag();
+        navigation('/');
+      } else if (assistants.length > 0 && !settingsStore.activeAssistantId) {
+        settingsStore.setActiveAssistant(assistants[0].id);
+      }
+    })();
+  }, [settingsStore.activeAssistantId, navigation]);
+
+  if (!settingsStore.activeAssistantId) return <Loading />;
   return (
     <div className="h-svh relative overflow-hidden">
       <Navbar />

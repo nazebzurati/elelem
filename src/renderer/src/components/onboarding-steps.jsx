@@ -57,7 +57,7 @@ function Step2({ setStep }) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting }
+    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful }
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -89,8 +89,7 @@ function Step2({ setStep }) {
       modelList = modelList.concat(models);
     }
 
-    const existingModelList = await db.model.toArray();
-    await updateModelList(existingModelList, modelList);
+    await updateModelList(modelList);
     settingsStore.update({
       ollamaUrl: data.ollamaUrl,
       openAiApiKey: window.api.encrypt(data.openAiApiKey)
@@ -146,6 +145,7 @@ function Step2({ setStep }) {
         <SubmitButton
           text="Next"
           onClick={handleSubmit(onNext)}
+          isSubmitted={isSubmitSuccessful}
           isLoading={isLoading || isSubmitting}
         />
       </div>
@@ -206,8 +206,6 @@ function Step3({ setStep }) {
         });
       }
     } catch (error) {
-      console.error(error.message);
-
       setError('Unable to create assistant.');
       return;
     }
