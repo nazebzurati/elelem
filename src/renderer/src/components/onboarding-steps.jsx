@@ -107,7 +107,7 @@ function Step2({ setStep }) {
           You&apos;ll need at least one of the OpenAI API or Ollama server, but feel free to provide
           both for extra options.
         </p>
-        <div className="text-start">
+        <form id="onboardStep2Form" className="text-start" onSubmit={handleSubmit(onNext)}>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">OpenAI API Key</legend>
             <input
@@ -130,7 +130,7 @@ function Step2({ setStep }) {
             />
             <p className="fieldset-label">Learn more at https://ollama.com.</p>
           </fieldset>
-        </div>
+        </form>
         {(errors[''] || error) && (
           <div role="alert" className="alert alert-error">
             <IconCircleX />
@@ -139,12 +139,16 @@ function Step2({ setStep }) {
         )}
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
-        <button className="btn btn-neutral" onClick={() => setStep(1)}>
+        <button
+          className="btn btn-neutral"
+          onClick={() => setStep(1)}
+          disabled={isLoading || isSubmitting}
+        >
           Previous
         </button>
         <SubmitButton
           text="Next"
-          onClick={handleSubmit(onNext)}
+          formId="onboardStep2Form"
           isSubmitted={isSubmitSuccessful}
           isLoading={isLoading || isSubmitting}
         />
@@ -168,7 +172,7 @@ function Step3({ setStep }) {
     reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting }
+    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful }
   } = useForm({
     resolver: yupResolver(schema)
   });
@@ -176,7 +180,7 @@ function Step3({ setStep }) {
   const settingsStore = useSettings();
   useEffect(() => {
     if (assistant && assistant.length > 0) {
-      settingsStore.setActiveAssistantId(assistant[0].id);
+      settingsStore.setActiveAssistant(assistant[0].id);
       reset(assistant[0]);
     }
   }, [assistant]);
@@ -220,7 +224,7 @@ function Step3({ setStep }) {
           Let&apos;s create your assistant! Pick a name and a prompt, and don&apos;t forget to
           choose the right model to help keep costs down while getting the job done effectively.
         </p>
-        <div className="text-start">
+        <form id="onboardStep3Form" className="text-start" onSubmit={handleSubmit(onNext)}>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Name</legend>
             <input type="text" className="input w-full" placeholder="Elmo" {...register('name')} />
@@ -254,7 +258,7 @@ function Step3({ setStep }) {
               {...register('prompt')}
             />
           </fieldset>
-        </div>
+        </form>
         {error && (
           <div role="alert" className="alert alert-error">
             <IconCircleX />
@@ -263,12 +267,17 @@ function Step3({ setStep }) {
         )}
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
-        <button className="btn btn-neutral" onClick={() => setStep(2)}>
+        <button
+          className="btn btn-neutral"
+          onClick={() => setStep(2)}
+          disabled={isLoading || isSubmitting}
+        >
           Previous
         </button>
         <SubmitButton
           text="Next"
-          onClick={handleSubmit(onNext)}
+          formId="onboardStep3Form"
+          isSubmitted={isSubmitSuccessful}
           isLoading={isLoading || isSubmitting}
         />
       </div>
@@ -287,13 +296,13 @@ function Step4({ setStep }) {
           Congratulations, your assistant is ready to go! Use{' '}
           <kbd className="kbd">
             <IconBrandWindowsFilled className="w-4 h-4" />
-          </kbd>{' '}
-          +{' '}
+          </kbd>
           <kbd className="kbd">
             <IconSpace className="w-4 h-4" />
           </kbd>{' '}
-          to summon your assistant, and <kbd className="kbd">CTRL</kbd> +{' '}
-          <kbd className="kbd">Number</kbd> to choose your preferred one. Just remember to call your
+          to summon your assistant, and <kbd className="kbd">CTRL</kbd> + number (e.g.{' '}
+          <kbd className="kbd">CTRL</kbd>
+          <kbd className="kbd">1</kbd>) to choose your preferred one. Just remember to call your
           assistant first before selecting your favorite!
         </p>
       </div>

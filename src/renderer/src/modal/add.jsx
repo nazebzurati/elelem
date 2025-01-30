@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { IconX } from '@tabler/icons-react';
+import { IconCircleX, IconX } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -29,7 +29,7 @@ export default function AddAssistantModal() {
   });
 
   const [error, setError] = useState();
-  const onCreate = async (data) => {
+  const onAdd = async (data) => {
     setError('');
     try {
       await db.assistant.add({
@@ -44,7 +44,10 @@ export default function AddAssistantModal() {
   };
 
   useEffect(() => {
-    reset();
+    const timer = setTimeout(() => {
+      reset();
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [isSubmitSuccessful]);
 
   useEffect(() => {
@@ -64,7 +67,7 @@ export default function AddAssistantModal() {
             </button>
           </form>
         </div>
-        <form>
+        <form onSubmit={handleSubmit(onAdd)}>
           <div>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Name</legend>
@@ -100,9 +103,7 @@ export default function AddAssistantModal() {
           <div className="modal-action flex">
             <SubmitButton
               text="Add"
-              isFailed={!!error}
               isSubmitted={isSubmitSuccessful}
-              onClick={handleSubmit(onCreate)}
               isLoading={isLoading || isSubmitting}
             />
           </div>

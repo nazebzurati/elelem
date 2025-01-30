@@ -23,7 +23,7 @@ export default function SettingsModal() {
     reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting, isSubmitted }
+    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful }
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -63,8 +63,11 @@ export default function SettingsModal() {
   };
 
   useEffect(() => {
-    reset(undefined, { keepDirtyValues: true });
-  }, [!isLoading]);
+    const timer = setTimeout(() => {
+      reset(undefined, { keepDirtyValues: true });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [isSubmitSuccessful]);
 
   return (
     <dialog id={SettingsModalId} className="modal">
@@ -113,7 +116,7 @@ export default function SettingsModal() {
           <div className="modal-action flex">
             <SubmitButton
               text="Save"
-              isSubmitted={isSubmitted}
+              isSubmitted={isSubmitSuccessful}
               isFailed={!!errors[''] || !!error}
               isLoading={isLoading || isSubmitting}
             />

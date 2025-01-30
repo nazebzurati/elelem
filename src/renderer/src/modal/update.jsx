@@ -42,6 +42,13 @@ export default function UpdateAssistantModal() {
     }
   }, [activeAssistant, modelList]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      reset(activeAssistant);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [isSubmitSuccessful]);
+
   const [error, setError] = useState();
   const onSave = async (data) => {
     setError('');
@@ -82,7 +89,7 @@ export default function UpdateAssistantModal() {
             </button>
           </form>
         </div>
-        <form>
+        <form onSubmit={handleSubmit(onSave)}>
           <div>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Name</legend>
@@ -117,6 +124,7 @@ export default function UpdateAssistantModal() {
           )}
           <div className="modal-action flex space-x-1">
             <button
+              type="button"
               className="btn btn-error flex-1"
               disabled={isLoading || isSubmitting}
               onClick={onDelete}
@@ -125,9 +133,7 @@ export default function UpdateAssistantModal() {
             </button>
             <SubmitButton
               text="Save"
-              isFailed={!!error}
               isSubmitted={isSubmitSuccessful}
-              onClick={handleSubmit(onSave)}
               isLoading={isLoading || isSubmitting}
             />
           </div>
