@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import SubmitButton from '../components/submit-button';
+import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
 import { db } from '../lib/database';
 
 export const AddAssistantModalId = 'addAssistantModal';
@@ -43,11 +43,18 @@ export default function AddAssistantModal() {
     }
   };
 
+  const onReset = () => {
+    setError('');
+    reset({ modelId: modelList[0].id });
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      reset();
-    }, 2000);
-    return () => clearTimeout(timer);
+    if (modelList && modelList.length > 0) {
+      const timer = setTimeout(() => {
+        reset();
+      }, BUTTON_ANIMATION_TIMEOUT);
+      return () => clearTimeout(timer);
+    }
   }, [isSubmitSuccessful]);
 
   useEffect(() => {
@@ -62,7 +69,7 @@ export default function AddAssistantModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Add Assistant</h3>
           <form method="dialog">
-            <button className="btn btn-circle btn-ghost">
+            <button className="btn btn-circle btn-ghost" onClick={onReset}>
               <IconX className="h-4 w-4" />
             </button>
           </form>

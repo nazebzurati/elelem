@@ -15,8 +15,6 @@ export default function HistoryModal() {
           </form>
         </div>
         <div>
-          <div></div>
-          <div className="space-y-4"></div>
           <div className="flex justify-between items-center py-2">
             <div>
               <p className="font-bold">Conversation A</p>

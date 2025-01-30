@@ -3,7 +3,7 @@ import { IconCircleX, IconX } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import SubmitButton from '../components/submit-button';
+import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
 import { fetchOllamaModels, fetchOpenAiModels, updateModelList } from '../lib/model';
 import useSettings from '../store/settings';
 
@@ -62,10 +62,18 @@ export default function SettingsModal() {
     });
   };
 
+  const onReset = () => {
+    setError('');
+    reset({
+      openAiApiKey: window.api.decrypt(settingsStore.openAiApiKey),
+      ollamaUrl: settingsStore.ollamaUrl
+    });
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       reset(undefined, { keepDirtyValues: true });
-    }, 2000);
+    }, BUTTON_ANIMATION_TIMEOUT);
     return () => clearTimeout(timer);
   }, [isSubmitSuccessful]);
 
@@ -75,7 +83,7 @@ export default function SettingsModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Settings</h3>
           <form method="dialog">
-            <button className="btn btn-circle btn-ghost">
+            <button className="btn btn-circle btn-ghost" onClick={onReset}>
               <IconX className="h-4 w-4" />
             </button>
           </form>
@@ -90,7 +98,7 @@ export default function SettingsModal() {
                 placeholder="sk-*****"
                 {...register('openAiApiKey')}
               />
-              <p className="fieldset-label">Don&apos;t worry, we keep the key to yourself.</p>
+              <p className="fieldset-label">Don't worry, we keep the key to yourself.</p>
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Ollama API URL</legend>
@@ -114,6 +122,14 @@ export default function SettingsModal() {
             </div>
           )}
           <div className="modal-action flex">
+            <button
+              type="button"
+              className="btn btn-neutral flex-1"
+              disabled={isLoading || isSubmitting}
+              onClick={onReset}
+            >
+              Reset
+            </button>
             <SubmitButton
               text="Save"
               isSubmitted={isSubmitSuccessful}

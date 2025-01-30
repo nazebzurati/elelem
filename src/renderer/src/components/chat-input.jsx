@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
+const INPUT_REFOCUS_DELAY_MS = 1000;
+
 export default function ChatInput() {
   const schema = yup.object({ input: yup.string().required() }).required();
   const {
@@ -23,7 +25,7 @@ export default function ChatInput() {
     reset();
     setTimeout(() => {
       setFocus('input');
-    }, 1000);
+    }, INPUT_REFOCUS_DELAY_MS);
   };
 
   useEffect(() => {

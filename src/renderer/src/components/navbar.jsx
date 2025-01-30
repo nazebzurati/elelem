@@ -1,12 +1,14 @@
 import { IconEdit, IconHistory, IconPlus, IconSettings } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { db } from '../lib/database';
 import { AddAssistantModalId } from '../modal/add';
 import { HistoryModalId } from '../modal/history';
 import { SettingsModalId } from '../modal/settings';
 import { UpdateAssistantModalId } from '../modal/update';
 import useSettings from '../store/settings';
+
+const MENU_CLOSING_DELAY_MS = 100;
 
 export default function Navbar() {
   const openModal = (id) => {
@@ -66,15 +68,20 @@ function AssistantSelector() {
     return assistants?.find((a) => a.id === settingsStore.activeAssistantId);
   }, [assistants, settingsStore.activeAssistantId]);
 
+  const menuRef = useRef(null);
+  const onSelect = (assistantId) => {
+    settingsStore.setActiveAssistant(assistantId);
+    setTimeout(() => {
+      menuRef.current.click();
+    }, MENU_CLOSING_DELAY_MS);
+  };
+
   return (
     <ul className="menu menu-horizontal px-1">
       <li>
         <details>
-          <summary>
-            <div>
-              <kbd className="kbd">{activeAssistant?.index}</kbd>
-            </div>{' '}
-            <div className="flex flex-col">
+          <summary ref={menuRef}>
+            <div className="flex flex-col me-4">
               {activeAssistant?.name}
               <span className="text-xs">{activeAssistant?.modelId}</span>
             </div>
@@ -89,9 +96,10 @@ function AssistantSelector() {
                 <li key={assistant.id}>
                   <a
                     className={assistant.id === activeAssistant?.id ? 'bg-primary' : ''}
-                    onClick={() => settingsStore.setActiveAssistant(assistant.id)}
+                    onClick={() => onSelect(assistant.id)}
                   >
                     <div>
+                      <kbd className="kbd">ALT</kbd>
                       <kbd className="kbd">{assistant.index}</kbd>
                     </div>{' '}
                     <div className="flex flex-col">

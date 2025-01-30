@@ -16,9 +16,9 @@ function Step1({ setStep }) {
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Hey there!</h1>
         <p>
-          We&apos;re thrilled you&apos;re here! Elelem is your friendly assistant that dresses up
-          your favorite models in fun personalities—just name them and give a prompt! Switching
-          between your personalized pals is a breeze with keyboard shortcuts.
+          We're thrilled you're here! Elelem is your friendly assistant that dresses up your
+          favorite models in fun personalities—just name them and give a prompt! Switching between
+          your personalized pals is a breeze with keyboard shortcuts.
         </p>
         <div className="pt-12">
           <img width={300} height={300} alt="onboarding" src="/onboard.png" className="mx-auto" />
@@ -102,10 +102,10 @@ function Step2({ setStep }) {
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Prep Time</h1>
         <p>
-          Before you get started, there&apos;s a quick step to complete: obtain an OpenAI API key or
-          set up your own Ollama server. Make sure you have one of these ready before diving in!
-          You&apos;ll need at least one of the OpenAI API or Ollama server, but feel free to provide
-          both for extra options.
+          Before you get started, there's a quick step to complete: obtain an OpenAI API key or set
+          up your own Ollama server. Make sure you have one of these ready before diving in! You'll
+          need at least one of the OpenAI API or Ollama server, but feel free to provide both for
+          extra options.
         </p>
         <form id="onboardStep2Form" className="text-start" onSubmit={handleSubmit(onNext)}>
           <fieldset className="fieldset">
@@ -221,8 +221,8 @@ function Step3({ setStep }) {
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Designing Assistant</h1>
         <p>
-          Let&apos;s create your assistant! Pick a name and a prompt, and don&apos;t forget to
-          choose the right model to help keep costs down while getting the job done effectively.
+          Let's create your assistant! Pick a name and a prompt, and don't forget to choose the
+          right model to help keep costs down while getting the job done effectively.
         </p>
         <form id="onboardStep3Form" className="text-start" onSubmit={handleSubmit(onNext)}>
           <fieldset className="fieldset">
@@ -300,8 +300,8 @@ function Step4({ setStep }) {
           <kbd className="kbd">
             <IconSpace className="w-4 h-4" />
           </kbd>{' '}
-          to summon your assistant, and <kbd className="kbd">CTRL</kbd> + number (e.g.{' '}
-          <kbd className="kbd">CTRL</kbd>
+          to summon your assistant, and <kbd className="kbd">ALT</kbd> + number (e.g.{' '}
+          <kbd className="kbd">ALT</kbd>
           <kbd className="kbd">1</kbd>) to choose your preferred one. Just remember to call your
           assistant first before selecting your favorite!
         </p>
@@ -317,7 +317,7 @@ function Step4({ setStep }) {
             navigation('/app');
           }}
         >
-          Let&apos;s go!
+          Let's go!
         </button>
       </div>
     </>

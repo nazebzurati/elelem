@@ -2,7 +2,7 @@ import { IconCheck } from '@tabler/icons-react';
 
 import { useEffect, useState } from 'react';
 
-const BUTTON_ANIMATION_TIMEOUT = 2000;
+export const BUTTON_ANIMATION_TIMEOUT = 2000;
 
 export default function SubmitButton({ formId, isLoading, isSubmitted, isFailed, text }) {
   const [isActive, setIsActive] = useState(false);

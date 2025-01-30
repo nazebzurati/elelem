@@ -4,11 +4,13 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import SubmitButton from '../components/submit-button';
+import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
 import { db } from '../lib/database';
 import useSettings from '../store/settings';
+import { DeleteAssistantModalId } from './delete';
 
 export const UpdateAssistantModalId = 'updateAssistantModal';
+const MODAL_SWITCHING_INTERVAL_MS = 250;
 
 export default function UpdateAssistantModal() {
   const modelList = useLiveQuery(async () => await db.model.toArray());
@@ -45,7 +47,7 @@ export default function UpdateAssistantModal() {
   useEffect(() => {
     const timer = setTimeout(() => {
       reset(activeAssistant);
-    }, 2000);
+    }, BUTTON_ANIMATION_TIMEOUT);
     return () => clearTimeout(timer);
   }, [isSubmitSuccessful]);
 
@@ -64,18 +66,16 @@ export default function UpdateAssistantModal() {
     }
   };
 
-  const onDelete = async () => {
-    try {
-      settingsStore.setActiveAssistant(undefined);
-      const remainingAssistants = assistants.filter((a) => a.id != activeAssistant.id);
-      await db.assistant.where({ id: activeAssistant.id }).delete();
-      if (remainingAssistants.length > 0) {
-        settingsStore.setActiveAssistant(remainingAssistants[0].id);
-      }
-    } catch (error) {
-      setError('Unable to delete assistant.');
-      return;
-    }
+  const onReset = () => {
+    setError('');
+    reset(activeAssistant);
+  };
+
+  const onDelete = () => {
+    document.getElementById(UpdateAssistantModalId).close();
+    setTimeout(() => {
+      document.getElementById(DeleteAssistantModalId).showModal();
+    }, MODAL_SWITCHING_INTERVAL_MS);
   };
 
   return (
@@ -84,7 +84,7 @@ export default function UpdateAssistantModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Update Assistant</h3>
           <form method="dialog">
-            <button className="btn btn-circle btn-ghost">
+            <button className="btn btn-circle btn-ghost" onClick={onReset}>
               <IconX className="h-4 w-4" />
             </button>
           </form>
