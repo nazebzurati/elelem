@@ -21,19 +21,7 @@ function Step1({ setStep }) {
           your personalized pals is a breeze with keyboard shortcuts.
         </p>
         <div className="pt-12">
-          <img width={300} height={300} alt="onboarding" src="/onboard.png" className="mx-auto" />
-          <a
-            className="text-xs"
-            rel="noreferrer"
-            target="_blank"
-            href={
-              `https://www.freepik.com/free-vector/teaching-sticker-collection_138668209.htm` +
-              `#fromView=search&page=2&position=40&uuid=f07e4c11-4dfa-4a2d-9910-26a91189d384` +
-              `&new_detail=true&query=assistant`
-            }
-          >
-            Image by freepik
-          </a>
+          <img width={200} height={200} alt="onboarding" src="/andy-wave.png" className="mx-auto" />
         </div>
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
@@ -305,6 +293,15 @@ function Step4({ setStep }) {
           <kbd className="kbd">1</kbd>) to choose your preferred one. Just remember to call your
           assistant first before selecting your favorite!
         </p>
+        <div className="pt-12">
+          <img
+            width={200}
+            height={200}
+            alt="onboarding"
+            src="/andy-dance.png"
+            className="mx-auto"
+          />
+        </div>
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button className="btn btn-neutral" onClick={() => setStep(3)}>

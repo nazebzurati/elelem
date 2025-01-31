@@ -37,7 +37,7 @@ export default function DeleteAssistantModal() {
           <h3 className="font-bold text-lg">Delete '{activeAssistant?.name}'?</h3>
         </div>
         <div>
-          <div className="">
+          <div>
             <p>
               Just a heads up - once you say goodbye, they'll be gone for good and{' '}
               <kbd className="kbd">ALT</kbd>

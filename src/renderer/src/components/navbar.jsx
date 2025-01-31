@@ -1,4 +1,11 @@
-import { IconEdit, IconHistory, IconInfoCircle, IconPlus, IconSettings } from '@tabler/icons-react';
+import {
+  IconEdit,
+  IconHistory,
+  IconInfoCircle,
+  IconMessageCirclePlus,
+  IconPlus,
+  IconSettings
+} from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useRef } from 'react';
 import { db } from '../lib/database';
@@ -13,6 +20,7 @@ const MENU_CLOSING_DELAY_MS = 100;
 
 export default function Navbar() {
   const conversationList = useLiveQuery(() => db.conversation.toArray());
+  const settingsStore = useSettings();
 
   const openModal = (id) => {
     document.getElementById(id).showModal();
@@ -20,21 +28,39 @@ export default function Navbar() {
 
   return (
     <div className="navbar bg-base-100 flex-none">
-      <div className="flex-1">
+      <div className="navbar-start me-6">
         <AssistantSelector />
       </div>
       <div className="navbar-end">
-        {conversationList?.length > 0 && (
-          <div
-            className="tooltip tooltip-bottom"
-            data-tip="History"
-            onClick={() => openModal(HistoryModalId)}
+        <div
+          className="tooltip tooltip-bottom"
+          data-tip="New conversation"
+          onClick={() => {
+            if (settingsStore.activeConversationId) {
+              settingsStore.setActiveConversation(undefined);
+            }
+          }}
+        >
+          <button
+            className="btn btn-ghost btn-circle"
+            disabled={!settingsStore.activeConversationId}
           >
-            <button className="btn btn-ghost btn-circle">
-              <IconHistory className="h-6 w-6" />
-            </button>
-          </div>
-        )}
+            <IconMessageCirclePlus className="h-6 w-6" />
+          </button>
+        </div>
+        <div
+          className="tooltip tooltip-bottom"
+          data-tip="History"
+          onClick={() => {
+            if (conversationList?.length > 0) {
+              openModal(HistoryModalId);
+            }
+          }}
+        >
+          <button className="btn btn-ghost btn-circle" disabled={conversationList?.length <= 0}>
+            <IconHistory className="h-6 w-6" />
+          </button>
+        </div>
         <div
           className="tooltip tooltip-bottom"
           data-tip="Add Assistant"
@@ -87,13 +113,13 @@ function AssistantSelector() {
   };
 
   return (
-    <ul className="menu menu-horizontal px-1">
+    <ul className="menu menu-horizontal px-0 inline-block">
       <li>
         <details>
           <summary ref={menuRef}>
-            <div className="flex flex-col me-4">
-              {activeAssistant?.name}
-              <span className="text-xs">{activeAssistant?.modelId}</span>
+            <div>
+              <div className="line-clamp-1">{activeAssistant?.name}</div>
+              <span className="line-clamp-1 text-xs">{activeAssistant?.modelId}</span>
             </div>
           </summary>
           <ul className="bg-base-200 rounded-t-none p-2 z-300 w-max mt-1!">

@@ -93,7 +93,18 @@ export default function Chat() {
             )}
           </>
         ) : (
-          'No active conversation'
+          <div className="h-full pt-12 flex justify-center items-center">
+            <div className="space-y-4">
+              <img
+                width={200}
+                height={200}
+                alt="onboarding"
+                src="/andy-note.png"
+                className="mx-auto"
+              />
+              <p className="text-sm">... Write something below to start a conversation ...</p>
+            </div>
+          </div>
         )}
       </div>
       <form
