@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
-import { fetchOllamaModels, fetchOpenAiModels, updateModelList } from '../lib/model';
+import { updateModelList } from '../lib/database';
+import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
 import useSettings from '../store/settings';
 
 export const SettingsModalId = 'settingsModal';

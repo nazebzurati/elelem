@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import * as yup from 'yup';
-import { db } from '../lib/database';
-import { fetchOllamaModels, fetchOpenAiModels, updateModelList } from '../lib/model';
+import { db, updateModelList } from '../lib/database';
+import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
 import useSettings from '../store/settings';
 import SubmitButton from './submit-button';
 

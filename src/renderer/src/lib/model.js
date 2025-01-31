@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { db } from './database';
 
 const OPENAI_CHAT_COMPLETION_MODELS = [
   'chatgpt-4o-latest',
@@ -26,12 +25,9 @@ const OPENAI_CHAT_COMPLETION_MODELS = [
   'o1-preview-2024-09-12'
 ];
 
-const fetchOpenAiModels = async (apiKey) => {
+export const fetchOpenAiModels = async (apiKey) => {
   try {
-    const client = new OpenAI({
-      apiKey,
-      dangerouslyAllowBrowser: true
-    });
+    const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
     const models = await client.models.list();
     return models.data
       .filter((m) => OPENAI_CHAT_COMPLETION_MODELS.includes(m.id))
@@ -41,7 +37,7 @@ const fetchOpenAiModels = async (apiKey) => {
   }
 };
 
-const fetchOllamaModels = async (url) => {
+export const fetchOllamaModels = async (url) => {
   try {
     const response = await fetch(`${url}/api/tags`);
     const responseData = await response.json();
@@ -51,22 +47,13 @@ const fetchOllamaModels = async (url) => {
   }
 };
 
-const updateModelList = async (newList) => {
-  const existingList = await db.model.toArray();
-
-  const modelToBeAdded = newList.filter(
-    (m1) => !existingList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
-  );
-  for (const model of modelToBeAdded) {
-    await db.model.add(model);
-  }
-
-  const modelToBeRemoved = existingList.filter(
-    (m1) => !newList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
-  );
-  for (const model of modelToBeRemoved) {
-    await db.model.remove(model);
-  }
+export const prepareMessages = ({ prompt, chats, input }) => {
+  return [
+    { role: 'system', content: prompt },
+    ...(chats || []).flatMap((chat) => [
+      { role: 'user', content: chat.user },
+      { role: 'assistant', content: chat.assistant }
+    ]),
+    { role: 'user', content: input }
+  ];
 };
-
-export { fetchOllamaModels, fetchOpenAiModels, updateModelList };
