@@ -17,7 +17,7 @@ export default function AboutModal() {
           </div>
           <div className="modal-action flex">
             <form method="dialog" className="flex-1">
-              <button type="button" className="w-full btn btn-neutral">
+              <button type="submit" className="w-full btn btn-neutral">
                 Close
               </button>
             </form>

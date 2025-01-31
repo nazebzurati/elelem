@@ -12,6 +12,8 @@ import useSettings from '../store/settings';
 const MENU_CLOSING_DELAY_MS = 100;
 
 export default function Navbar() {
+  const conversationList = useLiveQuery(() => db.conversation.toArray());
+
   const openModal = (id) => {
     document.getElementById(id).showModal();
   };
@@ -22,15 +24,17 @@ export default function Navbar() {
         <AssistantSelector />
       </div>
       <div className="navbar-end">
-        <div
-          className="tooltip tooltip-bottom"
-          data-tip="History"
-          onClick={() => openModal(HistoryModalId)}
-        >
-          <button className="btn btn-ghost btn-circle">
-            <IconHistory className="h-6 w-6" />
-          </button>
-        </div>
+        {conversationList?.length > 0 && (
+          <div
+            className="tooltip tooltip-bottom"
+            data-tip="History"
+            onClick={() => openModal(HistoryModalId)}
+          >
+            <button className="btn btn-ghost btn-circle">
+              <IconHistory className="h-6 w-6" />
+            </button>
+          </div>
+        )}
         <div
           className="tooltip tooltip-bottom"
           data-tip="Add Assistant"
