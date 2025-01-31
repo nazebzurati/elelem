@@ -2,7 +2,6 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import Chat from '../components/chat';
-import ChatInput from '../components/chat-input';
 import Navbar from '../components/navbar';
 import { db } from '../lib/database';
 import AddAssistantModal from '../modal/add';
@@ -47,10 +46,9 @@ function App() {
 
   if (!settingsStore.activeAssistantId) return <Loading />;
   return (
-    <div className="h-svh relative overflow-hidden">
+    <div className="h-svh flex flex-col overflow-hidden">
       <Navbar />
       <Chat />
-      <ChatInput />
       <SettingsModal />
       <AddAssistantModal />
       <UpdateAssistantModal />

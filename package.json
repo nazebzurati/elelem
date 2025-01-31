@@ -25,6 +25,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@tabler/icons-react": "^3.29.0",
     "@tailwindcss/vite": "^4.0.0",
+    "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "electron-updater": "^6.3.9",

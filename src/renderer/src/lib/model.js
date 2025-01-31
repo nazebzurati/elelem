@@ -33,7 +33,9 @@ const fetchOpenAiModels = async (apiKey) => {
       dangerouslyAllowBrowser: true
     });
     const models = await client.models.list();
-    return models.data.filter((m) => OPENAI_CHAT_COMPLETION_MODELS.includes(m.id)).map((m) => m.id);
+    return models.data
+      .filter((m) => OPENAI_CHAT_COMPLETION_MODELS.includes(m.id))
+      .map((m) => ({ id: m.id, baseUrl: undefined }));
   } catch {
     return [];
   }
@@ -43,23 +45,27 @@ const fetchOllamaModels = async (url) => {
   try {
     const response = await fetch(`${url}/api/tags`);
     const responseData = await response.json();
-    return responseData.models.map((m) => m.model);
+    return responseData.models.map((m) => ({ id: m.model, baseUrl: `${url}/v1/` }));
   } catch {
     return [];
   }
 };
 
 const updateModelList = async (newList) => {
-  const existingList = (await db.model.toArray()).map((m) => m.id);
+  const existingList = await db.model.toArray();
 
-  const modelToBeAdded = newList.filter((model) => !existingList.includes(model));
+  const modelToBeAdded = newList.filter(
+    (m1) => !existingList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
+  );
   for (const model of modelToBeAdded) {
-    await db.model.add({ id: model });
+    await db.model.add(model);
   }
 
-  const modelToBeRemoved = existingList.filter((model) => !newList.includes(model));
+  const modelToBeRemoved = existingList.filter(
+    (m1) => !newList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
+  );
   for (const model of modelToBeRemoved) {
-    await db.model.remove({ id: model });
+    await db.model.remove(model);
   }
 };
 

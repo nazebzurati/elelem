@@ -55,11 +55,15 @@ export default function SettingsModal() {
       newModelList = newModelList.concat(models);
     }
 
-    await updateModelList(newModelList);
-    settingsStore.update({
-      ollamaUrl: data.ollamaUrl,
-      openAiApiKey: window.api.encrypt(data.openAiApiKey)
-    });
+    try {
+      await updateModelList(newModelList);
+      settingsStore.update({
+        ollamaUrl: data.ollamaUrl,
+        openAiApiKey: window.api.encrypt(data.openAiApiKey)
+      });
+    } catch (error) {
+      setError('Unable to save config');
+    }
   };
 
   const onReset = () => {
