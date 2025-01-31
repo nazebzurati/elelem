@@ -62,6 +62,10 @@ app.whenReady().then(() => {
     event.returnValue = safeStorage.decryptString(buffer);
   });
 
+  ipcMain.on('getVersion', (event) => {
+    event.returnValue = app.getVersion();
+  });
+
   createWindow();
 
   app.on('activate', function () {

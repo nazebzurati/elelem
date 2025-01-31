@@ -4,7 +4,8 @@ import { contextBridge, ipcRenderer } from 'electron';
 // Custom APIs for renderer
 const api = {
   encrypt: (value) => ipcRenderer.sendSync('encrypt', value),
-  decrypt: (value) => ipcRenderer.sendSync('decrypt', value)
+  decrypt: (value) => ipcRenderer.sendSync('decrypt', value),
+  getVersion: (value) => ipcRenderer.sendSync('getVersion', value)
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

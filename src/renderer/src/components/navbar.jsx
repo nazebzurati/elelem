@@ -1,7 +1,8 @@
-import { IconEdit, IconHistory, IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconEdit, IconHistory, IconInfoCircle, IconPlus, IconSettings } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useRef } from 'react';
 import { db } from '../lib/database';
+import { AboutModalId } from '../modal/about';
 import { AddAssistantModalId } from '../modal/add';
 import { HistoryModalId } from '../modal/history';
 import { SettingsModalId } from '../modal/settings';
@@ -51,6 +52,11 @@ export default function Navbar() {
         <div className="tooltip tooltip-bottom" data-tip="Settings">
           <button className="btn btn-ghost btn-circle" onClick={() => openModal(SettingsModalId)}>
             <IconSettings className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="tooltip tooltip-bottom" data-tip="About">
+          <button className="btn btn-ghost btn-circle" onClick={() => openModal(AboutModalId)}>
+            <IconInfoCircle className="h-6 w-6" />
           </button>
         </div>
       </div>

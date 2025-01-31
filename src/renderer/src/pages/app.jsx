@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import Chat from '../components/chat';
 import Navbar from '../components/navbar';
 import { db } from '../lib/database';
+import AboutModal from '../modal/about';
 import AddAssistantModal from '../modal/add';
 import DeleteAssistantModal from '../modal/delete';
 import HistoryModal from '../modal/history';
@@ -54,6 +55,7 @@ function App() {
       <UpdateAssistantModal />
       <DeleteAssistantModal />
       <HistoryModal />
+      <AboutModal />
     </div>
   );
 }
