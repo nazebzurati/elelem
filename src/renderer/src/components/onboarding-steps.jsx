@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { IconBrandWindowsFilled, IconCircleX, IconSpace } from '@tabler/icons-react';
+import { IconCircleX } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -281,17 +281,9 @@ function Step4({ setStep }) {
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">At Your Service!</h1>
         <p>
-          Congratulations, your assistant is ready to go! Use{' '}
-          <kbd className="kbd">
-            <IconBrandWindowsFilled className="w-4 h-4" />
-          </kbd>
-          <kbd className="kbd">
-            <IconSpace className="w-4 h-4" />
-          </kbd>{' '}
-          to summon your assistant, and <kbd className="kbd">ALT</kbd> + number (e.g.{' '}
-          <kbd className="kbd">ALT</kbd>
-          <kbd className="kbd">1</kbd>) to choose your preferred one. Just remember to call your
-          assistant first before selecting your favorite!
+          Congratulations, your assistant is ready to go! Use <kbd className="kbd">ALT</kbd> +
+          number (e.g. <kbd className="kbd">ALT</kbd>
+          <kbd className="kbd">1</kbd>) to choose your preferred one.
         </p>
         <div className="pt-12">
           <img

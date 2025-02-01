@@ -39,6 +39,18 @@ export const getActiveConversation = async (conversationId) => {
   return conversation;
 };
 
+export const getConversationHistory = async () => {
+  const conversationList = await db.conversation.toArray();
+  await Promise.all(
+    conversationList.map(async (conversation) => {
+      [conversation.firstChat] = await Promise.all([
+        db.chat.where({ conversationId: conversation.id }).first()
+      ]);
+    })
+  );
+  return conversationList;
+};
+
 export const getActiveAssistant = async (assistantId) => {
   const assistant = await db.assistant.get(assistantId);
   assistant.model = await db.model.get(assistant.modelId);

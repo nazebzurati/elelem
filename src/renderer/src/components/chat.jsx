@@ -31,7 +31,7 @@ export default function Chat() {
       // create chat
       const conversationId = activeConversation
         ? activeConversation.id
-        : await db.conversation.add({ assistantId: activeAssistant.id });
+        : await db.conversation.add({ assistantId: activeAssistant.id, title: data.input });
       const chatId = await db.chat.add({ conversationId, user: data.input, sentAt: Date.now() });
       settingsStore.setActiveConversation(conversationId);
 
@@ -45,8 +45,8 @@ export default function Chat() {
         stream: true,
         model: activeAssistant.modelId,
         messages: prepareMessages({
-          prompt: activeAssistant.prompt,
           chats: activeConversation?.chats,
+          assistant: activeAssistant,
           input: data.input
         })
       });
@@ -71,14 +71,14 @@ export default function Chat() {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.shiftKey && event.key === 'Enter') {
-        handleSubmit(onSubmit)();
+        if (!isSubmitting) handleSubmit(onSubmit)();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleSubmit, onSubmit]);
+  }, [isSubmitting, handleSubmit, onSubmit]);
 
   return (
     <>
@@ -102,7 +102,7 @@ export default function Chat() {
                 src="/andy-note.png"
                 className="mx-auto"
               />
-              <p className="text-sm">... Write something below to start a conversation ...</p>
+              <p className="text-sm">Write something below to start a conversation</p>
             </div>
           </div>
         )}

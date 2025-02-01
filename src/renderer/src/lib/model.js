@@ -47,9 +47,13 @@ export const fetchOllamaModels = async (url) => {
   }
 };
 
-export const prepareMessages = ({ prompt, chats, input }) => {
+export const prepareMessages = ({ assistant, chats, input }) => {
   return [
-    { role: 'system', content: prompt },
+    {
+      role: 'system',
+      content: `You're an assistant named '${assistant.name}'`
+    },
+    { role: 'system', content: assistant.prompt },
     ...(chats || []).flatMap((chat) => [
       { role: 'user', content: chat.user },
       { role: 'assistant', content: chat.assistant }
