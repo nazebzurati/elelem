@@ -8,14 +8,15 @@ import {
 import dayjs from 'dayjs';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useState } from 'react';
-import { db } from '../lib/database';
+import { TIME_FORMAT } from '../lib/chat';
+import { db, getConversationHistory } from '../lib/database';
 import useSettings from '../store/settings';
 
 export const HistoryModalId = 'historyModal';
 const MAX_ITEM_PER_PAGE = 4;
 
 export default function HistoryModal() {
-  const conversationList = useLiveQuery(() => db.conversation.toArray());
+  const conversationList = useLiveQuery(async () => await getConversationHistory());
 
   const onDelete = async (id) => {
     await db.chat.where({ conversationId: id }).delete();
@@ -63,7 +64,7 @@ export default function HistoryModal() {
               <div className="">
                 <div className="line-clamp-1">{conversation.title ?? 'No title'}</div>
                 <div className="line-clamp-1 text-xs uppercase font-semibold opacity-60">
-                  {dayjs(conversation.createdAt).format('hh:mm:ss A, DD/MM/YYYY')}
+                  {dayjs(conversation.createdAt).format(TIME_FORMAT)}
                 </div>
               </div>
               <div className="w-max ml-auto">

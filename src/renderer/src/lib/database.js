@@ -40,7 +40,7 @@ export const getActiveConversation = async (conversationId) => {
 };
 
 export const getConversationHistory = async () => {
-  const conversationList = await db.conversation.toArray();
+  const conversationList = await db.conversation.reverse().sortBy('id');
   await Promise.all(
     conversationList.map(async (conversation) => {
       [conversation.firstChat] = await Promise.all([

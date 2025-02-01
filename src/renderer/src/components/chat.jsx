@@ -7,6 +7,7 @@ import Markdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import useChat from '../hooks/use-chat';
+import { getReply, TIME_FORMAT } from '../lib/chat';
 import { db } from '../lib/database';
 import { prepareMessages } from '../lib/model';
 import useSettings from '../store/settings';
@@ -20,6 +21,7 @@ export default function Chat() {
     scrollRef,
     activeAssistant,
     activeConversation,
+    isThinking,
     messages,
     setMessages
   } = useChat();
@@ -93,7 +95,12 @@ export default function Chat() {
                 </div>
               </div>
             )}
-            {messages.length > 0 && (
+            {isThinking && (
+              <div className="chat chat-end space-y-1">
+                <div className="chat-bubble italic">Thinking</div>
+              </div>
+            )}
+            {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
                 <div className="chat-bubble">{messages.join('')}</div>
               </div>
@@ -134,7 +141,6 @@ export default function Chat() {
 }
 
 function Conversation({ chats }) {
-  const FORMAT = 'hh:mm:ss A, DD/MM/YYYY';
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
@@ -145,18 +151,16 @@ function Conversation({ chats }) {
         >
           {chat.user}
         </Markdown>
-        <div className="chat-footer opacity-50">{dayjs(chat.sentAt).format(FORMAT)}</div>
+        <div className="chat-footer opacity-50">{dayjs(chat.sentAt).format(TIME_FORMAT)}</div>
       </div>
       {chat.assistant && (
         <div className="chat chat-end space-y-1">
-          <Markdown
-            className="chat-bubble"
-            remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-          >
-            {chat.assistant}
-          </Markdown>
-          <div className="chat-footer opacity-50">{dayjs(chat.receivedAt).format(FORMAT)}</div>
+          <div className="chat-bubble">
+            <Markdown className="p-0" remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {getReply(chat.assistant)}
+            </Markdown>
+          </div>
+          <div className="chat-footer opacity-50">{dayjs(chat.receivedAt).format(TIME_FORMAT)}</div>
         </div>
       )}
     </div>

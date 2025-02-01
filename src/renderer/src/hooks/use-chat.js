@@ -58,6 +58,17 @@ const useChat = () => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
+  // check if model is thinking
+  const [isThinking, setIsThinking] = useState(false);
+  useEffect(() => {
+    if (messages[0] === '<think>' && !messages.includes('</think>')) {
+      setIsThinking(true);
+    } else if (messages.at(-1) === '</think>') {
+      setMessages([]);
+      setIsThinking(false);
+    }
+  }, [messages]);
+
   return {
     form: {
       register,
@@ -69,6 +80,7 @@ const useChat = () => {
     scrollRef,
     activeAssistant,
     activeConversation,
+    isThinking,
     messages,
     setMessages
   };
