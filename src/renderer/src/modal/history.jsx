@@ -59,14 +59,14 @@ export default function HistoryModal() {
         </div>
         <ul className="list">
           {displayedList?.map((conversation) => (
-            <li key={conversation.id} className="list-row">
-              <div>
-                <div>{conversation.title ?? 'No title'}</div>
-                <div className="text-xs uppercase font-semibold opacity-60">
+            <li key={conversation.id} className="list-row flex justify-between items-center">
+              <div className="">
+                <div className="line-clamp-1">{conversation.title ?? 'No title'}</div>
+                <div className="line-clamp-1 text-xs uppercase font-semibold opacity-60">
                   {dayjs(conversation.createdAt).format('hh:mm:ss A, DD/MM/YYYY')}
                 </div>
               </div>
-              <div className="ms-auto">
+              <div className="w-max ml-auto">
                 <button
                   className="btn btn-square btn-ghost"
                   onClick={() => onOpen(conversation.id, conversation.assistantId)}

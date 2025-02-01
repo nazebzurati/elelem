@@ -86,6 +86,13 @@ export default function Chat() {
         {activeConversation ? (
           <>
             <Conversation chats={activeConversation.chats} />
+            {isSubmitting && messages.length <= 0 && (
+              <div className="chat chat-end space-y-1">
+                <div className="chat-bubble">
+                  <span className="loading loading-dots loading-sm"></span>
+                </div>
+              </div>
+            )}
             {messages.length > 0 && (
               <div className="chat chat-end space-y-1">
                 <div className="chat-bubble">{messages.join('')}</div>
