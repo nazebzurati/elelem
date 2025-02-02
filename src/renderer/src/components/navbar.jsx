@@ -32,50 +32,45 @@ export default function Navbar() {
         <AssistantSelector />
       </div>
       <div className="navbar-end">
-        <div
-          className="tooltip tooltip-bottom"
-          data-tip="New conversation"
-          onClick={() => {
-            if (settingsStore.activeConversationId) {
-              settingsStore.setActiveConversation(undefined);
-            }
-          }}
-        >
+        <div className="tooltip tooltip-bottom" data-tip="New conversation">
           <button
             className="btn btn-ghost btn-circle"
             disabled={!settingsStore.activeConversationId}
+            onClick={() => {
+              if (settingsStore.activeConversationId) {
+                settingsStore.setActiveConversation(undefined);
+              }
+            }}
           >
             <IconMessageCirclePlus className="h-6 w-6" />
           </button>
         </div>
-        <div
-          className="tooltip tooltip-bottom"
-          data-tip="History"
-          onClick={() => {
-            if (conversationList?.length > 0) {
-              openModal(HistoryModalId);
-            }
-          }}
-        >
-          <button className="btn btn-ghost btn-circle" disabled={conversationList?.length <= 0}>
+        <div className="tooltip tooltip-bottom" data-tip="History">
+          <button
+            className="btn btn-ghost btn-circle"
+            disabled={conversationList?.length <= 0}
+            onClick={() => {
+              if (conversationList?.length > 0) {
+                openModal(HistoryModalId);
+              }
+            }}
+          >
             <IconHistory className="h-6 w-6" />
           </button>
         </div>
-        <div
-          className="tooltip tooltip-bottom"
-          data-tip="Add Assistant"
-          onClick={() => openModal(AddAssistantModalId)}
-        >
-          <button className="btn btn-ghost btn-circle">
+        <div className="tooltip tooltip-bottom" data-tip="Add Assistant">
+          <button
+            className="btn btn-ghost btn-circle"
+            onClick={() => openModal(AddAssistantModalId)}
+          >
             <IconPlus className="h-6 w-6" />
           </button>
         </div>
-        <div
-          className="tooltip tooltip-bottom"
-          data-tip="Update Assistant"
-          onClick={() => openModal(UpdateAssistantModalId)}
-        >
-          <button className="btn btn-ghost btn-circle">
+        <div className="tooltip tooltip-bottom" data-tip="Update Assistant">
+          <button
+            className="btn btn-ghost btn-circle"
+            onClick={() => openModal(UpdateAssistantModalId)}
+          >
             <IconEdit className="h-6 w-6" />
           </button>
         </div>
@@ -123,29 +118,23 @@ function AssistantSelector() {
             </div>
           </summary>
           <ul className="bg-base-200 rounded-t-none p-2 z-300 w-max mt-1!">
-            {assistants?.length <= 0 ? (
-              <li>
-                <a>No other assistant found.</a>
+            {assistants?.map((assistant) => (
+              <li key={assistant.id}>
+                <button
+                  className={assistant.id === activeAssistant?.id ? 'bg-primary' : ''}
+                  onClick={() => onSelect(assistant.id)}
+                >
+                  <div>
+                    <kbd className="kbd">ALT</kbd>
+                    <kbd className="kbd">{assistant.index}</kbd>
+                  </div>{' '}
+                  <div className="flex flex-col">
+                    {assistant.name}
+                    <span className="text-xs">{assistant.modelId}</span>
+                  </div>
+                </button>
               </li>
-            ) : (
-              assistants?.map((assistant) => (
-                <li key={assistant.id}>
-                  <a
-                    className={assistant.id === activeAssistant?.id ? 'bg-primary' : ''}
-                    onClick={() => onSelect(assistant.id)}
-                  >
-                    <div>
-                      <kbd className="kbd">ALT</kbd>
-                      <kbd className="kbd">{assistant.index}</kbd>
-                    </div>{' '}
-                    <div className="flex flex-col">
-                      {assistant.name}
-                      <span className="text-xs">{assistant.modelId}</span>
-                    </div>
-                  </a>
-                </li>
-              ))
-            )}
+            ))}
           </ul>
         </details>
       </li>

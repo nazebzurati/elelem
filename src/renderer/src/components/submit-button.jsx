@@ -1,5 +1,4 @@
 import { IconCheck } from '@tabler/icons-react';
-
 import { useEffect, useState } from 'react';
 
 export const BUTTON_ANIMATION_TIMEOUT = 2000;
