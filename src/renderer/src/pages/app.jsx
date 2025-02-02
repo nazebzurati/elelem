@@ -37,10 +37,6 @@ function App() {
         if (!isNaN(index) && index >= 0 && index < assistants.length) {
           settingsStore.setActiveAssistant(assistants[index].id);
         }
-      } else if (event.ctrlKey && event.key === 'n') {
-        if (settingsStore.activeConversationId) {
-          settingsStore.setActiveConversation(undefined);
-        }
       }
     };
     window.addEventListener('keydown', shortcutTrigger);

@@ -214,8 +214,13 @@ function Step3({ setStep }) {
         </p>
         <form id="onboardStep3Form" className="text-start" onSubmit={handleSubmit(onNext)}>
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">Name</legend>
-            <input type="text" className="input w-full" placeholder="Elmo" {...register('name')} />
+            <legend className="fieldset-legend">Name (required)</legend>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="Sentence checker"
+              {...register('name')}
+            />
             {errors.name && <p className="fieldset-label text-error">{errors.name.message}</p>}
           </fieldset>
           <fieldset className="fieldset">
@@ -239,10 +244,7 @@ function Step3({ setStep }) {
               rows={4}
               type="text"
               className="textarea w-full"
-              placeholder={
-                `e.g. Reply with playful and engaging conversation between two best ` +
-                `friends, similar to how Elmo might speak on Sesame Street.`
-              }
+              placeholder="e.g. Rephrase the sentence given, shorten it and make sure the fix any grammar mistake."
               {...register('prompt')}
             />
           </fieldset>

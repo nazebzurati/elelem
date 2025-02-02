@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
 import { updateModelList } from '../lib/database';
+import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
 import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
 import useSettings from '../store/settings';
 
@@ -62,6 +63,9 @@ export default function SettingsModal() {
         ollamaUrl: data.ollamaUrl,
         openAiApiKey: window.api.encrypt(data.openAiApiKey)
       });
+      setTimeout(() => {
+        document.getElementById(SettingsModalId).close();
+      }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (error) {
       setError('Unable to save config');
     }

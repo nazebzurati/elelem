@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo } from 'react';
 import { db } from '../lib/database';
+import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
 import useSettings from '../store/settings';
 
 export const DeleteAssistantModalId = 'deleteAssistantModal';
@@ -24,7 +25,9 @@ export default function DeleteAssistantModal() {
       if (remainingAssistants.length > 0) {
         settingsStore.setActiveAssistant(remainingAssistants[0].id);
       }
-      document.getElementById(DeleteAssistantModalId).close();
+      setTimeout(() => {
+        document.getElementById(DeleteAssistantModalId).close();
+      }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (error) {
       return;
     }

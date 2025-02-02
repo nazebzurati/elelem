@@ -56,7 +56,7 @@ const useChat = () => {
   useEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+  }, [isSubmitting, messages]);
 
   // check if model is thinking
   const [isThinking, setIsThinking] = useState(false);

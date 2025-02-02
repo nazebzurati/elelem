@@ -10,6 +10,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { TIME_FORMAT } from '../lib/chat';
 import { db, getConversationHistory } from '../lib/database';
+import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
 import useSettings from '../store/settings';
 
 export const HistoryModalId = 'historyModal';
@@ -17,6 +18,7 @@ const MAX_ITEM_PER_PAGE = 4;
 
 export default function HistoryModal() {
   const conversationList = useLiveQuery(async () => await getConversationHistory());
+  const settingsStore = useSettings();
 
   const onDelete = async (id) => {
     await db.chat.where({ conversationId: id }).delete();
@@ -26,10 +28,12 @@ export default function HistoryModal() {
     }
   };
 
-  const settingsStore = useSettings();
   const onOpen = (conversationId, assistantId) => {
     settingsStore.setActiveAssistant(assistantId);
     settingsStore.setActiveConversation(conversationId);
+    setTimeout(() => {
+      document.getElementById(HistoryModalId).close();
+    }, MODAL_DISMISS_TIMEOUT_MS);
   };
 
   const [page, setPage] = useState(1);
@@ -42,9 +46,10 @@ export default function HistoryModal() {
   useEffect(() => {
     if (displayedList?.length <= 0) {
       if (page > 1) setPage((state) => state - 1);
+      setTimeout(() => {
+        document.getElementById(HistoryModalId).close();
+      }, MODAL_DISMISS_TIMEOUT_MS);
     }
-    if (conversationList?.length > 0) return;
-    document.getElementById(HistoryModalId).close();
   }, [conversationList, displayedList]);
 
   return (

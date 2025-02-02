@@ -74,6 +74,13 @@ export default function Chat() {
     const handleKeyDown = (event) => {
       if (event.shiftKey && event.key === 'Enter') {
         if (!isSubmitting) handleSubmit(onSubmit)();
+      } else if (event.ctrlKey && event.key === 'n') {
+        if (settingsStore.activeConversationId) {
+          settingsStore.setActiveConversation(undefined);
+          setTimeout(() => {
+            setFocus('input');
+          }, INPUT_REFOCUS_DELAY_MS);
+        }
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -97,12 +104,14 @@ export default function Chat() {
             )}
             {isThinking && (
               <div className="chat chat-end space-y-1">
-                <div className="chat-bubble italic">Thinking</div>
+                <div className="chat-bubble italic">
+                  <span className="loading loading-ring loading-xs me-2"></span>Thinking...
+                </div>
               </div>
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
-                <div className="chat-bubble">{messages.join('')}</div>
+                <Markdown className="chat-bubble">{messages.join('')}</Markdown>
               </div>
             )}
           </>

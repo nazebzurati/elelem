@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
 import { db } from '../lib/database';
+import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
+import useSettings from '../store/settings';
 
 export const AddAssistantModalId = 'addAssistantModal';
 
@@ -29,14 +31,19 @@ export default function AddAssistantModal() {
   });
 
   const [error, setError] = useState();
+  const settingsStore = useSettings();
   const onAdd = async (data) => {
     setError('');
     try {
-      await db.assistant.add({
+      const assistantId = await db.assistant.add({
         name: data.name,
         prompt: data.prompt,
         modelId: data.modelId
       });
+      settingsStore.setActiveAssistant(assistantId);
+      setTimeout(() => {
+        document.getElementById(AddAssistantModalId).close();
+      }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (error) {
       setError('Unable to add assistant.');
       return;
@@ -77,7 +84,7 @@ export default function AddAssistantModal() {
         <form onSubmit={handleSubmit(onAdd)}>
           <div>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Name</legend>
+              <legend className="fieldset-legend">Name (required)</legend>
               <input type="text" className="input w-full" {...register('name')} />
               {errors.name && <p className="fieldset-label text-error">{errors.name.message}</p>}
             </fieldset>
@@ -108,11 +115,7 @@ export default function AddAssistantModal() {
             </div>
           )}
           <div className="modal-action flex">
-            <SubmitButton
-              text="Add"
-              isSubmitted={isSubmitSuccessful}
-              isLoading={isLoading || isSubmitting}
-            />
+            <SubmitButton text="Add" isLoading={isLoading || isSubmitting} />
           </div>
         </form>
       </div>

@@ -6,11 +6,11 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
 import { db } from '../lib/database';
+import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
 import useSettings from '../store/settings';
 import { DeleteAssistantModalId } from './delete';
 
 export const UpdateAssistantModalId = 'updateAssistantModal';
-const MODAL_SWITCHING_INTERVAL_MS = 250;
 
 export default function UpdateAssistantModal() {
   const modelList = useLiveQuery(async () => await db.model.toArray());
@@ -60,6 +60,9 @@ export default function UpdateAssistantModal() {
         prompt: data.prompt,
         modelId: data.modelId
       });
+      setTimeout(() => {
+        document.getElementById(UpdateAssistantModalId).close();
+      }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (error) {
       setError('Unable to update assistant.');
       return;
@@ -75,7 +78,7 @@ export default function UpdateAssistantModal() {
     document.getElementById(UpdateAssistantModalId).close();
     setTimeout(() => {
       document.getElementById(DeleteAssistantModalId).showModal();
-    }, MODAL_SWITCHING_INTERVAL_MS);
+    }, MODAL_DISMISS_TIMEOUT_MS);
   };
 
   return (
@@ -92,7 +95,7 @@ export default function UpdateAssistantModal() {
         <form onSubmit={handleSubmit(onSave)}>
           <div>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Name</legend>
+              <legend className="fieldset-legend">Name (required)</legend>
               <input type="text" className="input w-full" {...register('name')} />
               {errors.name && <p className="fieldset-label text-error">{errors.name.message}</p>}
             </fieldset>
