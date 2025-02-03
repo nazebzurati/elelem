@@ -1,11 +1,14 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
-import { app, BrowserWindow, ipcMain, safeStorage, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, safeStorage, shell, Tray } from 'electron';
 import { join } from 'path';
+import iconWhite from '../../resources/icon-white.png?asset';
 import icon from '../../resources/icon.png?asset';
+
+let mainWindow;
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 450,
     height: 900,
     show: false,
@@ -20,8 +23,41 @@ function createWindow() {
 
   mainWindow.removeMenu();
 
+  const tray = new Tray(iconWhite);
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      {
+        label: 'Show App',
+        click: function () {
+          mainWindow.show();
+        }
+      },
+      {
+        label: 'Quit',
+        click: function () {
+          app.isQuiting = true;
+          app.quit();
+        }
+      }
+    ])
+  );
+  tray.setTitle(`${app.getName()} v${app.getVersion()}`);
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();
+  });
+
+  mainWindow.on('minimize', function (event) {
+    event.preventDefault();
+    mainWindow.hide();
+  });
+
+  mainWindow.on('close', function (event) {
+    if (!app.isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+    return false;
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -82,6 +118,20 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+/** Check if single instance, if not, simply quit new instance */
+let isSingleInstance = app.requestSingleInstanceLock();
+if (!isSingleInstance) {
+  app.quit();
+}
+
+// Behaviour on second instance for parent process- Pretty much optional
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
   }
 });
 
