@@ -48,16 +48,14 @@ export const fetchOllamaModels = async (url) => {
 };
 
 export const prepareMessages = ({ assistant, chats, input }) => {
-  return [
-    {
-      role: 'system',
-      content: `You're an assistant named '${assistant.name}'`
-    },
-    { role: 'system', content: assistant.prompt },
-    ...(chats || []).flatMap((chat) => [
-      { role: 'user', content: chat.user },
-      { role: 'assistant', content: chat.assistant }
-    ]),
-    { role: 'user', content: input }
-  ];
+  const messages = [];
+  if (assistant.prompt) {
+    messages.push({ role: 'system', content: assistant.prompt });
+  }
+  (chats || []).forEach((chat) => {
+    messages.push({ role: 'user', content: chat.user });
+    messages.push({ role: 'assistant', content: chat.assistant });
+  });
+  messages.push({ role: 'user', content: input });
+  return messages;
 };

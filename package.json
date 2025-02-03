@@ -1,9 +1,10 @@
 {
   "name": "elelem",
-  "version": "0.1.0-rc1",
+  "version": "0.1.0",
   "description": "A friendly assistant with LLM",
   "main": "./out/main/index.js",
   "author": "Nazeb Zurati",
+  "repository": "https://github.com/nazebzurati/elelem",
   "scripts": {
     "format": "prettier --check .",
     "format:fix": "prettier --write .",

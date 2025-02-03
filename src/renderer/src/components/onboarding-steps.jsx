@@ -218,10 +218,15 @@ function Step3({ setStep }) {
             <input
               type="text"
               className="input w-full"
-              placeholder="Sentence checker"
+              placeholder="Rephrase"
               {...register('name')}
             />
-            {errors.name && <p className="fieldset-label text-error">{errors.name.message}</p>}
+
+            {errors.name ? (
+              <p className="fieldset-label text-error">{errors.name.message}</p>
+            ) : (
+              <p className="fieldset-label">Name will not be provided to model.</p>
+            )}
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Model</legend>
@@ -244,9 +249,12 @@ function Step3({ setStep }) {
               rows={4}
               type="text"
               className="textarea w-full"
-              placeholder="e.g. Rephrase the sentence given, shorten it and make sure the fix any grammar mistake."
+              placeholder="e.g. Rephrase the following sentence, shorten it and make sure the fix any grammar mistake."
               {...register('prompt')}
             />
+            <p className="fieldset-label">
+              Leave this field empty if you want to use the model without a system prompt.
+            </p>
           </fieldset>
         </form>
         {error && (

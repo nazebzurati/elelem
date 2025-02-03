@@ -61,12 +61,12 @@ const useChat = () => {
   // check if model is thinking
   const [isThinking, setIsThinking] = useState(false);
   useEffect(() => {
-    if (messages[0] === '<think>' && !messages.includes('</think>')) {
-      setIsThinking(true);
-    } else if (messages.at(-1) === '</think>') {
+    if (messages.at(-1) === '</think>') {
       setMessages([]);
       setIsThinking(false);
+      return;
     }
+    setIsThinking(messages[0] === '<think>' && !messages.includes('</think>'));
   }, [messages]);
 
   return {
