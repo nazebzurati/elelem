@@ -11,6 +11,7 @@ import { getReply, TIME_FORMAT } from '../lib/chat';
 import { db } from '../lib/database';
 import { prepareMessages } from '../lib/model';
 import useSettings from '../store/settings';
+import andyNotePath from '/andy-note.png';
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -122,7 +123,7 @@ export default function Chat() {
                 width={200}
                 height={200}
                 alt="onboarding"
-                src="/andy-note.png"
+                src={andyNotePath}
                 className="mx-auto"
               />
               <p className="text-sm">Write something below to start a conversation</p>

@@ -130,7 +130,7 @@ if (!isSingleInstance) {
 // Behaviour on second instance for parent process- Pretty much optional
 app.on('second-instance', () => {
   if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.restore();
     mainWindow.focus();
   }
 });

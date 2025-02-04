@@ -9,6 +9,8 @@ import { db, updateModelList } from '../lib/database';
 import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
 import useSettings from '../store/settings';
 import SubmitButton from './submit-button';
+import andyDancePath from '/andy-dance.png';
+import andyWavePath from '/andy-wave.png?url';
 
 function Step1({ setStep }) {
   return (
@@ -21,7 +23,7 @@ function Step1({ setStep }) {
           your personalized pals is a breeze with keyboard shortcuts.
         </p>
         <div className="pt-12">
-          <img width={200} height={200} alt="onboarding" src="/andy-wave.png" className="mx-auto" />
+          <img width={200} height={200} alt="onboarding" src={andyWavePath} className="mx-auto" />
         </div>
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
@@ -296,13 +298,7 @@ function Step4({ setStep }) {
           <kbd className="kbd">1</kbd>) to choose your preferred one.
         </p>
         <div className="pt-12">
-          <img
-            width={200}
-            height={200}
-            alt="onboarding"
-            src="/andy-dance.png"
-            className="mx-auto"
-          />
+          <img width={200} height={200} alt="onboarding" src={andyDancePath} className="mx-auto" />
         </div>
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
