@@ -1,6 +1,6 @@
 {
   "name": "elelem",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A friendly assistant with LLM",
   "main": "./out/main/index.js",
   "author": "Nazeb Zurati",
@@ -46,7 +46,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "daisyui": "^5.0.0-beta.2",
     "electron": "^34.0.2",
-    "electron-builder": "^26.0.4",
+    "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
     "eslint": "^9.19.0",
     "eslint-config-prettier": "^10.0.1",
