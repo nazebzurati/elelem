@@ -30,9 +30,9 @@ dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
   target:
-    - AppImage
     - deb
-  maintainer: electronjs.org
+    - rpm
+  maintainer: nazebzurati
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
