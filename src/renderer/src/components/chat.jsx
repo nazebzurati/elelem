@@ -9,7 +9,7 @@ import remarkMath from 'remark-math';
 import useChat from '../hooks/use-chat';
 import { getReply, TIME_FORMAT } from '../lib/chat';
 import { db } from '../lib/database';
-import { prepareMessages } from '../lib/model';
+import { OPENAI_REASONING_MODELS, prepareMessages } from '../lib/model';
 import useSettings from '../store/settings';
 import andyNotePath from '/andy-note.png';
 
@@ -32,6 +32,7 @@ export default function Chat() {
       if (!activeAssistant) return;
 
       // create chat
+      const isNewConversation = !!activeConversation;
       const conversationId = activeConversation
         ? activeConversation.id
         : await db.conversation.add({ assistantId: activeAssistant.id, title: data.input });
@@ -39,27 +40,34 @@ export default function Chat() {
       settingsStore.setActiveConversation(conversationId);
 
       // send chat request
-      const client = new OpenAI({
-        dangerouslyAllowBrowser: true,
-        baseURL: activeAssistant.model.baseUrl,
-        apiKey: window.api.decrypt(settingsStore.openAiApiKey)
-      });
-      const stream = await client.chat.completions.create({
-        stream: true,
-        model: activeAssistant.modelId,
-        messages: prepareMessages({
-          chats: activeConversation?.chats,
-          assistant: activeAssistant,
-          input: data.input
-        })
-      });
-
-      // stream chat
       let fullText = '';
-      for await (const chunk of stream) {
-        const text = chunk.choices[0]?.delta?.content || '';
-        setMessages((prev) => [...prev, text]);
-        fullText += text;
+      try {
+        const client = new OpenAI({
+          dangerouslyAllowBrowser: true,
+          baseURL: activeAssistant.model.baseUrl,
+          apiKey: window.api.decrypt(settingsStore.openAiApiKey)
+        });
+        const stream = await client.chat.completions.create({
+          stream: true,
+          model: activeAssistant.modelId,
+          messages: prepareMessages({
+            input: data.input,
+            assistant: activeAssistant,
+            chats: activeConversation?.chats,
+            isReasoning: OPENAI_REASONING_MODELS.includes(activeAssistant?.modelId)
+          })
+        });
+
+        // stream chat
+        for await (const chunk of stream) {
+          const text = chunk.choices[0]?.delta?.content || '';
+          setMessages((prev) => [...prev, text]);
+          fullText += text;
+        }
+      } catch (error) {
+        await db.chat.delete(chatId);
+        if (isNewConversation) await db.conversation.delete(conversationId);
+        settingsStore.setActiveConversation(undefined);
       }
 
       // update chat when stream finish

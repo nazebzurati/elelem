@@ -29,8 +29,8 @@ export default function SettingsModal() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      openAiApiKey: window.api.decrypt(settingsStore.openAiApiKey),
-      ollamaUrl: settingsStore.ollamaUrl
+      ollamaUrl: settingsStore.ollamaUrl,
+      openAiApiKey: window.api.decrypt(settingsStore.openAiApiKey)
     }
   });
 

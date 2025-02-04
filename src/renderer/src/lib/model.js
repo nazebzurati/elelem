@@ -18,7 +18,10 @@ const OPENAI_CHAT_COMPLETION_MODELS = [
   'gpt-4o-2024-08-06',
   'gpt-4o-2024-11-20',
   'gpt-4o-mini',
-  'gpt-4o-mini-2024-07-18',
+  'gpt-4o-mini-2024-07-18'
+];
+
+export const OPENAI_REASONING_MODELS = [
   'o1-mini',
   'o1-mini-2024-09-12',
   'o1-preview',
@@ -30,7 +33,7 @@ export const fetchOpenAiModels = async (apiKey) => {
     const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
     const models = await client.models.list();
     return models.data
-      .filter((m) => OPENAI_CHAT_COMPLETION_MODELS.includes(m.id))
+      .filter((m) => [...OPENAI_CHAT_COMPLETION_MODELS, ...OPENAI_REASONING_MODELS].includes(m.id))
       .map((m) => ({ id: m.id, baseUrl: undefined }));
   } catch {
     return [];
@@ -47,10 +50,10 @@ export const fetchOllamaModels = async (url) => {
   }
 };
 
-export const prepareMessages = ({ assistant, chats, input }) => {
+export const prepareMessages = ({ isReasoning, assistant, chats, input }) => {
   const messages = [];
   if (assistant.prompt) {
-    messages.push({ role: 'system', content: assistant.prompt });
+    messages.push({ role: isReasoning ? 'user' : 'system', content: assistant.prompt });
   }
   (chats || []).forEach((chat) => {
     messages.push({ role: 'user', content: chat.user });
