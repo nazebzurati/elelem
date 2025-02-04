@@ -24,6 +24,8 @@ function createWindow() {
   mainWindow.removeMenu();
 
   const tray = new Tray(iconWhite);
+  tray.setIgnoreDoubleClickEvents(true);
+  tray.setTitle(`${app.getName()} v${app.getVersion()}`);
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {
@@ -41,7 +43,11 @@ function createWindow() {
       }
     ])
   );
-  tray.setTitle(`${app.getName()} v${app.getVersion()}`);
+  tray.on('click', function () {
+    if (!mainWindow.isVisible()) {
+      mainWindow.show();
+    }
+  });
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();

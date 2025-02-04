@@ -22,7 +22,7 @@ function App() {
       const assistants = await db.assistant.toArray();
       if (assistants.length <= 0) {
         settingsStore.resetOnboardingFlag();
-        navigation('/');
+        navigation('/onboard');
       } else if (assistants.length > 0 && !settingsStore.activeAssistantId) {
         settingsStore.setActiveAssistant(assistants[0].id);
       }

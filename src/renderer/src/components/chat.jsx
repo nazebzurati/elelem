@@ -81,7 +81,8 @@ export default function Chat() {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.shiftKey && event.key === 'Enter') {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         if (!isSubmitting) handleSubmit(onSubmit)();
       } else if (event.ctrlKey && event.key === 'n') {
         if (settingsStore.activeConversationId) {
@@ -151,7 +152,7 @@ export default function Chat() {
             className="textarea w-full"
             {...register('input')}
           />
-          <div className="fieldset-label">Shift+Enter to send.</div>
+          <div className="fieldset-label">Enter to submit. Shift+Enter to newline.</div>
         </fieldset>
       </form>
     </>
