@@ -1,17 +1,16 @@
-import 'katex/dist/katex.min.css';
+import "katex/dist/katex.min.css";
 
-import dayjs from 'dayjs';
-import OpenAI from 'openai';
-import { useCallback, useEffect } from 'react';
-import Markdown from 'react-markdown';
-import rehypeKatex from 'rehype-katex';
-import remarkMath from 'remark-math';
-import useChat from '../hooks/use-chat';
-import { getReply, TIME_FORMAT } from '../lib/chat';
-import { db } from '../lib/database';
-import { OPENAI_REASONING_MODELS, prepareMessages } from '../lib/model';
-import useSettings from '../store/settings';
-import andyNotePath from '/andy-note.png';
+import dayjs from "dayjs";
+import OpenAI from "openai";
+import { useCallback, useEffect } from "react";
+import Markdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import useChat from "../hooks/use-chat";
+import { getReply, TIME_FORMAT } from "../lib/chat";
+import { db } from "../lib/database";
+import { OPENAI_REASONING_MODELS, prepareMessages } from "../lib/model";
+import useSettings from "../store/settings";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -24,7 +23,7 @@ export default function Chat() {
     activeConversation,
     isThinking,
     messages,
-    setMessages
+    setMessages,
   } = useChat();
 
   const onSubmit = useCallback(
@@ -35,17 +34,24 @@ export default function Chat() {
       const isNewConversation = !!activeConversation;
       const conversationId = activeConversation
         ? activeConversation.id
-        : await db.conversation.add({ assistantId: activeAssistant.id, title: data.input });
-      const chatId = await db.chat.add({ conversationId, user: data.input, sentAt: Date.now() });
+        : await db.conversation.add({
+            assistantId: activeAssistant.id,
+            title: data.input,
+          });
+      const chatId = await db.chat.add({
+        conversationId,
+        user: data.input,
+        sentAt: Date.now(),
+      });
       settingsStore.setActiveConversation(conversationId);
 
       // send chat request
-      let fullText = '';
+      let fullText = "";
       try {
         const client = new OpenAI({
           dangerouslyAllowBrowser: true,
           baseURL: activeAssistant.model.baseUrl,
-          apiKey: globalThis.api.decrypt(settingsStore.openAiApiKey)
+          apiKey: globalThis.api.decrypt(settingsStore.openAiApiKey),
         });
         const stream = await client.chat.completions.create({
           stream: true,
@@ -54,13 +60,15 @@ export default function Chat() {
             input: data.input,
             assistant: activeAssistant,
             chats: activeConversation?.chats,
-            isReasoning: OPENAI_REASONING_MODELS.includes(activeAssistant?.modelId)
-          })
+            isReasoning: OPENAI_REASONING_MODELS.includes(
+              activeAssistant?.modelId
+            ),
+          }),
         });
 
         // stream chat
         for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content || '';
+          const text = chunk.choices[0]?.delta?.content || "";
           setMessages((prev) => [...prev, text]);
           fullText += text;
         }
@@ -71,9 +79,12 @@ export default function Chat() {
       }
 
       // update chat when stream finish
-      await db.chat.update(chatId, { assistant: fullText, receivedAt: Date.now() });
+      await db.chat.update(chatId, {
+        assistant: fullText,
+        receivedAt: Date.now(),
+      });
       setTimeout(() => {
-        setFocus('input');
+        setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
     [activeAssistant, activeConversation, settingsStore]
@@ -81,21 +92,21 @@ export default function Chat() {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Enter' && !event.shiftKey) {
+      if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (!isSubmitting) handleSubmit(onSubmit)();
-      } else if (event.ctrlKey && event.key === 'n') {
+      } else if (event.ctrlKey && event.key === "n") {
         if (settingsStore.activeConversationId) {
           settingsStore.setActiveConversation(undefined);
           setTimeout(() => {
-            setFocus('input');
+            setFocus("input");
           }, INPUT_REFOCUS_DELAY_MS);
         }
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isSubmitting, handleSubmit, onSubmit]);
 
@@ -115,13 +126,14 @@ export default function Chat() {
             {isThinking && (
               <div className="chat chat-end space-y-1">
                 <div className="chat-bubble italic">
-                  <span className="loading loading-ring loading-xs me-2"></span>Thinking...
+                  <span className="loading loading-ring loading-xs me-2"></span>
+                  Thinking...
                 </div>
               </div>
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
-                <Markdown className="chat-bubble">{messages.join('')}</Markdown>
+                <Markdown className="chat-bubble">{messages.join("")}</Markdown>
               </div>
             )}
           </>
@@ -132,10 +144,12 @@ export default function Chat() {
                 width={200}
                 height={200}
                 alt="onboarding"
-                src={andyNotePath}
+                src="/andy-note.png"
                 className="mx-auto"
               />
-              <p className="text-sm">Write something below to start a conversation</p>
+              <p className="text-sm">
+                Write something below to start a conversation
+              </p>
             </div>
           </div>
         )}
@@ -150,9 +164,11 @@ export default function Chat() {
             autoFocus
             disabled={isSubmitting || isLoading}
             className="textarea w-full"
-            {...register('input')}
+            {...register("input")}
           />
-          <div className="fieldset-label">Enter to submit. Shift+Enter to newline.</div>
+          <div className="fieldset-label">
+            Enter to submit. Shift+Enter to newline.
+          </div>
         </fieldset>
       </form>
     </>
@@ -170,16 +186,24 @@ function Conversation({ chats }) {
         >
           {chat.user}
         </Markdown>
-        <div className="chat-footer opacity-50">{dayjs(chat.sentAt).format(TIME_FORMAT)}</div>
+        <div className="chat-footer opacity-50">
+          {dayjs(chat.sentAt).format(TIME_FORMAT)}
+        </div>
       </div>
       {chat.assistant && (
         <div className="chat chat-end space-y-1">
           <div className="chat-bubble">
-            <Markdown className="p-0" remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            <Markdown
+              className="p-0"
+              remarkPlugins={[remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+            >
               {getReply(chat.assistant)}
             </Markdown>
           </div>
-          <div className="chat-footer opacity-50">{dayjs(chat.receivedAt).format(TIME_FORMAT)}</div>
+          <div className="chat-footer opacity-50">
+            {dayjs(chat.receivedAt).format(TIME_FORMAT)}
+          </div>
         </div>
       )}
     </div>

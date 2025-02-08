@@ -11,17 +11,20 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@tabler/icons-react": "^3.30.0",
     "@tailwindcss/vite": "^4.0.4",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
+    "katex": "^0.16.21",
     "openai": "^4.83.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "react-hook-form": "^7.54.2",
     "react-markdown": "^9.0.3",
+    "react-router": "^7.1.5",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "^4.0.4",
@@ -29,11 +32,12 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
+    "daisyui": "^4.12.23",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "~5.6.2",
-    "vite": "^6.0.3",
+    "typescript": "~5.7.3",
+    "vite": "^6.1.0",
     "@tauri-apps/cli": "^2"
   }
 }
