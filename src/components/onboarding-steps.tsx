@@ -9,6 +9,8 @@ import { db, updateModelList } from "../lib/database";
 import { fetchOllamaModels, fetchOpenAiModels } from "../lib/model";
 import useSettings from "../store/settings";
 import SubmitButton from "./submit-button";
+import andyWave from "../assets/andy-wave.png";
+import andyDance from "../assets/andy-dance.png";
 
 function Step1({ setStep }) {
   return (
@@ -23,10 +25,10 @@ function Step1({ setStep }) {
         </p>
         <div className="pt-12">
           <img
-            width={200}
-            height={200}
+            width={150}
+            height={150}
             alt="onboarding"
-            src="/andy-wave.png"
+            src={andyWave}
             className="mx-auto"
           />
         </div>
@@ -59,7 +61,7 @@ function Step2({ setStep }) {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      openAiApiKey: globalThis.api.decrypt(settingsStore.openAiApiKey),
+      openAiApiKey: settingsStore.openAiApiKey,
       ollamaUrl: settingsStore.ollamaUrl,
     },
   });
@@ -90,7 +92,7 @@ function Step2({ setStep }) {
     await updateModelList(modelList);
     settingsStore.update({
       ollamaUrl: data.ollamaUrl,
-      openAiApiKey: globalThis.api.encrypt(data.openAiApiKey),
+      openAiApiKey: data.openAiApiKey,
     });
     setStep(3);
   };
@@ -328,10 +330,10 @@ function Step4({ setStep }) {
         </p>
         <div className="pt-12">
           <img
-            width={200}
-            height={200}
+            width={150}
+            height={150}
             alt="onboarding"
-            src="/andy-dance.png"
+            src={andyDance}
             className="mx-auto"
           />
         </div>

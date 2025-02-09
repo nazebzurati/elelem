@@ -11,6 +11,7 @@ import { getReply, TIME_FORMAT } from "../lib/chat";
 import { db } from "../lib/database";
 import { OPENAI_REASONING_MODELS, prepareMessages } from "../lib/model";
 import useSettings from "../store/settings";
+import andyNote from "../assets/andy-note.png";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -51,7 +52,7 @@ export default function Chat() {
         const client = new OpenAI({
           dangerouslyAllowBrowser: true,
           baseURL: activeAssistant.model.baseUrl,
-          apiKey: globalThis.api.decrypt(settingsStore.openAiApiKey),
+          apiKey: settingsStore.openAiApiKey,
         });
         const stream = await client.chat.completions.create({
           stream: true,
@@ -144,7 +145,7 @@ export default function Chat() {
                 width={200}
                 height={200}
                 alt="onboarding"
-                src="/andy-note.png"
+                src={andyNote}
                 className="mx-auto"
               />
               <p className="text-sm">

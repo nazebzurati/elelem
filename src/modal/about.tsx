@@ -1,31 +1,34 @@
-import { getName, getVersion } from '@tauri-apps/api/app'
+import { getName, getVersion } from "@tauri-apps/api/app";
+import { useEffect, useState } from "react";
 
-export const AboutModalId = 'aboutModal';
+export const AboutModalId = "aboutModal";
 
 export default function AboutModal() {
-
-  const [appInfo, setAppInfo] = useState({name: "n/a", version: "n/a"})
+  const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });
   useEffect(() => {
     (async () => {
       setAppInfo({
         name: await getName(),
-        version: await getVersion()
-      })
-    })()
-  }, [])
+        version: await getVersion(),
+      });
+    })();
+  }, []);
 
   return (
     <dialog id={AboutModalId} className="modal">
       <div className="modal-box">
         <div className="text-center mb-6">
-          <h3 className="font-bold text-lg">{appInfo.name} v{appInfo.version}</h3>
+          <h3 className="font-bold text-lg">
+            {appInfo.name} v{appInfo.version}
+          </h3>
         </div>
         <div>
           <div>
             <p>
-              This tool is free because you bring your own LLM or API key to connect. The developer
-              uses it as a productivity tool and loves sharing it with everyone! If you're enjoying
-              the app, consider donating to support ongoing development—it really helps!
+              This tool is free because you bring your own LLM or API key to
+              connect. The developer uses it as a productivity tool and loves
+              sharing it with everyone! If you're enjoying the app, consider
+              donating to support ongoing development—it really helps!
             </p>
           </div>
           <div className="modal-action flex">

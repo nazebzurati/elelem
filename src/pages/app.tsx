@@ -1,17 +1,17 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import Chat from '../components/chat';
-import Navbar from '../components/navbar';
-import { db } from '../lib/database';
-import AboutModal from '../modal/about';
-import AddAssistantModal from '../modal/add';
-import DeleteAssistantModal from '../modal/delete';
-import HistoryModal from '../modal/history';
-import SettingsModal from '../modal/settings';
-import UpdateAssistantModal from '../modal/update';
-import useSettings from '../store/settings';
-import Loading from './loading';
+import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import Chat from "../components/chat";
+import Navbar from "../components/navbar";
+import { db } from "../lib/database";
+import AboutModal from "../modal/about";
+import AddAssistantModal from "../modal/add";
+import DeleteAssistantModal from "../modal/delete";
+import HistoryModal from "../modal/history";
+import SettingsModal from "../modal/settings";
+import UpdateAssistantModal from "../modal/update";
+import useSettings from "../store/settings";
+import Loading from "./loading";
 
 function App() {
   const navigation = useNavigate();
@@ -22,7 +22,7 @@ function App() {
       const assistants = await db.assistant.toArray();
       if (assistants.length <= 0) {
         settingsStore.resetOnboardingFlag();
-        navigation('/onboard');
+        navigation("/onboard");
       } else if (assistants.length > 0 && !settingsStore.activeAssistantId) {
         settingsStore.setActiveAssistant(assistants[0].id);
       }
@@ -39,9 +39,9 @@ function App() {
         }
       }
     };
-    globalThis.addEventListener('keydown', shortcutTrigger);
+    addEventListener("keydown", shortcutTrigger);
     return () => {
-      globalThis.removeEventListener('keydown', shortcutTrigger);
+      removeEventListener("keydown", shortcutTrigger);
     };
   }, [assistants, settingsStore]);
 
