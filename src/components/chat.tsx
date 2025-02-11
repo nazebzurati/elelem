@@ -6,16 +6,17 @@ import { useCallback, useEffect } from "react";
 import Markdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import andyNote from "../assets/andy-note.png";
 import useChat from "../hooks/use-chat";
 import { getReply, TIME_FORMAT } from "../lib/chat";
-import { db } from "../lib/database";
-import { OPENAI_REASONING_MODELS, prepareMessages } from "../lib/model";
+import db from "../lib/database";
+import { prepareMessages } from "../lib/model";
 import useSettings from "../store/settings";
-import andyNote from "../assets/andy-note.png";
+import { Chat } from "../lib/types";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
-export default function Chat() {
+export default function Chats() {
   const settingsStore = useSettings();
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
@@ -28,7 +29,7 @@ export default function Chat() {
   } = useChat();
 
   const onSubmit = useCallback(
-    async (data) => {
+    async (data: { input: string }) => {
       if (!activeAssistant) return;
 
       // create chat
@@ -42,7 +43,7 @@ export default function Chat() {
       const chatId = await db.chat.add({
         conversationId,
         user: data.input,
-        sentAt: Date.now(),
+        sendAt: Date.now(),
       });
       settingsStore.setActiveConversation(conversationId);
 
@@ -51,19 +52,16 @@ export default function Chat() {
       try {
         const client = new OpenAI({
           dangerouslyAllowBrowser: true,
-          baseURL: activeAssistant.model.baseUrl,
+          baseURL: activeAssistant.model?.baseUrl,
           apiKey: settingsStore.openAiApiKey,
         });
         const stream = await client.chat.completions.create({
           stream: true,
           model: activeAssistant.modelId,
           messages: prepareMessages({
+            chats: activeConversation?.chats ?? [],
+            system: activeAssistant.prompt ?? "",
             input: data.input,
-            assistant: activeAssistant,
-            chats: activeConversation?.chats,
-            isReasoning: OPENAI_REASONING_MODELS.includes(
-              activeAssistant?.modelId
-            ),
           }),
         });
 
@@ -92,7 +90,7 @@ export default function Chat() {
   );
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (!isSubmitting) handleSubmit(onSubmit)();
@@ -176,7 +174,7 @@ export default function Chat() {
   );
 }
 
-function Conversation({ chats }) {
+function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
@@ -188,7 +186,7 @@ function Conversation({ chats }) {
           {chat.user}
         </Markdown>
         <div className="chat-footer opacity-50">
-          {dayjs(chat.sentAt).format(TIME_FORMAT)}
+          {dayjs(chat.sendAt).format(TIME_FORMAT)}
         </div>
       </div>
       {chat.assistant && (

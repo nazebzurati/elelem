@@ -3,36 +3,39 @@ import {
   IconChevronsRight,
   IconExternalLink,
   IconTrash,
-  IconX
-} from '@tabler/icons-react';
-import dayjs from 'dayjs';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useMemo, useState } from 'react';
-import { TIME_FORMAT } from '../lib/chat';
-import { db, getConversationHistory } from '../lib/database';
-import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
-import useSettings from '../store/settings';
+  IconX,
+} from "@tabler/icons-react";
+import dayjs from "dayjs";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect, useMemo, useState } from "react";
+import { TIME_FORMAT } from "../lib/chat";
+import db, { getConversationHistory } from "../lib/database";
+import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
+import useSettings from "../store/settings";
+import { closeModal } from "../lib/modal";
 
-export const HistoryModalId = 'historyModal';
+export const HistoryModalId = "historyModal";
 const MAX_ITEM_PER_PAGE = 4;
 
 export default function HistoryModal() {
-  const conversationList = useLiveQuery(async () => await getConversationHistory());
+  const conversationList = useLiveQuery(
+    async () => await getConversationHistory()
+  );
   const settingsStore = useSettings();
 
-  const onDelete = async (id) => {
-    await db.chat.where({ conversationId: id }).delete();
-    await db.conversation.delete(id);
-    if (settingsStore.activeConversationId === id) {
+  const onDelete = async (conversationId: number) => {
+    await db.chat.where({ conversationId }).delete();
+    await db.conversation.delete(conversationId);
+    if (settingsStore.activeConversationId === conversationId) {
       settingsStore.setActiveConversation(undefined);
     }
   };
 
-  const onOpen = (conversationId, assistantId) => {
+  const onOpen = (conversationId: number, assistantId: number) => {
     settingsStore.setActiveAssistant(assistantId);
     settingsStore.setActiveConversation(conversationId);
     setTimeout(() => {
-      document.getElementById(HistoryModalId).close();
+      closeModal(HistoryModalId);
     }, MODAL_DISMISS_TIMEOUT_MS);
   };
 
@@ -44,14 +47,15 @@ export default function HistoryModal() {
   }, [page, conversationList]);
 
   useEffect(() => {
-    if (displayedList?.length <= 0) {
+    if (displayedList && displayedList.length <= 0) {
       if (page > 1) setPage((state) => state - 1);
       setTimeout(() => {
-        document.getElementById(HistoryModalId).close();
+        closeModal(HistoryModalId);
       }, MODAL_DISMISS_TIMEOUT_MS);
     }
   }, [conversationList, displayedList]);
 
+  if (!conversationList || !displayedList) return <></>;
   return (
     <dialog id={HistoryModalId} className="modal">
       <div className="modal-box">
@@ -64,19 +68,30 @@ export default function HistoryModal() {
           </form>
         </div>
         <ul className="list">
-          {displayedList?.map((conversation) => (
-            <li key={conversation.id} className="list-row flex justify-between items-center">
+          {displayedList.map((conversation) => (
+            <li
+              key={conversation.id}
+              className="list-row flex justify-between items-center"
+            >
               <div className="">
-                <div className="line-clamp-1">{conversation.title ?? 'No title'}</div>
+                <div className="line-clamp-1">
+                  {conversation.title ?? "No title"}
+                </div>
                 <div className="line-clamp-1 text-xs uppercase font-semibold opacity-60">
-                  {dayjs(conversation.createdAt).format(TIME_FORMAT)}
+                  {dayjs(conversation.firstChat?.receivedAt).format(
+                    TIME_FORMAT
+                  )}
                 </div>
               </div>
               <div className="w-max ml-auto">
                 <button
                   className="btn btn-square btn-ghost"
-                  onClick={() => onOpen(conversation.id, conversation.assistantId)}
-                  disabled={settingsStore.activeConversationId === conversation.id}
+                  onClick={() =>
+                    onOpen(conversation.id, conversation.assistantId)
+                  }
+                  disabled={
+                    settingsStore.activeConversationId === conversation.id
+                  }
                 >
                   <IconExternalLink />
                 </button>
@@ -90,7 +105,7 @@ export default function HistoryModal() {
             </li>
           ))}
         </ul>
-        {conversationList?.length > MAX_ITEM_PER_PAGE && (
+        {conversationList.length > MAX_ITEM_PER_PAGE && (
           <div className="flex justify-center">
             <div className="join ">
               <button
@@ -106,7 +121,11 @@ export default function HistoryModal() {
               <button
                 className="join-item btn btn-ghost"
                 onClick={() => {
-                  if (page >= Math.ceil(conversationList?.length / MAX_ITEM_PER_PAGE)) return;
+                  if (
+                    page >=
+                    Math.ceil(conversationList.length / MAX_ITEM_PER_PAGE)
+                  )
+                    return;
                   setPage((state) => state + 1);
                 }}
               >

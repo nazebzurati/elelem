@@ -5,14 +5,19 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as yup from "yup";
-import { db, updateModelList } from "../lib/database";
+import db, { updateModelList } from "../lib/database";
 import { fetchOllamaModels, fetchOpenAiModels } from "../lib/model";
 import useSettings from "../store/settings";
 import SubmitButton from "./submit-button";
 import andyWave from "../assets/andy-wave.png";
 import andyDance from "../assets/andy-dance.png";
+import { Model } from "../lib/types";
 
-function Step1({ setStep }) {
+function Step1({
+  setStep,
+}: {
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+}) {
   return (
     <>
       <div className="w-full text-center space-y-6">
@@ -45,19 +50,23 @@ function Step1({ setStep }) {
   );
 }
 
-function Step2({ setStep }) {
+function Step2({
+  setStep,
+}: {
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const settingsStore = useSettings();
   const schema = yup
     .object({ openAiApiKey: yup.string(), ollamaUrl: yup.string() })
     .test(
       "openAiApiKey or ollamaUrl",
       "At least one of OpenAi API key or Ollama URL is required.",
-      (value) => value.openAiApiKey || value.ollamaUrl
+      (value) => !!(value.openAiApiKey || value.ollamaUrl)
     );
   const {
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful },
+    formState: { isLoading, isSubmitting, isSubmitSuccessful },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -66,10 +75,10 @@ function Step2({ setStep }) {
     },
   });
 
-  const [error, setError] = useState();
-  const onNext = async (data) => {
+  const [error, setError] = useState<string>("");
+  const onNext = async (data: yup.InferType<typeof schema>) => {
     setError("");
-    let modelList = [];
+    let modelList: Model[] = [];
 
     if (data.openAiApiKey) {
       const models = await fetchOpenAiModels(data.openAiApiKey);
@@ -136,10 +145,10 @@ function Step2({ setStep }) {
             <p className="fieldset-label">Learn more at https://ollama.com.</p>
           </fieldset>
         </form>
-        {(errors[""] || error) && (
+        {error && (
           <div role="alert" className="alert alert-error">
             <IconCircleX />
-            <span>{error || errors[""]?.message}</span>
+            <span>{error}</span>
           </div>
         )}
       </div>
@@ -162,7 +171,11 @@ function Step2({ setStep }) {
   );
 }
 
-function Step3({ setStep }) {
+function Step3({
+  setStep,
+}: {
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const modelList = useLiveQuery(async () => await db.model.toArray());
   const assistant = useLiveQuery(async () => await db.assistant.toArray());
 
@@ -197,16 +210,16 @@ function Step3({ setStep }) {
     }
   }, [modelList]);
 
-  const [error, setError] = useState();
-  const onNext = async (data) => {
+  const [error, setError] = useState<string>("");
+  const onNext = async (data: yup.InferType<typeof schema>) => {
     try {
       if (!settingsStore.activeAssistantId) {
-        const assistant = await db.assistant.add({
+        const assistantId = await db.assistant.add({
           name: data.name,
           modelId: data.modelId,
           prompt: data.prompt,
         });
-        settingsStore.setActiveAssistant(assistant.id);
+        settingsStore.setActiveAssistant(assistantId);
       } else {
         await db.assistant.update(settingsStore.activeAssistantId, {
           name: data.name,
@@ -278,7 +291,6 @@ function Step3({ setStep }) {
             <legend className="fieldset-legend">Prompt</legend>
             <textarea
               rows={4}
-              type="text"
               className="textarea w-full"
               placeholder="e.g. Rephrase the following sentence, shorten it and make sure the fix any grammar mistake."
               {...register("prompt")}
@@ -292,7 +304,7 @@ function Step3({ setStep }) {
         {error && (
           <div role="alert" className="alert alert-error">
             <IconCircleX />
-            <span>{error || errors[""]?.message}</span>
+            <span>{error}</span>
           </div>
         )}
       </div>
@@ -315,7 +327,11 @@ function Step3({ setStep }) {
   );
 }
 
-function Step4({ setStep }) {
+function Step4({
+  setStep,
+}: {
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const settingsStore = useSettings();
   const navigation = useNavigate();
   return (

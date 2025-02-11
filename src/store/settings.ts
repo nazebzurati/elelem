@@ -1,31 +1,66 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import type {} from "@redux-devtools/extension"; // required for devtools typing
 
-const useSettings = create(
-  persist(
-    (set) => ({
-      ollamaUrl: '',
-      openAiApiKey: '',
-      activeAssistantId: undefined,
-      activeConversationId: undefined,
-      isOnboardingCompleted: false,
-      update: ({ openAiApiKey, ollamaUrl }) =>
-        set((state) => ({ ...state, openAiApiKey, ollamaUrl })),
-      resetOnboardingFlag: () => set((state) => ({ ...state, isOnboardingCompleted: false })),
-      setOnboardingComplete: () => set((state) => ({ ...state, isOnboardingCompleted: true })),
-      setActiveConversation: (conversationId) =>
-        set((state) => ({
-          ...state,
-          activeConversationId: conversationId
-        })),
-      setActiveAssistant: (assistantId) =>
-        set((state) => ({
-          ...state,
-          activeAssistantId: assistantId,
-          activeConversationId: undefined
-        }))
-    }),
-    { name: 'settings' }
+type UpdateSettings = {
+  openAiApiKey: string | undefined;
+  ollamaUrl: string | undefined;
+};
+
+interface SettingsState {
+  ollamaUrl: string;
+  openAiApiKey: string;
+  update: ({ openAiApiKey, ollamaUrl }: UpdateSettings) => void;
+
+  isOnboardingCompleted: boolean;
+  resetOnboardingFlag: () => void;
+  setOnboardingComplete: () => void;
+
+  activeAssistantId: number | undefined;
+  setActiveAssistant: (assistantId: number | undefined) => void;
+
+  activeConversationId: number | undefined;
+  setActiveConversation: (conversationId: number | undefined) => void;
+}
+
+const useSettings = create<SettingsState>()(
+  devtools(
+    persist(
+      (set) => ({
+        ollamaUrl: "",
+        openAiApiKey: "",
+        update: ({ openAiApiKey, ollamaUrl }) =>
+          set((state) => ({
+            ...state,
+            openAiApiKey: openAiApiKey ?? "",
+            ollamaUrl: ollamaUrl ?? "",
+          })),
+
+        isOnboardingCompleted: false,
+        resetOnboardingFlag: () =>
+          set((state) => ({ ...state, isOnboardingCompleted: false })),
+        setOnboardingComplete: () =>
+          set((state) => ({ ...state, isOnboardingCompleted: true })),
+
+        activeAssistantId: undefined,
+        setActiveAssistant: (assistantId) =>
+          set((state) => ({
+            ...state,
+            activeAssistantId: assistantId,
+            activeConversationId: undefined,
+          })),
+
+        activeConversationId: undefined,
+        setActiveConversation: (conversationId) =>
+          set((state) => ({
+            ...state,
+            activeConversationId: conversationId,
+          })),
+      }),
+      {
+        name: "settings",
+      }
+    )
   )
 );
 

@@ -1,9 +1,9 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import Chat from "../components/chat";
+import Chats from "../components/chat";
 import Navbar from "../components/navbar";
-import { db } from "../lib/database";
+import db from "../lib/database";
 import AboutModal from "../modal/about";
 import AddAssistantModal from "../modal/add";
 import DeleteAssistantModal from "../modal/delete";
@@ -12,6 +12,7 @@ import SettingsModal from "../modal/settings";
 import UpdateAssistantModal from "../modal/update";
 import useSettings from "../store/settings";
 import Loading from "./loading";
+import { Assistant } from "../lib/types";
 
 function App() {
   const navigation = useNavigate();
@@ -29,9 +30,12 @@ function App() {
     })();
   }, [settingsStore.activeAssistantId, navigation]);
 
-  const assistants = useLiveQuery(async () => await db.assistant.toArray());
+  const assistants: Assistant[] | undefined = useLiveQuery(
+    async () => await db.assistant.toArray()
+  );
   useEffect(() => {
-    const shortcutTrigger = (event) => {
+    if (!assistants) return;
+    const shortcutTrigger = (event: KeyboardEvent) => {
       if (event.altKey) {
         const index = parseInt(event.key, 10) - 1;
         if (!isNaN(index) && index >= 0 && index < assistants.length) {
@@ -49,7 +53,7 @@ function App() {
   return (
     <div className="h-svh flex flex-col overflow-hidden">
       <Navbar />
-      <Chat />
+      <Chats />
       <SettingsModal />
       <AddAssistantModal />
       <UpdateAssistantModal />

@@ -1,58 +1,93 @@
-import Dexie from 'dexie';
+import Dexie, { type EntityTable } from "dexie";
+import {
+  ActiveAssistant,
+  ActiveConversation,
+  Assistant,
+  Chat,
+  Conversation,
+  ConversationHistoryItem,
+  Model,
+} from "./types";
 
-export const db = new Dexie('elelem');
+const db = new Dexie("FriendsDatabase") as Dexie & {
+  model: EntityTable<Model, "id">;
+  assistant: EntityTable<Assistant, "id">;
+  conversation: EntityTable<Conversation, "id">;
+  chat: EntityTable<Chat, "id">;
+};
 
 db.version(1).stores({
-  model: 'id, baseUrl',
-  assistant: '++id, name, modelId, prompt',
-  conversation: '++id, assistantId, title',
-  chat: '++id, conversationId, user, assistant, sendAt, receivedAt'
+  model: "id, baseUrl",
+  assistant: "++id, name, modelId, prompt",
+  conversation: "++id, assistantId, title",
+  chat: "++id, conversationId, user, assistant, sendAt, receivedAt",
 });
 
-export const updateModelList = async (newList) => {
+export default db;
+
+export const updateModelList = async (newList: Model[]) => {
   const existingList = await db.model.toArray();
 
   const modelToBeAdded = newList.filter(
-    (m1) => !existingList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
+    (m1) =>
+      !existingList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
   );
   for (const model of modelToBeAdded) {
     await db.model.add(model);
   }
 
-  const modelToBeRemoved = existingList.filter(
+  const modelToBeRemoved: Model[] = existingList.filter(
     (m1) => !newList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
   );
   for (const model of modelToBeRemoved) {
-    await db.model.remove(model);
+    await db.model.delete(model.id);
   }
 };
 
-export const getActiveConversation = async (conversationId) => {
+export const getActiveConversation = async (
+  conversationId: number
+): Promise<ActiveConversation | undefined> => {
   const conversation = await db.conversation.get(conversationId);
-  if (conversation) {
-    [conversation.assistant, conversation.chats] = await Promise.all([
-      db.assistant.get(conversation.assistantId),
-      db.chat.where({ conversationId: conversation.id }).toArray()
-    ]);
-    conversation.assistant.model = await db.model.get(conversation.assistant.modelId);
+  if (!conversation) return undefined;
+
+  const assistant = await db.assistant.get(conversation.assistantId);
+  const chats = await db.chat
+    .where({ conversationId: conversation.id })
+    .toArray();
+
+  let model = undefined;
+  if (assistant) {
+    model = await db.model.get(assistant.modelId);
   }
-  return conversation;
+
+  return {
+    ...conversation,
+    assistant: assistant ? { ...assistant, model } : assistant,
+    chats,
+  };
 };
 
-export const getConversationHistory = async () => {
-  const conversationList = await db.conversation.reverse().sortBy('id');
-  await Promise.all(
-    conversationList.map(async (conversation) => {
-      [conversation.firstChat] = await Promise.all([
-        db.chat.where({ conversationId: conversation.id }).first()
-      ]);
-    })
-  );
-  return conversationList;
+export const getConversationHistory = async (): Promise<
+  ConversationHistoryItem[]
+> => {
+  const conversationList = await db.conversation.reverse().sortBy("id");
+
+  const conversationHistoryList = [];
+  for (const conversation of conversationList) {
+    const firstChat = await db.chat
+      .where({ conversationId: conversation.id })
+      .first();
+    conversationHistoryList.push({ ...conversation, firstChat });
+  }
+  return conversationHistoryList;
 };
 
-export const getActiveAssistant = async (assistantId) => {
+export const getActiveAssistant = async (
+  assistantId: number
+): Promise<ActiveAssistant | undefined> => {
   const assistant = await db.assistant.get(assistantId);
-  assistant.model = await db.model.get(assistant.modelId);
-  return assistant;
+  if (!assistant) return undefined;
+
+  const model = await db.model.get(assistant.modelId);
+  return { ...assistant, model };
 };

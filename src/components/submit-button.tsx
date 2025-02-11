@@ -1,9 +1,21 @@
-import { IconCheck } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { IconCheck } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 
 export const BUTTON_ANIMATION_TIMEOUT = 2000;
 
-export default function SubmitButton({ formId, isLoading, isSubmitted, isFailed, text }) {
+export default function SubmitButton({
+  text,
+  isLoading,
+  formId,
+  isFailed,
+  isSubmitted,
+}: {
+  text: string;
+  isLoading: boolean;
+  formId?: string;
+  isFailed?: boolean;
+  isSubmitted?: boolean;
+}) {
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
     if (isSubmitted || isFailed) {
@@ -23,8 +35,17 @@ export default function SubmitButton({ formId, isLoading, isSubmitted, isFailed,
     );
   }
   return (
-    <button form={formId} type="submit" className="btn btn-primary flex-1" disabled={isLoading}>
-      {!isLoading ? text : <span className="loading loading-spinner loading-sm" />}
+    <button
+      form={formId}
+      type="submit"
+      className="btn btn-primary flex-1"
+      disabled={isLoading}
+    >
+      {!isLoading ? (
+        text
+      ) : (
+        <span className="loading loading-spinner loading-sm" />
+      )}
     </button>
   );
 }

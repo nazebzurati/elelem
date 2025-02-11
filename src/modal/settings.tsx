@@ -1,48 +1,63 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { IconCircleX, IconX } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
-import { updateModelList } from '../lib/database';
-import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
-import { fetchOllamaModels, fetchOpenAiModels } from '../lib/model';
-import useSettings from '../store/settings';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { IconCircleX, IconX } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import SubmitButton, {
+  BUTTON_ANIMATION_TIMEOUT,
+} from "../components/submit-button";
+import { updateModelList } from "../lib/database";
+import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
+import { fetchOllamaModels, fetchOpenAiModels } from "../lib/model";
+import useSettings from "../store/settings";
+import { Model } from "../lib/types";
+import { closeModal } from "../lib/modal";
 
-export const SettingsModalId = 'settingsModal';
+export const SettingsModalId = "settingsModal";
 
 export default function SettingsModal() {
   const settingsStore = useSettings();
 
   const schema = yup
-    .object({ openAiApiKey: yup.string(), ollamaUrl: yup.string() })
-    .test(
-      'openAiApiKey or ollamaUrl',
-      'At least one of OpenAi API key or Ollama URL is required.',
-      (value) => value.openAiApiKey || value.ollamaUrl
-    );
+    .object({
+      openAiApiKey: yup.string().when("ollamaUrl", ([ollamaUrl], schema) => {
+        return !ollamaUrl
+          ? schema.required(
+              "OpenAI API key is required if Ollama URL key is not provided."
+            )
+          : schema.notRequired();
+      }),
+      ollamaUrl: yup.string().when("openAiApiKey", ([openAiApiKey], schema) => {
+        return !openAiApiKey
+          ? schema.required(
+              "Ollama URL is required if OpenAI API key is not provided."
+            )
+          : schema.notRequired();
+      }),
+    })
+    .required();
   const {
     reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful }
+    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       ollamaUrl: settingsStore.ollamaUrl,
-      openAiApiKey: settingsStore.openAiApiKey
-    }
+      openAiApiKey: settingsStore.openAiApiKey,
+    },
   });
 
-  const [error, setError] = useState();
-  const onSave = async (data) => {
-    setError('');
-    let newModelList = [];
+  const [error, setError] = useState<string>();
+  const onSave = async (data: yup.InferType<typeof schema>) => {
+    setError("");
+    let newModelList: Model[] = [];
 
     if (data.openAiApiKey) {
       const models = await fetchOpenAiModels(data.openAiApiKey);
       if (models.length <= 0) {
-        setError('Unable to get OpenAI models.');
+        setError("Unable to get OpenAI models.");
         return;
       }
       newModelList = newModelList.concat(models);
@@ -51,7 +66,7 @@ export default function SettingsModal() {
     if (data.ollamaUrl) {
       const models = await fetchOllamaModels(data.ollamaUrl);
       if (models.length <= 0) {
-        setError('Unable to get Ollama models.');
+        setError("Unable to get Ollama models.");
         return;
       }
       newModelList = newModelList.concat(models);
@@ -61,21 +76,21 @@ export default function SettingsModal() {
       await updateModelList(newModelList);
       settingsStore.update({
         ollamaUrl: data.ollamaUrl,
-        openAiApiKey: data.openAiApiKey
+        openAiApiKey: data.openAiApiKey,
       });
       setTimeout(() => {
-        document.getElementById(SettingsModalId).close();
+        closeModal(SettingsModalId);
       }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (_error) {
-      setError('Unable to save config');
+      setError("Unable to save config");
     }
   };
 
   const onReset = () => {
-    setError('');
+    setError("");
     reset({
       openAiApiKey: settingsStore.openAiApiKey,
-      ollamaUrl: settingsStore.ollamaUrl
+      ollamaUrl: settingsStore.ollamaUrl,
     });
   };
 
@@ -105,9 +120,11 @@ export default function SettingsModal() {
                 type="text"
                 className="input w-full"
                 placeholder="sk-*****"
-                {...register('openAiApiKey')}
+                {...register("openAiApiKey")}
               />
-              <p className="fieldset-label">Don't worry, we keep the key to yourself.</p>
+              <p className="fieldset-label">
+                Don't worry, we keep the key to yourself.
+              </p>
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Ollama API URL</legend>
@@ -115,19 +132,21 @@ export default function SettingsModal() {
                 type="text"
                 className="input w-full"
                 placeholder="http://localhost:11434"
-                {...register('ollamaUrl')}
+                {...register("ollamaUrl")}
               />
               {errors.ollamaUrl ? (
-                <p className="fieldset-label text-error">{errors.ollamaUrl.message}</p>
+                <p className="fieldset-label text-error">
+                  {errors.ollamaUrl.message}
+                </p>
               ) : (
                 <p className="fieldset-label">Set as empty to disable.</p>
               )}
             </fieldset>
           </div>
-          {(errors[''] || error) && (
+          {error && (
             <div role="alert" className="mt-4 alert alert-error">
               <IconCircleX />
-              <span>{error || errors['']?.message}</span>
+              <span>{error}</span>
             </div>
           )}
           <div className="modal-action flex">
@@ -142,7 +161,7 @@ export default function SettingsModal() {
             <SubmitButton
               text="Save"
               isSubmitted={isSubmitSuccessful}
-              isFailed={!!errors[''] || !!error}
+              isFailed={!!error}
               isLoading={isLoading || isSubmitting}
             />
           </div>

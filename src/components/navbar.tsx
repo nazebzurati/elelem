@@ -4,17 +4,18 @@ import {
   IconInfoCircle,
   IconMessageCirclePlus,
   IconPlus,
-  IconSettings
-} from '@tabler/icons-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useMemo, useRef } from 'react';
-import { db } from '../lib/database';
-import { AboutModalId } from '../modal/about';
-import { AddAssistantModalId } from '../modal/add';
-import { HistoryModalId } from '../modal/history';
-import { SettingsModalId } from '../modal/settings';
-import { UpdateAssistantModalId } from '../modal/update';
-import useSettings from '../store/settings';
+  IconSettings,
+} from "@tabler/icons-react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useMemo, useRef } from "react";
+import db from "../lib/database";
+import { AboutModalId } from "../modal/about";
+import { AddAssistantModalId } from "../modal/add";
+import { HistoryModalId } from "../modal/history";
+import { SettingsModalId } from "../modal/settings";
+import { UpdateAssistantModalId } from "../modal/update";
+import useSettings from "../store/settings";
+import { Assistant, AssistantListing } from "../lib/types";
 
 const MENU_CLOSING_DELAY_MS = 100;
 
@@ -22,8 +23,9 @@ export default function Navbar() {
   const conversationList = useLiveQuery(() => db.conversation.toArray());
   const settingsStore = useSettings();
 
-  const openModal = (id) => {
-    document.getElementById(id).showModal();
+  const openModal = (id: string) => {
+    const modal = document.getElementById(id) as HTMLDialogElement;
+    if (modal) modal.showModal();
   };
 
   return (
@@ -48,9 +50,9 @@ export default function Navbar() {
         <div className="tooltip tooltip-bottom" data-tip="History">
           <button
             className="btn btn-ghost btn-circle"
-            disabled={conversationList?.length <= 0}
+            disabled={(conversationList?.length ?? 0) <= 0}
             onClick={() => {
-              if (conversationList?.length > 0) {
+              if ((conversationList?.length ?? 0) > 0) {
                 openModal(HistoryModalId);
               }
             }}
@@ -75,12 +77,18 @@ export default function Navbar() {
           </button>
         </div>
         <div className="tooltip tooltip-bottom" data-tip="Settings">
-          <button className="btn btn-ghost btn-circle" onClick={() => openModal(SettingsModalId)}>
+          <button
+            className="btn btn-ghost btn-circle"
+            onClick={() => openModal(SettingsModalId)}
+          >
             <IconSettings className="h-6 w-6" />
           </button>
         </div>
         <div className="tooltip tooltip-bottom" data-tip="About">
-          <button className="btn btn-ghost btn-circle" onClick={() => openModal(AboutModalId)}>
+          <button
+            className="btn btn-ghost btn-circle"
+            onClick={() => openModal(AboutModalId)}
+          >
             <IconInfoCircle className="h-6 w-6" />
           </button>
         </div>
@@ -91,19 +99,22 @@ export default function Navbar() {
 
 function AssistantSelector() {
   const settingsStore = useSettings();
-  const assistants = useLiveQuery(async () =>
-    (await db.assistant.toArray()).map((a, i) => ({ ...a, index: i + 1 }))
+  const assistants: AssistantListing[] | undefined = useLiveQuery(async () =>
+    (await db.assistant.toArray()).map((a: Assistant, i: number) => ({
+      ...a,
+      index: i + 1,
+    }))
   );
 
   const activeAssistant = useMemo(() => {
     return assistants?.find((a) => a.id === settingsStore.activeAssistantId);
   }, [assistants, settingsStore.activeAssistantId]);
 
-  const menuRef = useRef(null);
-  const onSelect = (assistantId) => {
+  const menuRef = useRef<HTMLDetailsElement>(null);
+  const onSelect = (assistantId: number) => {
     settingsStore.setActiveAssistant(assistantId);
     setTimeout(() => {
-      menuRef.current.click();
+      menuRef.current?.click();
     }, MENU_CLOSING_DELAY_MS);
   };
 
@@ -114,20 +125,24 @@ function AssistantSelector() {
           <summary ref={menuRef}>
             <div>
               <div className="line-clamp-1">{activeAssistant?.name}</div>
-              <span className="line-clamp-1 text-xs">{activeAssistant?.modelId}</span>
+              <span className="line-clamp-1 text-xs">
+                {activeAssistant?.modelId}
+              </span>
             </div>
           </summary>
           <ul className="bg-base-200 rounded-t-none p-2 z-300 w-max mt-1!">
             {assistants?.map((assistant) => (
               <li key={assistant.id}>
                 <button
-                  className={assistant.id === activeAssistant?.id ? 'bg-primary' : ''}
+                  className={
+                    assistant.id === activeAssistant?.id ? "bg-primary" : ""
+                  }
                   onClick={() => onSelect(assistant.id)}
                 >
                   <div>
                     <kbd className="kbd">ALT</kbd>
                     <kbd className="kbd">{assistant.index}</kbd>
-                  </div>{' '}
+                  </div>{" "}
                   <div className="flex flex-col">
                     {assistant.name}
                     <span className="text-xs">{assistant.modelId}</span>

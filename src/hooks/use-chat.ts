@@ -1,25 +1,26 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import { getActiveAssistant, getActiveConversation } from '../lib/database';
-import useSettings from '../store/settings';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { getActiveAssistant, getActiveConversation } from "../lib/database";
+import useSettings from "../store/settings";
+import { ActiveAssistant, ActiveConversation } from "../lib/types";
 
 const useChat = () => {
   // store and states
   const settingsStore = useSettings();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<string[]>([]);
 
   // database
-  const activeAssistant = useLiveQuery(
+  const activeAssistant: ActiveAssistant | undefined = useLiveQuery(
     async () =>
       settingsStore.activeAssistantId
         ? await getActiveAssistant(settingsStore.activeAssistantId)
         : undefined,
     [settingsStore.activeAssistantId]
   );
-  const activeConversation = useLiveQuery(
+  const activeConversation: ActiveConversation | undefined = useLiveQuery(
     async () =>
       settingsStore.activeConversationId
         ? await getActiveConversation(settingsStore.activeConversationId)
@@ -33,11 +34,13 @@ const useChat = () => {
     register,
     handleSubmit,
     setFocus,
-    formState: { isLoading, isSubmitting, isSubmitSuccessful }
+    formState: { isLoading, isSubmitting, isSubmitSuccessful },
   } = useForm({
     resolver: yupResolver(
-      yup.object({ input: yup.string().required('Input is a required field.') }).required()
-    )
+      yup
+        .object({ input: yup.string().required("Input is a required field.") })
+        .required()
+    ),
   });
 
   // always start new conversation on page first load
@@ -52,7 +55,7 @@ const useChat = () => {
   }, [isSubmitSuccessful]);
 
   // autoscroll
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -61,12 +64,12 @@ const useChat = () => {
   // check if model is thinking
   const [isThinking, setIsThinking] = useState(false);
   useEffect(() => {
-    if (messages.at(-1) === '</think>') {
+    if (messages[messages.length] === "</think>") {
       setMessages([]);
       setIsThinking(false);
       return;
     }
-    setIsThinking(messages[0] === '<think>' && !messages.includes('</think>'));
+    setIsThinking(messages[0] === "<think>" && !messages.includes("</think>"));
   }, [messages]);
 
   return {
@@ -75,14 +78,14 @@ const useChat = () => {
       handleSubmit,
       isLoading,
       isSubmitting,
-      setFocus
+      setFocus,
     },
     scrollRef,
     activeAssistant,
     activeConversation,
     isThinking,
     messages,
-    setMessages
+    setMessages,
   };
 };
 

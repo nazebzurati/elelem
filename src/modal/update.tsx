@@ -1,16 +1,19 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { IconX } from '@tabler/icons-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import SubmitButton, { BUTTON_ANIMATION_TIMEOUT } from '../components/submit-button';
-import { db } from '../lib/database';
-import { MODAL_DISMISS_TIMEOUT_MS } from '../lib/modal';
-import useSettings from '../store/settings';
-import { DeleteAssistantModalId } from './delete';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { IconCircleX, IconX } from "@tabler/icons-react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import SubmitButton, {
+  BUTTON_ANIMATION_TIMEOUT,
+} from "../components/submit-button";
+import db from "../lib/database";
+import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
+import useSettings from "../store/settings";
+import { DeleteAssistantModalId } from "./delete";
+import { closeModal, showModal } from "../lib/modal";
 
-export const UpdateAssistantModalId = 'updateAssistantModal';
+export const UpdateAssistantModalId = "updateAssistantModal";
 
 export default function UpdateAssistantModal() {
   const modelList = useLiveQuery(async () => await db.model.toArray());
@@ -24,18 +27,18 @@ export default function UpdateAssistantModal() {
 
   const schema = yup
     .object({
-      name: yup.string().required('Name is a required field.'),
-      modelId: yup.string().required('Model is a required field.'),
-      prompt: yup.string()
+      name: yup.string().required("Name is a required field."),
+      modelId: yup.string().required("Model is a required field."),
+      prompt: yup.string(),
     })
     .required();
   const {
     reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful }
+    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful },
   } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   useEffect(() => {
@@ -51,33 +54,34 @@ export default function UpdateAssistantModal() {
     return () => clearTimeout(timer);
   }, [isSubmitSuccessful]);
 
-  const [error, setError] = useState();
-  const onSave = async (data) => {
-    setError('');
+  const [error, setError] = useState<string>();
+  const onSave = async (data: yup.InferType<typeof schema>) => {
+    if (!activeAssistant) return;
+    setError("");
     try {
       await db.assistant.update(activeAssistant.id, {
         name: data.name,
         prompt: data.prompt,
-        modelId: data.modelId
+        modelId: data.modelId,
       });
       setTimeout(() => {
-        document.getElementById(UpdateAssistantModalId).close();
+        closeModal(UpdateAssistantModalId);
       }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (_error) {
-      setError('Unable to update assistant.');
+      setError("Unable to update assistant.");
       return;
     }
   };
 
   const onReset = () => {
-    setError('');
+    setError("");
     reset(activeAssistant);
   };
 
   const onDelete = () => {
-    document.getElementById(UpdateAssistantModalId).close();
+    closeModal(UpdateAssistantModalId);
     setTimeout(() => {
-      document.getElementById(DeleteAssistantModalId).showModal();
+      showModal(DeleteAssistantModalId);
     }, MODAL_DISMISS_TIMEOUT_MS);
   };
 
@@ -96,12 +100,23 @@ export default function UpdateAssistantModal() {
           <div>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Name (required)</legend>
-              <input type="text" className="input w-full" {...register('name')} />
-              {errors.name && <p className="fieldset-label text-error">{errors.name.message}</p>}
+              <input
+                type="text"
+                className="input w-full"
+                {...register("name")}
+              />
+              {errors.name && (
+                <p className="fieldset-label text-error">
+                  {errors.name.message}
+                </p>
+              )}
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Model</legend>
-              <select className="select select-bordered w-full" {...register('modelId')}>
+              <select
+                className="select select-bordered w-full"
+                {...register("modelId")}
+              >
                 {modelList?.map((model) => (
                   <option key={model.id} value={model.id}>
                     {model.id}
@@ -109,14 +124,22 @@ export default function UpdateAssistantModal() {
                 ))}
               </select>
               {errors.modelId ? (
-                <p className="fieldset-label text-error">{errors.modelId.message}</p>
+                <p className="fieldset-label text-error">
+                  {errors.modelId.message}
+                </p>
               ) : (
-                <p className="fieldset-label">Only chat completion models are supported.</p>
+                <p className="fieldset-label">
+                  Only chat completion models are supported.
+                </p>
               )}
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Prompt</legend>
-              <textarea rows={4} type="text" className="textarea w-full" {...register('prompt')} />
+              <textarea
+                rows={4}
+                className="textarea w-full"
+                {...register("prompt")}
+              />
             </fieldset>
           </div>
           {error && (
