@@ -3,9 +3,9 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { getActiveAssistant, getActiveConversation } from "../lib/database";
-import useSettings from "../store/settings";
-import { ActiveAssistant, ActiveConversation } from "../lib/types";
+import useSettings from "@store/settings";
+import { ActiveAssistant, ActiveConversation } from "@lib/model.types";
+import { getActiveAssistant, getActiveConversation } from "@lib/model";
 
 const useChat = () => {
   // store and states

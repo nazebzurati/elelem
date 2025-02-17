@@ -1,17 +1,21 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import db from "@lib/database";
+import {
+  fetchOllamaModels,
+  fetchOpenAiModels,
+  updateModelList,
+} from "@lib/model";
+import { Model } from "@lib/model.types";
+import useSettings from "@store/settings";
 import { IconCircleX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as yup from "yup";
-import db, { updateModelList } from "../lib/database";
-import { fetchOllamaModels, fetchOpenAiModels } from "../lib/model";
-import useSettings from "../store/settings";
-import SubmitButton from "./submit-button";
-import andyWave from "../assets/andy-wave.png";
-import andyDance from "../assets/andy-dance.png";
-import { Model } from "../lib/types";
+import andyDance from "@assets/andy-dance.png";
+import andyWave from "@assets/andy-wave.png";
+import SubmitButton from "@components/submit-button";
 
 function Step1({
   setStep,
@@ -66,7 +70,7 @@ function Step2({
   const {
     register,
     handleSubmit,
-    formState: { isLoading, isSubmitting, isSubmitSuccessful },
+    formState: { isLoading, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -160,12 +164,7 @@ function Step2({
         >
           Previous
         </button>
-        <SubmitButton
-          text="Next"
-          formId="onboardStep2Form"
-          isSubmitted={isSubmitSuccessful}
-          isLoading={isLoading || isSubmitting}
-        />
+        <SubmitButton text="Next" isLoading={isLoading || isSubmitting} />
       </div>
     </>
   );
@@ -190,7 +189,7 @@ function Step3({
     reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isLoading, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -316,12 +315,7 @@ function Step3({
         >
           Previous
         </button>
-        <SubmitButton
-          text="Next"
-          formId="onboardStep3Form"
-          isSubmitted={isSubmitSuccessful}
-          isLoading={isLoading || isSubmitting}
-        />
+        <SubmitButton text="Next" isLoading={isLoading || isSubmitting} />
       </div>
     </>
   );
@@ -362,7 +356,7 @@ function Step4({
           className="btn btn-success"
           onClick={() => {
             settingsStore.setOnboardingComplete();
-            navigation("/app");
+            navigation("/chat");
           }}
         >
           Let's go!

@@ -1,0 +1,11 @@
+{
+  "ignoreDependencies": [
+    // Tauri plugin
+    "@tauri-apps/plugin-opener",
+    // Zustand dependency
+    "@redux-devtools/extension",
+    // styling
+    "tailwindcss",
+    "daisyui"
+  ]
+}

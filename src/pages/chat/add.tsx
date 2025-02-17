@@ -1,29 +1,20 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import SubmitButton, {
-  BUTTON_ANIMATION_TIMEOUT,
-} from "../components/submit-button";
-import db from "../lib/database";
-import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
-import useSettings from "../store/settings";
-import { DeleteAssistantModalId } from "./delete";
-import { closeModal, showModal } from "../lib/modal";
+import useSettings from "@store/settings";
+import { toggleModal } from "@lib/utils";
+import db from "@lib/database";
+import { MODAL_DISMISS_TIMEOUT_MS } from "./index.constants";
+import { ModalState } from "@lib/utils.types";
+import SubmitButton from "@components/submit-button";
 
-export const UpdateAssistantModalId = "updateAssistantModal";
+export const AddAssistantModalId = "addAssistantModal";
 
-export default function UpdateAssistantModal() {
+export default function AddAssistantModal() {
   const modelList = useLiveQuery(async () => await db.model.toArray());
-  const assistants = useLiveQuery(async () => await db.assistant.toArray());
-
-  const settingsStore = useSettings();
-  const activeAssistant = useMemo(
-    () => assistants?.find((a) => a.id === settingsStore.activeAssistantId),
-    [assistants, settingsStore.activeAssistantId]
-  );
 
   const schema = yup
     .object({
@@ -41,62 +32,58 @@ export default function UpdateAssistantModal() {
     resolver: yupResolver(schema),
   });
 
-  useEffect(() => {
-    if (activeAssistant) {
-      reset(activeAssistant);
-    }
-  }, [activeAssistant, modelList]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      reset(activeAssistant);
-    }, BUTTON_ANIMATION_TIMEOUT);
-    return () => clearTimeout(timer);
-  }, [isSubmitSuccessful]);
-
   const [error, setError] = useState<string>();
-  const onSave = async (data: yup.InferType<typeof schema>) => {
-    if (!activeAssistant) return;
+  const settingsStore = useSettings();
+  const onAdd = async (data: yup.InferType<typeof schema>) => {
     setError("");
     try {
-      await db.assistant.update(activeAssistant.id, {
+      const assistantId = await db.assistant.add({
         name: data.name,
         prompt: data.prompt,
         modelId: data.modelId,
       });
+      settingsStore.setActiveAssistant(assistantId);
       setTimeout(() => {
-        closeModal(UpdateAssistantModalId);
+        toggleModal(AddAssistantModalId, ModalState.CLOSE);
       }, MODAL_DISMISS_TIMEOUT_MS);
     } catch (_error) {
-      setError("Unable to update assistant.");
+      setError("Unable to add assistant.");
       return;
     }
   };
 
   const onReset = () => {
     setError("");
-    reset(activeAssistant);
+    if (modelList) reset({ modelId: modelList[0].id });
   };
 
-  const onDelete = () => {
-    closeModal(UpdateAssistantModalId);
-    setTimeout(() => {
-      showModal(DeleteAssistantModalId);
-    }, MODAL_DISMISS_TIMEOUT_MS);
-  };
+  useEffect(() => {
+    if (modelList && modelList.length > 0) {
+      const timer = setTimeout(() => {
+        reset();
+      });
+      return () => clearTimeout(timer);
+    }
+  }, [isSubmitSuccessful]);
+
+  useEffect(() => {
+    if (modelList && modelList.length > 0) {
+      reset({ modelId: modelList[0].id });
+    }
+  }, [modelList]);
 
   return (
-    <dialog id={UpdateAssistantModalId} className="modal">
+    <dialog id={AddAssistantModalId} className="modal">
       <div className="modal-box">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="font-bold text-lg">Update Assistant</h3>
+          <h3 className="font-bold text-lg">Add Assistant</h3>
           <form method="dialog">
             <button className="btn btn-circle btn-ghost" onClick={onReset}>
               <IconX className="h-4 w-4" />
             </button>
           </form>
         </div>
-        <form onSubmit={handleSubmit(onSave)}>
+        <form onSubmit={handleSubmit(onAdd)}>
           <div>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Name (required)</legend>
@@ -148,20 +135,8 @@ export default function UpdateAssistantModal() {
               <span>{error}</span>
             </div>
           )}
-          <div className="modal-action flex space-x-1">
-            <button
-              type="button"
-              className="btn btn-error flex-1"
-              disabled={isLoading || isSubmitting}
-              onClick={onDelete}
-            >
-              Delete
-            </button>
-            <SubmitButton
-              text="Save"
-              isSubmitted={isSubmitSuccessful}
-              isLoading={isLoading || isSubmitting}
-            />
+          <div className="modal-action flex">
+            <SubmitButton text="Add" isLoading={isLoading || isSubmitting} />
           </div>
         </form>
       </div>

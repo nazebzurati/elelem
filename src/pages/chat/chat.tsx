@@ -6,13 +6,13 @@ import { useCallback, useEffect } from "react";
 import Markdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
-import andyNote from "../assets/andy-note.png";
-import useChat from "../hooks/use-chat";
-import { getReply, TIME_FORMAT } from "../lib/chat";
-import db from "../lib/database";
-import { prepareMessages } from "../lib/model";
-import useSettings from "../store/settings";
-import { Chat } from "../lib/types";
+import andyNote from "@assets/andy-note.png";
+import useChat from "@hooks/use-chat";
+import { getReply, TIME_FORMAT } from "@lib/chat";
+import db from "@lib/database";
+import { prepareMessages } from "@lib/model";
+import useSettings from "@store/settings";
+import { Chat } from "@lib/model.types";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 

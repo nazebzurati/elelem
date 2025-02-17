@@ -1,10 +1,10 @@
+import db from "@lib/database";
+import { AssistantListing } from "@lib/model.types";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import useSettings from "@store/settings";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useMemo } from "react";
-import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
-import db from "../lib/database";
-import { AssistantListing } from "../lib/types";
-import useSettings from "../store/settings";
-import { closeModal } from "../lib/modal";
 
 export const DeleteAssistantModalId = "deleteAssistantModal";
 
@@ -30,9 +30,7 @@ export default function DeleteAssistantModal() {
       if (remainingAssistants.length > 0) {
         settingsStore.setActiveAssistant(remainingAssistants[0].id);
       }
-      setTimeout(() => {
-        closeModal(DeleteAssistantModalId);
-      }, MODAL_DISMISS_TIMEOUT_MS);
+      toggleModal(DeleteAssistantModalId, ModalState.CLOSE);
     } catch (_error) {
       return;
     }
@@ -64,8 +62,8 @@ export default function DeleteAssistantModal() {
             <div className="flex-1">
               <button
                 type="button"
-                className="w-full btn btn-error"
                 onClick={onDelete}
+                className="w-full btn btn-error"
               >
                 Delete
               </button>

@@ -8,14 +8,14 @@ import {
 } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useMemo, useRef } from "react";
-import db from "../lib/database";
-import { AboutModalId } from "../modal/about";
-import { AddAssistantModalId } from "../modal/add";
-import { HistoryModalId } from "../modal/history";
-import { SettingsModalId } from "../modal/settings";
-import { UpdateAssistantModalId } from "../modal/update";
-import useSettings from "../store/settings";
-import { Assistant, AssistantListing } from "../lib/types";
+import db from "@lib/database";
+import { AboutModalId } from "./about";
+import { AddAssistantModalId } from "./add";
+import { HistoryModalId } from "./history";
+import { SettingsModalId } from "./settings";
+import { UpdateAssistantModalId } from "./update";
+import useSettings from "@store/settings";
+import { Assistant, AssistantListing } from "@lib/model.types";
 
 const MENU_CLOSING_DELAY_MS = 100;
 

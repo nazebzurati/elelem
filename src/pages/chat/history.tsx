@@ -1,3 +1,9 @@
+import { TIME_FORMAT } from "@lib/chat";
+import db from "@lib/database";
+import { getConversationHistory } from "@lib/model";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import useSettings from "@store/settings";
 import {
   IconChevronsLeft,
   IconChevronsRight,
@@ -8,11 +14,6 @@ import {
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useMemo, useState } from "react";
-import { TIME_FORMAT } from "../lib/chat";
-import db, { getConversationHistory } from "../lib/database";
-import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
-import useSettings from "../store/settings";
-import { closeModal } from "../lib/modal";
 
 export const HistoryModalId = "historyModal";
 const MAX_ITEM_PER_PAGE = 4;
@@ -34,9 +35,7 @@ export default function HistoryModal() {
   const onOpen = (conversationId: number, assistantId: number) => {
     settingsStore.setActiveAssistant(assistantId);
     settingsStore.setActiveConversation(conversationId);
-    setTimeout(() => {
-      closeModal(HistoryModalId);
-    }, MODAL_DISMISS_TIMEOUT_MS);
+    toggleModal(HistoryModalId, ModalState.CLOSE);
   };
 
   const [page, setPage] = useState(1);
@@ -49,9 +48,7 @@ export default function HistoryModal() {
   useEffect(() => {
     if (displayedList && displayedList.length <= 0) {
       if (page > 1) setPage((state) => state - 1);
-      setTimeout(() => {
-        closeModal(HistoryModalId);
-      }, MODAL_DISMISS_TIMEOUT_MS);
+      toggleModal(HistoryModalId, ModalState.CLOSE);
     }
   }, [conversationList, displayedList]);
 

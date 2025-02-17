@@ -1,17 +1,18 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  fetchOllamaModels,
+  fetchOpenAiModels,
+  updateModelList,
+} from "@lib/model";
+import { Model } from "@lib/model.types";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import useSettings from "@store/settings";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import SubmitButton, {
-  BUTTON_ANIMATION_TIMEOUT,
-} from "../components/submit-button";
-import { updateModelList } from "../lib/database";
-import { MODAL_DISMISS_TIMEOUT_MS } from "../lib/const";
-import { fetchOllamaModels, fetchOpenAiModels } from "../lib/model";
-import useSettings from "../store/settings";
-import { Model } from "../lib/types";
-import { closeModal } from "../lib/modal";
+import SubmitButton from "@components/submit-button";
 
 export const SettingsModalId = "settingsModal";
 
@@ -78,9 +79,7 @@ export default function SettingsModal() {
         ollamaUrl: data.ollamaUrl,
         openAiApiKey: data.openAiApiKey,
       });
-      setTimeout(() => {
-        closeModal(SettingsModalId);
-      }, MODAL_DISMISS_TIMEOUT_MS);
+      toggleModal(SettingsModalId, ModalState.CLOSE);
     } catch (_error) {
       setError("Unable to save config");
     }
@@ -97,7 +96,7 @@ export default function SettingsModal() {
   useEffect(() => {
     const timer = setTimeout(() => {
       reset(undefined, { keepDirtyValues: true });
-    }, BUTTON_ANIMATION_TIMEOUT);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isSubmitSuccessful]);
 
@@ -158,12 +157,7 @@ export default function SettingsModal() {
             >
               Reset
             </button>
-            <SubmitButton
-              text="Save"
-              isSubmitted={isSubmitSuccessful}
-              isFailed={!!error}
-              isLoading={isLoading || isSubmitting}
-            />
+            <SubmitButton text="Save" isLoading={isLoading || isSubmitting} />
           </div>
         </form>
       </div>
