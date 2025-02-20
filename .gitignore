@@ -6,3 +6,4 @@ out
 .env
 sonar.sh
 .scannerwork
+.flatpak-builder
