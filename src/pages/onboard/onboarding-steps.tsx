@@ -28,19 +28,17 @@ function Step1({
         <h1 className="text-2xl font-bold">Hey there!</h1>
         <p>
           We're thrilled you're here! Elelem is your friendly assistant that
-          dresses up your favorite models in fun personalities—just name them
+          dresses up your favorite models in fun personalities — just name them
           and give a prompt! Switching between your personalized pals is a
           breeze with keyboard shortcuts.
         </p>
-        <div className="pt-12">
-          <img
-            width={150}
-            height={150}
-            alt="onboarding"
-            src={andyWave}
-            className="mx-auto"
-          />
-        </div>
+        <img
+          width={150}
+          height={150}
+          alt="onboarding"
+          src={andyWave}
+          className="mx-auto"
+        />
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button
@@ -60,13 +58,19 @@ function Step2({
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const settingsStore = useSettings();
-  const schema = yup
-    .object({ openAiApiKey: yup.string(), ollamaUrl: yup.string() })
-    .test(
-      "openAiApiKey or ollamaUrl",
-      "At least one of OpenAi API key or Ollama URL is required.",
-      (value) => !!(value.openAiApiKey || value.ollamaUrl)
-    );
+  const schema = yup.object().shape({
+    ollamaUrl: yup.string(),
+    openAiApiKey: yup
+      .string()
+      .when("ollamaUrl", (ollamaUrl, schema) =>
+        !!ollamaUrl
+          ? schema.required(
+              "OpenAI API jey is required if Ollama URL key is not provided."
+            )
+          : schema
+      ),
+  });
+
   const {
     register,
     handleSubmit,
@@ -123,11 +127,13 @@ function Step2({
         </p>
         <form
           id="onboardStep2Form"
-          className="text-start"
+          className="text-start w-full"
           onSubmit={handleSubmit(onNext)}
         >
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">OpenAI API Key</legend>
+            <div>
+              <legend className="fieldset-legend">OpenAI API Key</legend>
+            </div>
             <input
               type="text"
               className="input w-full"
@@ -139,7 +145,9 @@ function Step2({
             </p>
           </fieldset>
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">Ollama URL</legend>
+            <div>
+              <legend className="fieldset-legend">Ollama URL</legend>
+            </div>
             <input
               type="text"
               className="input w-full"
@@ -164,7 +172,11 @@ function Step2({
         >
           Previous
         </button>
-        <SubmitButton text="Next" isLoading={isLoading || isSubmitting} />
+        <SubmitButton
+          formId="onboardStep2Form"
+          text="Next"
+          isLoading={isLoading || isSubmitting}
+        />
       </div>
     </>
   );
@@ -247,50 +259,60 @@ function Step3({
           className="text-start"
           onSubmit={handleSubmit(onNext)}
         >
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Name (required)</legend>
-            <input
-              type="text"
-              className="input w-full"
-              placeholder="Rephrase"
-              {...register("name")}
-            />
+          <div className="grid grid-cols-2 gap-2">
+            <fieldset className="fieldset">
+              <div>
+                <legend className="fieldset-legend">Name (required)</legend>
+              </div>
+              <input
+                type="text"
+                className="input w-full"
+                placeholder="Rephrase"
+                {...register("name")}
+              />
 
-            {errors.name ? (
-              <p className="fieldset-label text-error">{errors.name.message}</p>
-            ) : (
-              <p className="fieldset-label">
-                Name will not be provided to model.
-              </p>
-            )}
-          </fieldset>
+              {errors.name ? (
+                <p className="fieldset-label text-error">
+                  {errors.name.message}
+                </p>
+              ) : (
+                <p className="fieldset-label">
+                  Name will not be provided to model.
+                </p>
+              )}
+            </fieldset>
+            <fieldset className="fieldset">
+              <div>
+                <legend className="fieldset-legend">Model</legend>
+              </div>
+              <select
+                className="select select-bordered w-full"
+                {...register("modelId")}
+              >
+                {modelList?.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.id}
+                  </option>
+                ))}
+              </select>
+              {!errors.modelId ? (
+                <p className="fieldset-label">
+                  Only chat completion models are supported.
+                </p>
+              ) : (
+                <p className="fieldset-label text-error">
+                  {errors.modelId.message}
+                </p>
+              )}
+            </fieldset>
+          </div>
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">Model</legend>
-            <select
-              className="select select-bordered w-full"
-              {...register("modelId")}
-            >
-              {modelList?.map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.id}
-                </option>
-              ))}
-            </select>
-            {!errors.modelId ? (
-              <p className="fieldset-label">
-                Only chat completion models are supported.
-              </p>
-            ) : (
-              <p className="fieldset-label text-error">
-                {errors.modelId.message}
-              </p>
-            )}
-          </fieldset>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Prompt</legend>
+            <div>
+              <legend className="fieldset-legend">Prompt (optional)</legend>
+            </div>
             <textarea
-              rows={4}
-              className="textarea w-full"
+              rows={2}
+              className="textarea w-full !min-h-10"
               placeholder="e.g. Rephrase the following sentence, shorten it and make sure the fix any grammar mistake."
               {...register("prompt")}
             />
@@ -315,7 +337,11 @@ function Step3({
         >
           Previous
         </button>
-        <SubmitButton text="Next" isLoading={isLoading || isSubmitting} />
+        <SubmitButton
+          formId="onboardStep3Form"
+          text="Next"
+          isLoading={isLoading || isSubmitting}
+        />
       </div>
     </>
   );

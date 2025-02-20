@@ -19,24 +19,19 @@ export const SettingsModalId = "settingsModal";
 export default function SettingsModal() {
   const settingsStore = useSettings();
 
-  const schema = yup
-    .object({
-      openAiApiKey: yup.string().when("ollamaUrl", ([ollamaUrl], schema) => {
-        return !ollamaUrl
+  const schema = yup.object().shape({
+    ollamaUrl: yup.string(),
+    openAiApiKey: yup
+      .string()
+      .when("ollamaUrl", (ollamaUrl, schema) =>
+        !!ollamaUrl
           ? schema.required(
-              "OpenAI API key is required if Ollama URL key is not provided."
+              "OpenAI API jey is required if Ollama URL key is not provided."
             )
-          : schema.notRequired();
-      }),
-      ollamaUrl: yup.string().when("openAiApiKey", ([openAiApiKey], schema) => {
-        return !openAiApiKey
-          ? schema.required(
-              "Ollama URL is required if OpenAI API key is not provided."
-            )
-          : schema.notRequired();
-      }),
-    })
-    .required();
+          : schema
+      ),
+  });
+
   const {
     reset,
     register,
@@ -121,9 +116,15 @@ export default function SettingsModal() {
                 placeholder="sk-*****"
                 {...register("openAiApiKey")}
               />
-              <p className="fieldset-label">
-                Don't worry, we keep the key to yourself.
-              </p>
+              {errors.openAiApiKey ? (
+                <p className="fieldset-label text-error">
+                  {errors.openAiApiKey.message}
+                </p>
+              ) : (
+                <p className="fieldset-label">
+                  Don't worry, we keep the key to yourself.
+                </p>
+              )}
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Ollama API URL</legend>

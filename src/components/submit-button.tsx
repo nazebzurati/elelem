@@ -1,12 +1,14 @@
 export default function SubmitButton({
   text,
+  formId,
   isLoading,
 }: {
   text: string;
+  formId?: string;
   isLoading: boolean;
 }) {
-  return isLoading ? (
-    <button type="submit" className="btn btn-primary flex-1">
+  return !isLoading ? (
+    <button form={formId} type="submit" className="btn btn-primary flex-1">
       {text}
     </button>
   ) : (

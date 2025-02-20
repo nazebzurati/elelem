@@ -38,7 +38,12 @@ const useSettings = create<SettingsState>()(
 
         isOnboardingCompleted: false,
         resetOnboardingFlag: () =>
-          set((state) => ({ ...state, isOnboardingCompleted: false })),
+          set((state) => ({
+            ...state,
+            isOnboardingCompleted: false,
+            activeAssistantId: undefined,
+            activeConversationId: undefined,
+          })),
         setOnboardingComplete: () =>
           set((state) => ({ ...state, isOnboardingCompleted: true })),
 

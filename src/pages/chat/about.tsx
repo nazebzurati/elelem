@@ -28,7 +28,7 @@ export default function AboutModal() {
               This tool is free because you bring your own LLM or API key to
               connect. The developer uses it as a productivity tool and loves
               sharing it with everyone! If you're enjoying the app, consider
-              donating to support ongoing development—it really helps!
+              donating to support ongoing development — it really helps!
             </p>
           </div>
           <div className="modal-action flex">

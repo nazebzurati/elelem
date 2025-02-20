@@ -1,7 +1,7 @@
 import Dexie, { type EntityTable } from "dexie";
 import { Assistant, Chat, Conversation, Model } from "./model.types";
 
-const db = new Dexie("FriendsDatabase") as Dexie & {
+const db = new Dexie("elelem") as Dexie & {
   model: EntityTable<Model, "id">;
   assistant: EntityTable<Assistant, "id">;
   conversation: EntityTable<Conversation, "id">;
