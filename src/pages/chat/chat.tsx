@@ -132,7 +132,9 @@ export default function Chats() {
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
-                <Markdown className="chat-bubble">{messages.join("")}</Markdown>
+                <div className="chat-bubble">
+                  <Markdown>{messages.join("")}</Markdown>
+                </div>
               </div>
             )}
           </>
@@ -178,13 +180,11 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
-        <Markdown
-          className="chat-bubble chat-bubble-primary"
-          remarkPlugins={[remarkMath]}
-          rehypePlugins={[rehypeKatex]}
-        >
-          {chat.user}
-        </Markdown>
+        <div className="chat-bubble chat-bubble-primary">
+          <Markdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            {chat.user}
+          </Markdown>
+        </div>
         <div className="chat-footer opacity-50">
           {dayjs(chat.sendAt).format(TIME_FORMAT)}
         </div>
@@ -192,13 +192,14 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
       {chat.assistant && (
         <div className="chat chat-end space-y-1">
           <div className="chat-bubble">
-            <Markdown
-              className="p-0"
-              remarkPlugins={[remarkMath]}
-              rehypePlugins={[rehypeKatex]}
-            >
-              {getReply(chat.assistant)}
-            </Markdown>
+            <div className="p-0">
+              <Markdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+              >
+                {getReply(chat.assistant)}
+              </Markdown>
+            </div>
           </div>
           <div className="chat-footer opacity-50">
             {dayjs(chat.receivedAt).format(TIME_FORMAT)}
