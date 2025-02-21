@@ -36,6 +36,7 @@ export default function Navbar() {
       <div className="navbar-end">
         <div className="tooltip tooltip-bottom" data-tip="New conversation">
           <button
+            type="button"
             className="btn btn-ghost btn-circle"
             disabled={!settingsStore.activeConversationId}
             onClick={() => {
@@ -49,6 +50,7 @@ export default function Navbar() {
         </div>
         <div className="tooltip tooltip-bottom" data-tip="History">
           <button
+            type="button"
             className="btn btn-ghost btn-circle"
             disabled={(conversationList?.length ?? 0) <= 0}
             onClick={() => {
@@ -62,6 +64,7 @@ export default function Navbar() {
         </div>
         <div className="tooltip tooltip-bottom" data-tip="Add Assistant">
           <button
+            type="button"
             className="btn btn-ghost btn-circle"
             onClick={() => openModal(AddAssistantModalId)}
           >
@@ -70,6 +73,7 @@ export default function Navbar() {
         </div>
         <div className="tooltip tooltip-bottom" data-tip="Update Assistant">
           <button
+            type="button"
             className="btn btn-ghost btn-circle"
             onClick={() => openModal(UpdateAssistantModalId)}
           >
@@ -78,6 +82,7 @@ export default function Navbar() {
         </div>
         <div className="tooltip tooltip-bottom" data-tip="Settings">
           <button
+            type="button"
             className="btn btn-ghost btn-circle"
             onClick={() => openModal(SettingsModalId)}
           >
@@ -86,6 +91,7 @@ export default function Navbar() {
         </div>
         <div className="tooltip tooltip-bottom" data-tip="About">
           <button
+            type="button"
             className="btn btn-ghost btn-circle"
             onClick={() => openModal(AboutModalId)}
           >
@@ -119,7 +125,7 @@ function AssistantSelector() {
   };
 
   return (
-    <ul className="menu menu-horizontal px-0 inline-block">
+    <ul className="menu menu-horizontal inline-block">
       <li>
         <details>
           <summary ref={menuRef}>
@@ -134,15 +140,13 @@ function AssistantSelector() {
             {assistants?.map((assistant) => (
               <li key={assistant.id}>
                 <button
+                  type="button"
                   className={
                     assistant.id === activeAssistant?.id ? "bg-primary" : ""
                   }
                   onClick={() => onSelect(assistant.id)}
                 >
-                  <div>
-                    <kbd className="kbd">ALT</kbd>
-                    <kbd className="kbd">{assistant.index}</kbd>
-                  </div>{" "}
+                  <div className="kbd kbd-sm me-2">ALT + {assistant.index}</div>{" "}
                   <div className="flex flex-col">
                     {assistant.name}
                     <span className="text-xs">{assistant.modelId}</span>

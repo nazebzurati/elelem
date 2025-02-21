@@ -1,6 +1,16 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin "daisyui";
 
-html {
-  scrollbar-gutter: auto !important;
+/* fix markdown list */
+.markdown > ol,
+.markdown > ul {
+  padding-left: 2rem;
+}
+
+.markdown > ol {
+  list-style: decimal;
+}
+
+.markdown > ul {
+  list-style: circle;
 }

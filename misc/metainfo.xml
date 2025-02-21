@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>net.fionix.elelem</id>
+  <metadata_license>CC0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>Elelem</name>
+  <summary>A friendly assistant with LLM</summary>
+  <description>
+    <p>Elelem is a user-friendly LLM client supporting both Ollama and OpenAI APIs. Create
+      personalized assistants with pre-configured prompts or interact without predefined prompts.
+      Elelem enhances productivity with its intuitive interface and robust functionality.</p>
+  </description>
+  <screenshots></screenshots>
+  <url type="homepage">https://github.com/nazebzurati/elelem</url>
+  <url type="donation">https://ko-fi.com/nazebzurati</url>
+  <content_rating type="oars-1.0" />
+  <releases>
+    <release version="0.1.1" date="2025-02-04">
+      <description>
+        <p>Feature improvements and icon fix.</p>
+      </description>
+    </release>
+    <release version="0.1.0" date="2025-02-04">
+      <description>
+        <p>The first release.</p>
+      </description>
+    </release>
+  </releases>
+  <developer_name>Nazeb Zurati</developer_name>
+  <update_contact>nazeb04@gmail.com</update_contact>
+</component>

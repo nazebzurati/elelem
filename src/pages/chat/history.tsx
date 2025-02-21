@@ -52,14 +52,14 @@ export default function HistoryModal() {
     }
   }, [conversationList, displayedList]);
 
-  if (!conversationList || !displayedList) return <></>;
+  if (!conversationList || !displayedList) return null;
   return (
     <dialog id={HistoryModalId} className="modal">
       <div className="modal-box">
         <div className="flex justify-between items-center">
           <h3 className="font-bold text-lg">Conversation History</h3>
           <form method="dialog">
-            <button className="btn btn-circle btn-ghost">
+            <button type="button" className="btn btn-circle btn-ghost">
               <IconX className="h-4 w-4" />
             </button>
           </form>
@@ -82,6 +82,7 @@ export default function HistoryModal() {
               </div>
               <div className="w-max ml-auto">
                 <button
+                  type="button"
                   className="btn btn-square btn-ghost"
                   onClick={() =>
                     onOpen(conversation.id, conversation.assistantId)
@@ -93,6 +94,7 @@ export default function HistoryModal() {
                   <IconExternalLink />
                 </button>
                 <button
+                  type="button"
                   className="btn btn-square btn-ghost"
                   onClick={() => onDelete(conversation.id)}
                 >
@@ -106,6 +108,7 @@ export default function HistoryModal() {
           <div className="flex justify-center">
             <div className="join ">
               <button
+                type="button"
                 className="join-item btn btn-ghost"
                 onClick={() => {
                   if (page <= 1) return;
@@ -114,8 +117,11 @@ export default function HistoryModal() {
               >
                 <IconChevronsLeft className="h-4 w-4" />
               </button>
-              <button className="join-item btn btn-ghost">Page {page}</button>
+              <button type="button" className="join-item btn btn-ghost">
+                Page {page}
+              </button>
               <button
+                type="button"
                 className="join-item btn btn-ghost"
                 onClick={() => {
                   if (

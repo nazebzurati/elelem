@@ -85,7 +85,11 @@ export default function UpdateAssistantModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Update Assistant</h3>
           <form method="dialog">
-            <button className="btn btn-circle btn-ghost" onClick={onReset}>
+            <button
+              type="button"
+              className="btn btn-circle btn-ghost"
+              onClick={onReset}
+            >
               <IconX className="h-4 w-4" />
             </button>
           </form>

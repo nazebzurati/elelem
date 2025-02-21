@@ -42,6 +42,7 @@ function Step1({
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button
+          type="button"
           className="col-start-2 btn btn-primary"
           onClick={() => setStep(2)}
         >
@@ -58,19 +59,25 @@ function Step2({
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const settingsStore = useSettings();
+
   const schema = yup.object().shape({
     ollamaUrl: yup
       .string()
-      .trim()
-      .min(1, "Ollama URL key is required if OpenAI API key is not provided."),
+      .test(
+        "oneOf",
+        "Provide either Ollama URL or OpenAI API Key.",
+        function (value) {
+          return this.parent.openAiApiKey ? true : !!value;
+        }
+      ),
     openAiApiKey: yup
       .string()
-      .when("ollamaUrl", (ollamaUrl, schema) =>
-        !ollamaUrl
-          ? schema.required(
-              "OpenAI API key is required if Ollama URL key is not provided."
-            )
-          : schema
+      .test(
+        "oneOf",
+        "Provide either OpenAI API Key or Ollama URL.",
+        function (value) {
+          return this.parent.ollamaUrl ? true : !!value;
+        }
       ),
   });
 
@@ -184,6 +191,7 @@ function Step2({
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button
+          type="button"
           className="btn btn-neutral"
           onClick={() => setStep(1)}
           disabled={isLoading || isSubmitting}
@@ -349,6 +357,7 @@ function Step3({
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button
+          type="button"
           className="btn btn-neutral"
           onClick={() => setStep(2)}
           disabled={isLoading || isSubmitting}
@@ -382,21 +391,24 @@ function Step4({
           <kbd className="kbd">ALT</kbd>
           <kbd className="kbd">1</kbd>) to choose your preferred one.
         </p>
-        <div className="pt-12">
-          <img
-            width={150}
-            height={150}
-            alt="onboarding"
-            src={andyDance}
-            className="mx-auto"
-          />
-        </div>
+        <img
+          width={150}
+          height={150}
+          alt="onboarding"
+          src={andyDance}
+          className="mx-auto"
+        />
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
-        <button className="btn btn-neutral" onClick={() => setStep(3)}>
+        <button
+          type="button"
+          className="btn btn-neutral"
+          onClick={() => setStep(3)}
+        >
           Previous
         </button>
         <button
+          type="button"
           className="btn btn-success"
           onClick={() => {
             settingsStore.setOnboardingComplete();

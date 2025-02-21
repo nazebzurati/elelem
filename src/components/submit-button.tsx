@@ -12,7 +12,7 @@ export default function SubmitButton({
       {text}
     </button>
   ) : (
-    <button className="btn btn-primary flex-1" disabled>
+    <button type="button" className="btn btn-primary flex-1" disabled>
       <span className="loading loading-spinner loading-sm" />
     </button>
   );

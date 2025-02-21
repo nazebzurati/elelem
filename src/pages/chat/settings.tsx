@@ -22,16 +22,21 @@ export default function SettingsModal() {
   const schema = yup.object().shape({
     ollamaUrl: yup
       .string()
-      .trim()
-      .min(1, "Ollama URL key is required if OpenAI API key is not provided."),
+      .test(
+        "oneOf",
+        "Provide either Ollama URL or OpenAI API Key.",
+        function (value) {
+          return this.parent.openAiApiKey ? true : !!value;
+        }
+      ),
     openAiApiKey: yup
       .string()
-      .when("ollamaUrl", (ollamaUrl, schema) =>
-        !ollamaUrl
-          ? schema.required(
-              "OpenAI API key is required if Ollama URL key is not provided."
-            )
-          : schema
+      .test(
+        "oneOf",
+        "Provide either OpenAI API Key or Ollama URL.",
+        function (value) {
+          return this.parent.ollamaUrl ? true : !!value;
+        }
       ),
   });
 
@@ -104,7 +109,11 @@ export default function SettingsModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Settings</h3>
           <form method="dialog">
-            <button className="btn btn-circle btn-ghost" onClick={onReset}>
+            <button
+              type="button"
+              className="btn btn-circle btn-ghost"
+              onClick={onReset}
+            >
               <IconX className="h-4 w-4" />
             </button>
           </form>

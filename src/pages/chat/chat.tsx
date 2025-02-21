@@ -8,11 +8,12 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import andyNote from "@assets/andy-note.png";
 import useChat from "@hooks/use-chat";
-import { getReply, TIME_FORMAT } from "@lib/chat";
+import { parseThinkingReply, TIME_FORMAT } from "@lib/chat";
 import db from "@lib/database";
 import { prepareMessages } from "@lib/model";
 import useSettings from "@store/settings";
 import { Chat } from "@lib/model.types";
+import remarkGfm from "remark-gfm";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -55,15 +56,18 @@ export default function Chats() {
           baseURL: activeAssistant.model?.baseUrl,
           apiKey: settingsStore.openAiApiKey,
         });
-        const stream = await client.chat.completions.create({
-          stream: true,
-          model: activeAssistant.modelId,
-          messages: prepareMessages({
-            chats: activeConversation?.chats ?? [],
-            system: activeAssistant.prompt ?? "",
-            input: data.input,
-          }),
-        });
+        const stream = await client.chat.completions.create(
+          {
+            stream: true,
+            model: activeAssistant.modelId,
+            messages: prepareMessages({
+              chats: activeConversation?.chats ?? [],
+              system: activeAssistant.prompt ?? "",
+              input: data.input,
+            }),
+          },
+          { headers: { "x-stainless-timeout": null } }
+        );
 
         // stream chat
         for await (const chunk of stream) {
@@ -132,8 +136,13 @@ export default function Chats() {
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
-                <div className="chat-bubble">
-                  <Markdown>{messages.join("")}</Markdown>
+                <div className="chat-bubble prose markdown">
+                  <Markdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {parseThinkingReply(messages.join(""))}
+                  </Markdown>
                 </div>
               </div>
             )}
@@ -182,8 +191,11 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
-        <div className="chat-bubble chat-bubble-primary">
-          <Markdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+        <div className="chat-bubble chat-bubble-primary prose markdown">
+          <Markdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+          >
             {chat.user}
           </Markdown>
         </div>
@@ -193,15 +205,13 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
       </div>
       {chat.assistant && (
         <div className="chat chat-end space-y-1">
-          <div className="chat-bubble">
-            <div className="p-0">
-              <Markdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-              >
-                {getReply(chat.assistant)}
-              </Markdown>
-            </div>
+          <div className="chat-bubble prose markdown">
+            <Markdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+            >
+              {parseThinkingReply(chat.assistant)}
+            </Markdown>
           </div>
           <div className="chat-footer opacity-50">
             {dayjs(chat.receivedAt).format(TIME_FORMAT)}
