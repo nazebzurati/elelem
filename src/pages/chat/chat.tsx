@@ -160,7 +160,9 @@ export default function Chats() {
         onSubmit={activeAssistant ? handleSubmit(onSubmit) : undefined}
       >
         <fieldset className="fieldset">
-          <legend className="fieldset-legend">Your message</legend>
+          <div>
+            <legend className="fieldset-legend">Your message</legend>
+          </div>
           <textarea
             autoFocus
             disabled={isSubmitting || isLoading}

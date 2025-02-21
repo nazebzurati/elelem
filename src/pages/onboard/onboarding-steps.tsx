@@ -59,13 +59,16 @@ function Step2({
 }) {
   const settingsStore = useSettings();
   const schema = yup.object().shape({
-    ollamaUrl: yup.string(),
+    ollamaUrl: yup
+      .string()
+      .trim()
+      .min(1, "Ollama URL key is required if OpenAI API key is not provided."),
     openAiApiKey: yup
       .string()
       .when("ollamaUrl", (ollamaUrl, schema) =>
-        !!ollamaUrl
+        !ollamaUrl
           ? schema.required(
-              "OpenAI API jey is required if Ollama URL key is not provided."
+              "OpenAI API key is required if Ollama URL key is not provided."
             )
           : schema
       ),
@@ -74,7 +77,7 @@ function Step2({
   const {
     register,
     handleSubmit,
-    formState: { isLoading, isSubmitting },
+    formState: { errors, isLoading, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -132,20 +135,6 @@ function Step2({
         >
           <fieldset className="fieldset">
             <div>
-              <legend className="fieldset-legend">OpenAI API Key</legend>
-            </div>
-            <input
-              type="text"
-              className="input w-full"
-              placeholder="sk-*****"
-              {...register("openAiApiKey")}
-            />
-            <p className="fieldset-label">
-              Create an API key at https://platform.openai.com/api-keys.
-            </p>
-          </fieldset>
-          <fieldset className="fieldset">
-            <div>
               <legend className="fieldset-legend">Ollama URL</legend>
             </div>
             <input
@@ -154,7 +143,36 @@ function Step2({
               placeholder="http://localhost:11434"
               {...register("ollamaUrl")}
             />
-            <p className="fieldset-label">Learn more at https://ollama.com.</p>
+
+            {errors.ollamaUrl ? (
+              <p className="fieldset-label text-error">
+                {errors.ollamaUrl.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                Learn more at https://ollama.com.
+              </p>
+            )}
+          </fieldset>
+          <fieldset className="fieldset">
+            <div>
+              <legend className="fieldset-legend">OpenAI API Key</legend>
+            </div>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="sk-*****"
+              {...register("openAiApiKey")}
+            />
+            {errors.openAiApiKey ? (
+              <p className="fieldset-label text-error">
+                {errors.openAiApiKey.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                Don't worry, we keep the key to yourself.
+              </p>
+            )}
           </fieldset>
         </form>
         {error && (
@@ -262,27 +280,6 @@ function Step3({
           <div className="grid grid-cols-2 gap-2">
             <fieldset className="fieldset">
               <div>
-                <legend className="fieldset-legend">Name (required)</legend>
-              </div>
-              <input
-                type="text"
-                className="input w-full"
-                placeholder="Rephrase"
-                {...register("name")}
-              />
-
-              {errors.name ? (
-                <p className="fieldset-label text-error">
-                  {errors.name.message}
-                </p>
-              ) : (
-                <p className="fieldset-label">
-                  Name will not be provided to model.
-                </p>
-              )}
-            </fieldset>
-            <fieldset className="fieldset">
-              <div>
                 <legend className="fieldset-legend">Model</legend>
               </div>
               <select
@@ -302,6 +299,27 @@ function Step3({
               ) : (
                 <p className="fieldset-label text-error">
                   {errors.modelId.message}
+                </p>
+              )}
+            </fieldset>
+            <fieldset className="fieldset">
+              <div>
+                <legend className="fieldset-legend">Name (required)</legend>
+              </div>
+              <input
+                type="text"
+                className="input w-full"
+                placeholder="Rephrase"
+                {...register("name")}
+              />
+
+              {errors.name ? (
+                <p className="fieldset-label text-error">
+                  {errors.name.message}
+                </p>
+              ) : (
+                <p className="fieldset-label">
+                  Name will not be provided to model.
                 </p>
               )}
             </fieldset>

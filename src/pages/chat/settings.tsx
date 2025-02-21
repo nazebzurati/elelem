@@ -20,13 +20,16 @@ export default function SettingsModal() {
   const settingsStore = useSettings();
 
   const schema = yup.object().shape({
-    ollamaUrl: yup.string(),
+    ollamaUrl: yup
+      .string()
+      .trim()
+      .min(1, "Ollama URL key is required if OpenAI API key is not provided."),
     openAiApiKey: yup
       .string()
       .when("ollamaUrl", (ollamaUrl, schema) =>
-        !!ollamaUrl
+        !ollamaUrl
           ? schema.required(
-              "OpenAI API jey is required if Ollama URL key is not provided."
+              "OpenAI API key is required if Ollama URL key is not provided."
             )
           : schema
       ),
@@ -109,7 +112,9 @@ export default function SettingsModal() {
         <form onSubmit={handleSubmit(onSave)}>
           <div>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">OpenAI API Key</legend>
+              <div>
+                <legend className="fieldset-legend">OpenAI API Key</legend>
+              </div>
               <input
                 type="text"
                 className="input w-full"
@@ -127,7 +132,9 @@ export default function SettingsModal() {
               )}
             </fieldset>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Ollama API URL</legend>
+              <div>
+                <legend className="fieldset-legend">Ollama API URL</legend>
+              </div>
               <input
                 type="text"
                 className="input w-full"

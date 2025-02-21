@@ -93,7 +93,9 @@ export default function UpdateAssistantModal() {
         <form onSubmit={handleSubmit(onSave)}>
           <div>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Name (required)</legend>
+              <div>
+                <legend className="fieldset-legend">Name (required)</legend>
+              </div>
               <input
                 type="text"
                 className="input w-full"
@@ -106,7 +108,9 @@ export default function UpdateAssistantModal() {
               )}
             </fieldset>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Model</legend>
+              <div>
+                <legend className="fieldset-legend">Model</legend>
+              </div>
               <select
                 className="select select-bordered w-full"
                 {...register("modelId")}
@@ -128,7 +132,9 @@ export default function UpdateAssistantModal() {
               )}
             </fieldset>
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Prompt</legend>
+              <div>
+                <legend className="fieldset-legend">Prompt</legend>
+              </div>
               <textarea
                 rows={4}
                 className="textarea w-full"
