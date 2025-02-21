@@ -7,3 +7,5 @@ out
 sonar.sh
 .scannerwork
 .flatpak-builder
+.repo
+*.flatpak

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>net.fionix.elelem</id>
-  <metadata_license>CC0</metadata_license>
-  <project_license>GPL-3.0</project_license>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
   <name>Elelem</name>
   <summary>A friendly assistant with LLM</summary>
   <description>
@@ -10,8 +10,37 @@
       personalized assistants with pre-configured prompts or interact without predefined prompts.
       Elelem enhances productivity with its intuitive interface and robust functionality.</p>
   </description>
-  <screenshots></screenshots>
+  <keywords>
+    <keyword>elelem</keyword>
+    <keyword>fionix</keyword>
+    <keyword>llm</keyword>
+    <keyword>desktop</keyword>
+    <keyword>client</keyword>
+    <keyword>openai</keyword>
+    <keyword>api</keyword>
+    <keyword>key</keyword>
+    <keyword>tauri</keyword>
+    <keyword>multiplatform</keyword>
+  </keywords>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">
+        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/1_onboarding.png</image>
+      <caption>Onboarding</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">
+        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/2_switch_assistant.png</image>
+      <caption>Assistant Switching</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">
+        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/3_texting.png</image>
+      <caption>Texting</caption>
+    </screenshot>
+  </screenshots>
   <url type="homepage">https://github.com/nazebzurati/elelem</url>
+  <url type="bugtracker">https://github.com/nazebzurati/elelem/issues</url>
   <url type="donation">https://ko-fi.com/nazebzurati</url>
   <content_rating type="oars-1.0" />
   <releases>
