@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* fix wierd scroll in unnecessary place */
+html {
+  scrollbar-gutter: auto !important;
+}
+
 /* fix markdown list */
 .markdown > ol,
 .markdown > ul {

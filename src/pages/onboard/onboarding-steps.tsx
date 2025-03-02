@@ -387,9 +387,9 @@ function Step4({
         <h1 className="text-2xl font-bold">At Your Service!</h1>
         <p>
           Congratulations, your assistant is ready to go! Use{" "}
-          <kbd className="kbd">ALT</kbd> + number (e.g.{" "}
-          <kbd className="kbd">ALT</kbd>
-          <kbd className="kbd">1</kbd>) to choose your preferred one.
+          <kbd className="kbd kbd-sm">ALT</kbd> + number (e.g.{" "}
+          <kbd className="kbd kbd-sm">ALT + 1</kbd>) to choose your preferred
+          one.
         </p>
         <img
           width={150}
