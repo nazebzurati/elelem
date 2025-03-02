@@ -11,16 +11,16 @@
     "build:flatpak": "flatpak-builder --force-clean --user --install-deps-from=flathub build misc/flatpak.yml && flatpak build-export export build && flatpak build-bundle export elelem.flatpak net.fionix.elelem && rm -rf export repo"
   },
   "dependencies": {
-    "@hookform/resolvers": "^4.1.0",
+    "@hookform/resolvers": "^4.1.2",
     "@redux-devtools/extension": "^3.3.0",
     "@tabler/icons-react": "^3.30.0",
-    "@tailwindcss/vite": "^4.0.7",
+    "@tailwindcss/vite": "^4.0.9",
     "@types/react-dom": "^19.0.4",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "katex": "^0.16.21",
-    "openai": "^4.85.3",
+    "openai": "^4.86.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@tauri-apps/api": "^2",
@@ -31,16 +31,16 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
-    "tailwindcss": "^4.0.7",
+    "tailwindcss": "^4.0.9",
     "yup": "^1.6.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "daisyui": "^5.0.0-beta.8",
+    "daisyui": "^5.0.0",
     "@types/react": "^19.0.10",
     "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "~5.7.3",
-    "vite": "^6.1.1",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
     "@tauri-apps/cli": "^2",
     "vite-tsconfig-paths": "^5.1.4"
   }
