@@ -1,18 +1,18 @@
+import db from "@lib/database";
+import { Assistant } from "@lib/model.types";
+import Loading from "@pages/loading";
+import useSettings from "@store/settings";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import Chats from "./chat";
-import Navbar from "./navbar";
-import db from "@lib/database";
 import AboutModal from "./about";
 import AddAssistantModal from "./add";
+import Chats from "./chat";
 import DeleteAssistantModal from "./delete";
 import HistoryModal from "./history";
+import Navbar from "./navbar";
 import SettingsModal from "./settings";
 import UpdateAssistantModal from "./update";
-import useSettings from "@store/settings";
-import Loading from "@pages/loading";
-import { Assistant } from "@lib/model.types";
 
 function Chat() {
   const navigation = useNavigate();

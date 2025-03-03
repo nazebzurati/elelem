@@ -1,15 +1,15 @@
+import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
+import db from "@lib/database";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import useSettings from "@store/settings";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import useSettings from "@store/settings";
-import { toggleModal } from "@lib/utils";
-import db from "@lib/database";
 import { MODAL_DISMISS_TIMEOUT_MS } from "./index.constants";
-import { ModalState } from "@lib/utils.types";
-import SubmitButton from "@components/submit-button";
 
 export const AddAssistantModalId = "addAssistantModal";
 
@@ -52,11 +52,6 @@ export default function AddAssistantModal() {
     }
   };
 
-  const onReset = () => {
-    setError("");
-    if (modelList) reset({ modelId: modelList[0].id });
-  };
-
   useEffect(() => {
     if (modelList && modelList.length > 0) {
       const timer = setTimeout(() => {
@@ -78,11 +73,7 @@ export default function AddAssistantModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Add Assistant</h3>
           <form method="dialog">
-            <button
-              type="button"
-              className="btn btn-circle btn-ghost"
-              onClick={onReset}
-            >
+            <button type="submit" className="btn btn-circle btn-ghost">
               <IconX className="h-4 w-4" />
             </button>
           </form>

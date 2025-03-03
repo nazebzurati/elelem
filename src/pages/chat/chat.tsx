@@ -1,19 +1,19 @@
 import "katex/dist/katex.min.css";
 
-import dayjs from "dayjs";
-import OpenAI from "openai";
-import { useCallback, useEffect } from "react";
-import Markdown from "react-markdown";
-import rehypeKatex from "rehype-katex";
-import remarkMath from "remark-math";
 import andyNote from "@assets/andy-note.png";
 import useChat from "@hooks/use-chat";
 import { parseThinkingReply, TIME_FORMAT } from "@lib/chat";
 import db from "@lib/database";
 import { prepareMessages } from "@lib/model";
-import useSettings from "@store/settings";
 import { Chat } from "@lib/model.types";
+import useSettings from "@store/settings";
+import dayjs from "dayjs";
+import OpenAI from "openai";
+import { useCallback, useEffect } from "react";
+import Markdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -113,6 +113,15 @@ export default function Chats() {
     };
   }, [isSubmitting, handleSubmit, onSubmit]);
 
+  useEffect(() => {
+    if (isSubmitting) {
+      const textarea = document.getElementById(
+        "chatInput"
+      ) as HTMLTextAreaElement | null;
+      textarea?.setAttribute("style", "");
+    }
+  }, [isSubmitting]);
+
   return (
     <>
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
@@ -148,11 +157,11 @@ export default function Chats() {
             )}
           </>
         ) : (
-          <div className="h-full pt-12 flex justify-center items-center">
+          <div className="h-full flex justify-center items-center">
             <div className="space-y-4">
               <img
-                width={200}
-                height={200}
+                width={150}
+                height={150}
                 alt="onboarding"
                 src={andyNote}
                 className="mx-auto"
@@ -169,13 +178,12 @@ export default function Chats() {
         onSubmit={activeAssistant ? handleSubmit(onSubmit) : undefined}
       >
         <fieldset className="fieldset">
-          <div>
-            <legend className="fieldset-legend">Your message</legend>
-          </div>
           <textarea
             autoFocus
+            id="chatInput"
             disabled={isSubmitting || isLoading}
             className="textarea w-full"
+            placeholder="Ask me anything .."
             {...register("input")}
           />
           <div className="fieldset-label">

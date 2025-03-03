@@ -1,3 +1,6 @@
+import andyDance from "@assets/andy-dance.png";
+import andyWave from "@assets/andy-wave.png";
+import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
 import {
@@ -13,9 +16,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as yup from "yup";
-import andyDance from "@assets/andy-dance.png";
-import andyWave from "@assets/andy-wave.png";
-import SubmitButton from "@components/submit-button";
 
 function Step1({
   setStep,

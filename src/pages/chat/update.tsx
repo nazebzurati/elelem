@@ -1,5 +1,8 @@
+import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
 import useSettings from "@store/settings";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -7,9 +10,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { DeleteAssistantModalId } from "./delete";
-import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
-import SubmitButton from "@components/submit-button";
 
 export const UpdateAssistantModalId = "updateAssistantModal";
 
@@ -69,11 +69,6 @@ export default function UpdateAssistantModal() {
     }
   };
 
-  const onReset = () => {
-    setError("");
-    reset(activeAssistant);
-  };
-
   const onDelete = () => {
     toggleModal(UpdateAssistantModalId, ModalState.CLOSE);
     toggleModal(DeleteAssistantModalId, ModalState.OPEN);
@@ -85,11 +80,7 @@ export default function UpdateAssistantModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Update Assistant</h3>
           <form method="dialog">
-            <button
-              type="button"
-              className="btn btn-circle btn-ghost"
-              onClick={onReset}
-            >
+            <button type="submit" className="btn btn-circle btn-ghost">
               <IconX className="h-4 w-4" />
             </button>
           </form>

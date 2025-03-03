@@ -1,10 +1,10 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import { getActiveAssistant, getActiveConversation } from "@lib/model";
+import { ActiveAssistant, ActiveConversation } from "@lib/model.types";
+import useSettings from "@store/settings";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import useSettings from "@store/settings";
-import { ActiveAssistant, ActiveConversation } from "@lib/model.types";
-import { getActiveAssistant, getActiveConversation } from "@lib/model";
 import * as yup from "yup";
 
 const useChat = () => {

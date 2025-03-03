@@ -1,3 +1,4 @@
+import { IconX } from "@tabler/icons-react";
 import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
@@ -17,10 +18,15 @@ export default function AboutModal() {
   return (
     <dialog id={AboutModalId} className="modal">
       <div className="modal-box">
-        <div className="text-center mb-6">
+        <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">
             {appInfo.name} v{appInfo.version}
           </h3>
+          <form method="dialog">
+            <button type="submit" className="btn btn-circle btn-ghost">
+              <IconX className="h-4 w-4" />
+            </button>
+          </form>
         </div>
         <div>
           <div>
@@ -32,11 +38,6 @@ export default function AboutModal() {
             </p>
           </div>
           <div className="modal-action flex">
-            <form method="dialog" className="flex-1">
-              <button type="submit" className="w-full btn btn-neutral">
-                Close
-              </button>
-            </form>
             <div className="flex-1">
               <a
                 target="_blank"

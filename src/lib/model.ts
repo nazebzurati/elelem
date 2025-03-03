@@ -99,6 +99,9 @@ export const getConversationHistory = async (): Promise<
   for (const conversation of conversationList) {
     conversationHistoryList.push({
       ...conversation,
+      assistant: await db.assistant
+        .where({ id: conversation.assistantId })
+        .first(),
       firstChat: await db.chat
         .where({ conversationId: conversation.id })
         .first(),

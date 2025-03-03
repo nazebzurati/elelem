@@ -39,6 +39,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - name: update cargo dependencies
+        run: cargo update
+        working-directory: src-tauri
+
       - name: install frontend dependencies
         run: deno install
 

@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
 import db from "@lib/database";
 import useSettings from "@store/settings";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import Loading from "./loading";
 
 export default function Prepare() {

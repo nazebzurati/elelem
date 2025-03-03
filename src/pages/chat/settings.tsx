@@ -1,3 +1,4 @@
+import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   fetchOllamaModels,
@@ -12,7 +13,6 @@ import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import SubmitButton from "@components/submit-button";
 
 export const SettingsModalId = "settingsModal";
 
@@ -109,11 +109,7 @@ export default function SettingsModal() {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg">Settings</h3>
           <form method="dialog">
-            <button
-              type="button"
-              className="btn btn-circle btn-ghost"
-              onClick={onReset}
-            >
+            <button type="submit" className="btn btn-circle btn-ghost">
               <IconX className="h-4 w-4" />
             </button>
           </form>

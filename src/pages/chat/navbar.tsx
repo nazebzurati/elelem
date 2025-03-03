@@ -1,4 +1,8 @@
+import db from "@lib/database";
+import { Assistant, AssistantListing } from "@lib/model.types";
+import useSettings from "@store/settings";
 import {
+  IconChevronDown,
   IconEdit,
   IconHistory,
   IconInfoCircle,
@@ -8,14 +12,11 @@ import {
 } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useMemo, useRef } from "react";
-import db from "@lib/database";
 import { AboutModalId } from "./about";
 import { AddAssistantModalId } from "./add";
 import { HistoryModalId } from "./history";
 import { SettingsModalId } from "./settings";
 import { UpdateAssistantModalId } from "./update";
-import useSettings from "@store/settings";
-import { Assistant, AssistantListing } from "@lib/model.types";
 
 const MENU_CLOSING_DELAY_MS = 100;
 
@@ -124,39 +125,40 @@ function AssistantSelector() {
     }, MENU_CLOSING_DELAY_MS);
   };
 
+  const checkIfActive = (id: number) => {
+    return id === activeAssistant?.id ? "bg-primary" : "";
+  };
+
   return (
-    <ul className="menu menu-horizontal inline-block">
-      <li>
-        <details>
-          <summary ref={menuRef}>
-            <div>
-              <div className="line-clamp-1">{activeAssistant?.name}</div>
-              <span className="line-clamp-1 text-xs">
-                {activeAssistant?.modelId}
-              </span>
-            </div>
-          </summary>
-          <ul className="bg-base-200 rounded-t-none p-2 z-300 w-max mt-1!">
-            {assistants?.map((assistant) => (
-              <li key={assistant.id}>
-                <button
-                  type="button"
-                  className={
-                    assistant.id === activeAssistant?.id ? "bg-primary" : ""
-                  }
-                  onClick={() => onSelect(assistant.id)}
-                >
-                  <div className="kbd kbd-sm me-2">ALT + {assistant.index}</div>{" "}
-                  <div className="flex flex-col">
-                    {assistant.name}
-                    <span className="text-xs">{assistant.modelId}</span>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </details>
-      </li>
-    </ul>
+    <div className="dropdown">
+      <div tabIndex={0} role="button" className="m-1 flex items-center">
+        <div className="kbd kbd-sm me-3">ALT + {activeAssistant?.index}</div>
+        <div className="flex flex-col me-3">
+          {activeAssistant?.name}
+          <span className="text-xs">{activeAssistant?.modelId}</span>
+        </div>
+        <IconChevronDown className="w-4 h-4" />
+      </div>
+      <ul
+        tabIndex={0}
+        className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm"
+      >
+        {assistants?.map((assistant) => (
+          <li key={assistant.id}>
+            <button
+              type="button"
+              onClick={() => onSelect(assistant.id)}
+              className={`flex items-center ${checkIfActive(assistant.id)}`}
+            >
+              <div className="kbd kbd-sm me-1">ALT + {assistant.index}</div>
+              <div className="flex flex-col">
+                {assistant.name}
+                <span className="text-xs">{assistant.modelId}</span>
+              </div>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

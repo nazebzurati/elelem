@@ -1,8 +1,8 @@
+import db from "@lib/database";
+import useSettings from "@store/settings";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Step1, Step2, Step3, Step4 } from "./onboarding-steps";
-import db from "@lib/database";
-import useSettings from "@store/settings";
 
 export default function Onboard() {
   const settingsStore = useSettings();

@@ -54,4 +54,5 @@ export interface ActiveConversation extends Conversation {
 
 export interface ConversationHistoryItem extends Conversation {
   firstChat: Chat | undefined;
+  assistant: Assistant | undefined;
 }

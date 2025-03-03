@@ -59,7 +59,7 @@ export default function HistoryModal() {
         <div className="flex justify-between items-center">
           <h3 className="font-bold text-lg">Conversation History</h3>
           <form method="dialog">
-            <button type="button" className="btn btn-circle btn-ghost">
+            <button type="submit" className="btn btn-circle btn-ghost">
               <IconX className="h-4 w-4" />
             </button>
           </form>
@@ -70,17 +70,18 @@ export default function HistoryModal() {
               key={conversation.id}
               className="list-row flex justify-between items-center"
             >
-              <div className="">
+              <div className="flex-1">
                 <div className="line-clamp-1">
                   {conversation.title ?? "No title"}
                 </div>
-                <div className="line-clamp-1 text-xs uppercase font-semibold opacity-60">
+                <div className="line-clamp-1 text-xs font-semibold opacity-60">
+                  {conversation.assistant?.name},{" "}
                   {dayjs(conversation.firstChat?.receivedAt).format(
                     TIME_FORMAT
                   )}
                 </div>
               </div>
-              <div className="w-max ml-auto">
+              <div className="w-max ml-auto flex-shrink-0">
                 <button
                   type="button"
                   className="btn btn-square btn-ghost"
