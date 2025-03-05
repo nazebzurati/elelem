@@ -44,6 +44,16 @@
   <url type="donation">https://ko-fi.com/nazebzurati</url>
   <content_rating type="oars-1.0" />
   <releases>
+    <release version="0.2.1" date="2025-03-06">
+      <description>
+        <p>Fix failed windows build.</p>
+      </description>
+    </release>
+    <release version="0.2.0" date="2025-03-05">
+      <description>
+        <p>Migrate to tauri.</p>
+      </description>
+    </release>
     <release version="0.1.1" date="2025-02-04">
       <description>
         <p>Feature improvements and icon fix.</p>
