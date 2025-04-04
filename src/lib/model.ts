@@ -1,31 +1,12 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
-import { OPENAI_SUPPORTED_MODELS } from "./constants";
 import db from "./database";
-import {
-  ActiveAssistant,
-  ActiveConversation,
-  Chat,
-  ConversationHistoryItem,
-  IOllamaModelInfo,
-  Model,
-} from "./model.types";
+import { Chat, ChatWithInfo, ConversationWithInfo, Model } from "./model.types";
 
-export const fetchOpenAiModels = async (apiKey: string) => {
-  const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+export const fetchModels = async (baseURL?: string, apiKey?: string) => {
+  const client = new OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
   const models = await client.models.list();
-  return models.data
-    .filter((m) => OPENAI_SUPPORTED_MODELS.includes(m.id))
-    .map((m) => ({ id: m.id, baseUrl: undefined }));
-};
-
-export const fetchOllamaModels = async (url: string) => {
-  const response = await fetch(`${url}/api/tags`);
-  const responseData = await response.json();
-  return responseData.models.map((m: IOllamaModelInfo) => ({
-    id: m.name,
-    baseUrl: `${url}/v1/`,
-  }));
+  return models.data.map((m) => ({ id: m.id, baseURL, apiKey }));
 };
 
 export const prepareMessages = ({
@@ -54,68 +35,53 @@ export const updateModelList = async (newList: Model[]) => {
 
   const modelToBeAdded = newList.filter(
     (m1) =>
-      !existingList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
+      !existingList.some((m2) => m1.id === m2.id && m1.baseURL === m2.baseURL)
   );
   for (const model of modelToBeAdded) {
     await db.model.add(model);
   }
 
   const modelToBeRemoved: Model[] = existingList.filter(
-    (m1) => !newList.some((m2) => m1.id === m2.id && m1.baseUrl === m2.baseUrl)
+    (m1) => !newList.some((m2) => m1.id === m2.id && m1.baseURL === m2.baseURL)
   );
   for (const model of modelToBeRemoved) {
     await db.model.delete(model.id);
   }
 };
 
-export const getActiveConversation = async (
+export const getConversation = async (
   conversationId: number
-): Promise<ActiveConversation | undefined> => {
+): Promise<ConversationWithInfo | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
 
-  const assistant = await db.assistant.get(conversation.assistantId);
-  const chats = await db.chat
+  const relatedChats = await db.chat
     .where({ conversationId: conversation.id })
     .toArray();
 
-  let model = undefined;
-  if (assistant) {
-    model = await db.model.get(assistant.modelId);
+  let chats: ChatWithInfo[] = [];
+  for (const chat of relatedChats) {
+    chats.push({
+      ...chat,
+      model: (await db.model.get(chat.modelId))!,
+      prompt: chat.promptId ? await db.prompt.get(chat.promptId) : undefined,
+    });
   }
 
-  return {
-    ...conversation,
-    assistant: assistant ? { ...assistant, model } : assistant,
-    chats,
-  };
+  return { ...conversation, chats };
 };
 
-export const getConversationHistory = async (): Promise<
-  ConversationHistoryItem[]
-> => {
+export const getConversationAll = async (): Promise<ConversationWithInfo[]> => {
   const conversationList = await db.conversation.reverse().sortBy("id");
+
   const conversationHistoryList = [];
   for (const conversation of conversationList) {
-    conversationHistoryList.push({
-      ...conversation,
-      assistant: await db.assistant
-        .where({ id: conversation.assistantId })
-        .first(),
-      firstChat: await db.chat
-        .where({ conversationId: conversation.id })
-        .first(),
-    });
+    const queriedConversation = await getConversation(conversation.id);
+    if (queriedConversation) conversationHistoryList.push(queriedConversation);
   }
   return conversationHistoryList;
 };
 
-export const getActiveAssistant = async (
-  assistantId: number
-): Promise<ActiveAssistant | undefined> => {
-  const assistant = await db.assistant.get(assistantId);
-  if (!assistant) return undefined;
-
-  const model = await db.model.get(assistant.modelId);
-  return { ...assistant, model };
-};
+export const getActiveModel = async (
+  modelId: string
+): Promise<Model | undefined> => await db.model.get(modelId);

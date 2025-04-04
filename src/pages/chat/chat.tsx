@@ -22,7 +22,8 @@ export default function Chats() {
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
     scrollRef,
-    activeAssistant,
+    activeModel,
+    activePrompt,
     activeConversation,
     isThinking,
     messages,
@@ -31,20 +32,20 @@ export default function Chats() {
 
   const onSubmit = useCallback(
     async (data: { input: string }) => {
-      if (!activeAssistant) return;
+      if (!activeModel) return;
 
       // create chat
       const isNewConversation = !!activeConversation;
       const conversationId = activeConversation
         ? activeConversation.id
         : await db.conversation.add({
-            assistantId: activeAssistant.id,
             title: data.input,
           });
       const chatId = await db.chat.add({
         conversationId,
         user: data.input,
         sendAt: Date.now(),
+        modelId: activeModel.id,
       });
       settingsStore.setActiveConversation(conversationId);
 
@@ -53,16 +54,16 @@ export default function Chats() {
       try {
         const client = new OpenAI({
           dangerouslyAllowBrowser: true,
-          baseURL: activeAssistant.model?.baseUrl,
-          apiKey: settingsStore.openAiApiKey,
+          baseURL: activeModel.baseURL,
+          apiKey: activeModel.apiKey,
         });
         const stream = await client.chat.completions.create(
           {
             stream: true,
-            model: activeAssistant.modelId,
+            model: activeModel.id,
             messages: prepareMessages({
               chats: activeConversation?.chats ?? [],
-              system: activeAssistant.prompt ?? "",
+              system: activePrompt?.prompt ?? "",
               input: data.input,
             }),
           },
@@ -90,7 +91,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeAssistant, activeConversation, settingsStore]
+    [activeModel, activeConversation, settingsStore]
   );
 
   useEffect(() => {
@@ -175,7 +176,7 @@ export default function Chats() {
       </div>
       <form
         className="m-6 mt-0 flex-none"
-        onSubmit={activeAssistant ? handleSubmit(onSubmit) : undefined}
+        onSubmit={activeModel ? handleSubmit(onSubmit) : undefined}
       >
         <fieldset className="fieldset">
           <textarea

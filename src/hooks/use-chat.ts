@@ -1,6 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { getActiveAssistant, getActiveConversation } from "@lib/model";
-import { ActiveAssistant, ActiveConversation } from "@lib/model.types";
+import db from "@lib/database";
+import { getConversation } from "@lib/model";
+import { ConversationWithInfo, Model, Prompt } from "@lib/model.types";
 import useSettings from "@store/settings";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
@@ -13,17 +14,24 @@ const useChat = () => {
   const [messages, setMessages] = useState<string[]>([]);
 
   // database
-  const activeAssistant: ActiveAssistant | undefined = useLiveQuery(
+  const activeModel: Model | undefined = useLiveQuery(
     async () =>
-      settingsStore.activeAssistantId
-        ? await getActiveAssistant(settingsStore.activeAssistantId)
+      settingsStore.activeModelId
+        ? await db.model.get(settingsStore.activeModelId)
         : undefined,
-    [settingsStore.activeAssistantId]
+    [settingsStore.activeModelId]
   );
-  const activeConversation: ActiveConversation | undefined = useLiveQuery(
+  const activePrompt: Prompt | undefined = useLiveQuery(
+    async () =>
+      settingsStore.activePromptId
+        ? await db.prompt.get(settingsStore.activePromptId)
+        : undefined,
+    [settingsStore.activePromptId]
+  );
+  const activeConversation: ConversationWithInfo | undefined = useLiveQuery(
     async () =>
       settingsStore.activeConversationId
-        ? await getActiveConversation(settingsStore.activeConversationId)
+        ? await getConversation(settingsStore.activeConversationId)
         : undefined,
     [settingsStore.activeConversationId]
   );
@@ -81,7 +89,8 @@ const useChat = () => {
       setFocus,
     },
     scrollRef,
-    activeAssistant,
+    activeModel,
+    activePrompt,
     activeConversation,
     isThinking,
     messages,

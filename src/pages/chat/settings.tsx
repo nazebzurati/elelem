@@ -1,10 +1,6 @@
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  fetchOllamaModels,
-  fetchOpenAiModels,
-  updateModelList,
-} from "@lib/model";
+import { fetchModels, updateModelList } from "@lib/model";
 import { Model } from "@lib/model.types";
 import { toggleModal } from "@lib/utils";
 import { ModalState } from "@lib/utils.types";
@@ -19,69 +15,26 @@ export const SettingsModalId = "settingsModal";
 export default function SettingsModal() {
   const settingsStore = useSettings();
 
-  const schema = yup.object().shape({
-    ollamaUrl: yup
-      .string()
-      .test(
-        "oneOf",
-        "Provide either Ollama URL or OpenAI API Key.",
-        function (value) {
-          return this.parent.openAiApiKey ? true : !!value;
-        }
-      ),
-    openAiApiKey: yup
-      .string()
-      .test(
-        "oneOf",
-        "Provide either OpenAI API Key or Ollama URL.",
-        function (value) {
-          return this.parent.ollamaUrl ? true : !!value;
-        }
-      ),
-  });
+  const schema = yup
+    .object()
+    .shape({ baseURL: yup.string(), apiKey: yup.string() });
 
   const {
     reset,
     register,
     handleSubmit,
     formState: { errors, isLoading, isSubmitting, isSubmitSuccessful },
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      ollamaUrl: settingsStore.ollamaUrl,
-      openAiApiKey: settingsStore.openAiApiKey,
-    },
-  });
+  } = useForm({ resolver: yupResolver(schema) });
 
   const [error, setError] = useState<string>();
   const onSave = async (data: yup.InferType<typeof schema>) => {
     setError("");
-    let newModelList: Model[] = [];
 
-    if (data.openAiApiKey) {
-      const models = await fetchOpenAiModels(data.openAiApiKey);
-      if (models.length <= 0) {
-        setError("Unable to get OpenAI models.");
-        return;
-      }
-      newModelList = newModelList.concat(models);
-    }
-
-    if (data.ollamaUrl) {
-      const models = await fetchOllamaModels(data.ollamaUrl);
-      if (models.length <= 0) {
-        setError("Unable to get Ollama models.");
-        return;
-      }
-      newModelList = newModelList.concat(models);
-    }
+    const newModelList: Model[] = await fetchModels(data.baseURL, data.apiKey);
 
     try {
       await updateModelList(newModelList);
-      settingsStore.update({
-        ollamaUrl: data.ollamaUrl,
-        openAiApiKey: data.openAiApiKey,
-      });
+      settingsStore.update([{ baseURL: data.baseURL, apiKey: data.apiKey }]);
       toggleModal(SettingsModalId, ModalState.CLOSE);
     } catch (_error) {
       setError("Unable to save config");
@@ -91,8 +44,8 @@ export default function SettingsModal() {
   const onReset = () => {
     setError("");
     reset({
-      openAiApiKey: settingsStore.openAiApiKey,
-      ollamaUrl: settingsStore.ollamaUrl,
+      apiKey: settingsStore.configs[0].apiKey,
+      baseURL: settingsStore.configs[0].baseURL,
     });
   };
 
@@ -124,15 +77,11 @@ export default function SettingsModal() {
                 type="text"
                 className="input w-full"
                 placeholder="sk-*****"
-                {...register("openAiApiKey")}
+                {...register("apiKey")}
               />
-              {errors.openAiApiKey ? (
+              {errors.apiKey && (
                 <p className="fieldset-label text-error">
-                  {errors.openAiApiKey.message}
-                </p>
-              ) : (
-                <p className="fieldset-label">
-                  Don't worry, we keep the key to yourself.
+                  {errors.apiKey.message}
                 </p>
               )}
             </fieldset>
@@ -143,15 +92,13 @@ export default function SettingsModal() {
               <input
                 type="text"
                 className="input w-full"
-                placeholder="http://localhost:11434"
-                {...register("ollamaUrl")}
+                placeholder="http://localhost:11434/v1"
+                {...register("baseURL")}
               />
-              {errors.ollamaUrl ? (
+              {errors.baseURL && (
                 <p className="fieldset-label text-error">
-                  {errors.ollamaUrl.message}
+                  {errors.baseURL.message}
                 </p>
-              ) : (
-                <p className="fieldset-label">Set as empty to disable.</p>
               )}
             </fieldset>
           </div>

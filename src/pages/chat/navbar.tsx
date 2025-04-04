@@ -1,22 +1,18 @@
 import db from "@lib/database";
-import { Assistant, AssistantListing } from "@lib/model.types";
 import useSettings from "@store/settings";
 import {
   IconChevronDown,
-  IconEdit,
   IconHistory,
   IconInfoCircle,
   IconMessageCirclePlus,
-  IconPlus,
   IconSettings,
 } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useMemo, useRef } from "react";
 import { AboutModalId } from "./about";
-import { AddAssistantModalId } from "./add";
 import { HistoryModalId } from "./history";
 import { SettingsModalId } from "./settings";
-import { UpdateAssistantModalId } from "./update";
+import { Model } from "@lib/model.types";
 
 const MENU_CLOSING_DELAY_MS = 100;
 
@@ -63,24 +59,6 @@ export default function Navbar() {
             <IconHistory className="h-6 w-6" />
           </button>
         </div>
-        <div className="tooltip tooltip-bottom" data-tip="Add Assistant">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            onClick={() => openModal(AddAssistantModalId)}
-          >
-            <IconPlus className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="tooltip tooltip-bottom" data-tip="Update Assistant">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            onClick={() => openModal(UpdateAssistantModalId)}
-          >
-            <IconEdit className="h-6 w-6" />
-          </button>
-        </div>
         <div className="tooltip tooltip-bottom" data-tip="Settings">
           <button
             type="button"
@@ -106,55 +84,44 @@ export default function Navbar() {
 
 function AssistantSelector() {
   const settingsStore = useSettings();
-  const assistants: AssistantListing[] | undefined = useLiveQuery(async () =>
-    (await db.assistant.toArray()).map((a: Assistant, i: number) => ({
-      ...a,
-      index: i + 1,
-    }))
+  const models: Model[] | undefined = useLiveQuery(async () =>
+    db.model.toArray()
   );
 
-  const activeAssistant = useMemo(() => {
-    return assistants?.find((a) => a.id === settingsStore.activeAssistantId);
-  }, [assistants, settingsStore.activeAssistantId]);
+  const activeModel = useMemo(() => {
+    return models?.find((m) => m.id === settingsStore.activeModelId);
+  }, [models, settingsStore.activeModelId]);
 
   const menuRef = useRef<HTMLDetailsElement>(null);
-  const onSelect = (assistantId: number) => {
-    settingsStore.setActiveAssistant(assistantId);
+  const onSelect = (modelId: string) => {
+    settingsStore.setActiveModel(modelId);
     setTimeout(() => {
       menuRef.current?.click();
     }, MENU_CLOSING_DELAY_MS);
   };
 
-  const checkIfActive = (id: number) => {
-    return id === activeAssistant?.id ? "bg-primary" : "";
+  const checkIfActive = (id: string) => {
+    return id === activeModel?.id ? "bg-primary" : "";
   };
 
   return (
     <div className="dropdown">
       <div tabIndex={0} role="button" className="m-1 flex items-center">
-        <div className="kbd kbd-sm me-3">ALT + {activeAssistant?.index}</div>
-        <div className="flex flex-col me-3">
-          {activeAssistant?.name}
-          <span className="text-xs">{activeAssistant?.modelId}</span>
-        </div>
+        <div className="flex flex-col me-3">{activeModel?.id}</div>
         <IconChevronDown className="w-4 h-4" />
       </div>
       <ul
         tabIndex={0}
         className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm"
       >
-        {assistants?.map((assistant) => (
-          <li key={assistant.id}>
+        {models?.map((model) => (
+          <li key={model.id}>
             <button
               type="button"
-              onClick={() => onSelect(assistant.id)}
-              className={`flex items-center ${checkIfActive(assistant.id)}`}
+              onClick={() => onSelect(model.id)}
+              className={`flex items-center ${checkIfActive(model.id)}`}
             >
-              <div className="kbd kbd-sm me-1">ALT + {assistant.index}</div>
-              <div className="flex flex-col">
-                {assistant.name}
-                <span className="text-xs">{assistant.modelId}</span>
-              </div>
+              <div className="flex flex-col">{model.id}</div>
             </button>
           </li>
         ))}

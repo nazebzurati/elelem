@@ -1,6 +1,6 @@
 import { TIME_FORMAT } from "@lib/chat";
 import db from "@lib/database";
-import { getConversationHistory } from "@lib/model";
+import { getConversationAll } from "@lib/model";
 import { toggleModal } from "@lib/utils";
 import { ModalState } from "@lib/utils.types";
 import useSettings from "@store/settings";
@@ -19,9 +19,7 @@ export const HistoryModalId = "historyModal";
 const MAX_ITEM_PER_PAGE = 4;
 
 export default function HistoryModal() {
-  const conversationList = useLiveQuery(
-    async () => await getConversationHistory()
-  );
+  const conversationList = useLiveQuery(async () => await getConversationAll());
   const settingsStore = useSettings();
 
   const onDelete = async (conversationId: number) => {
@@ -32,8 +30,8 @@ export default function HistoryModal() {
     }
   };
 
-  const onOpen = (conversationId: number, assistantId: number) => {
-    settingsStore.setActiveAssistant(assistantId);
+  const onOpen = (conversationId: number, modelId: string) => {
+    settingsStore.setActiveModel(modelId);
     settingsStore.setActiveConversation(conversationId);
     toggleModal(HistoryModalId, ModalState.CLOSE);
   };
@@ -75,10 +73,8 @@ export default function HistoryModal() {
                   {conversation.title ?? "No title"}
                 </div>
                 <div className="line-clamp-1 text-xs font-semibold opacity-60">
-                  {conversation.assistant?.name},{" "}
-                  {dayjs(conversation.firstChat?.receivedAt).format(
-                    TIME_FORMAT
-                  )}
+                  {conversation.chats[0].modelId},{" "}
+                  {dayjs(conversation.chats[0].receivedAt).format(TIME_FORMAT)}
                 </div>
               </div>
               <div className="w-max ml-auto flex-shrink-0">
@@ -86,7 +82,7 @@ export default function HistoryModal() {
                   type="button"
                   className="btn btn-square btn-ghost"
                   onClick={() =>
-                    onOpen(conversation.id, conversation.assistantId)
+                    onOpen(conversation.id, conversation.chats[-1].modelId)
                   }
                   disabled={
                     settingsStore.activeConversationId === conversation.id

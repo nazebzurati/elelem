@@ -1,17 +1,13 @@
 import db from "@lib/database";
-import useSettings from "@store/settings";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Step1, Step2, Step3, Step4 } from "./onboarding-steps";
 
 export default function Onboard() {
-  const settingsStore = useSettings();
   const navigation = useNavigate();
   useEffect(() => {
-    db.assistant.count().then((count) => {
-      if (count > 0 && settingsStore.isOnboardingCompleted) {
-        navigation("/chat");
-      }
+    db.model.count().then((count) => {
+      if (count > 0) navigation("/chat");
     });
   }, []);
 
