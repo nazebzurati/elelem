@@ -258,12 +258,7 @@ function Step4({
     <>
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">At Your Service!</h1>
-        <p>
-          Congratulations, your assistant is ready to go! Use{" "}
-          <kbd className="kbd kbd-sm">ALT</kbd> + number (e.g.{" "}
-          <kbd className="kbd kbd-sm">ALT + 1</kbd>) to choose your preferred
-          one.
-        </p>
+        <p className="px-12">Congratulations, we're good to go.</p>
         <img
           width={150}
           height={150}

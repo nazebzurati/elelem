@@ -1,88 +1,27 @@
 import db from "@lib/database";
+import { Model } from "@lib/model.types";
 import useSettings from "@store/settings";
-import {
-  IconChevronDown,
-  IconHistory,
-  IconInfoCircle,
-  IconMessageCirclePlus,
-  IconSettings,
-} from "@tabler/icons-react";
+import { IconChevronDown } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useMemo, useRef } from "react";
-import { AboutModalId } from "./about";
-import { HistoryModalId } from "./history";
-import { SettingsModalId } from "./settings";
-import { Model } from "@lib/model.types";
+import Drawer from "./drawer";
 
 const MENU_CLOSING_DELAY_MS = 100;
 
 export default function Navbar() {
-  const conversationList = useLiveQuery(() => db.conversation.toArray());
-  const settingsStore = useSettings();
-
-  const openModal = (id: string) => {
-    const modal = document.getElementById(id) as HTMLDialogElement;
-    if (modal) modal.showModal();
-  };
-
   return (
-    <div className="navbar bg-base-100 flex-none">
-      <div className="navbar-start me-6">
-        <AssistantSelector />
+    <div className="navbar bg-base-100 flex-none px-6 flex">
+      <div className="navbar-start me-6 flex-0">
+        <Drawer />
       </div>
-      <div className="navbar-end">
-        <div className="tooltip tooltip-bottom" data-tip="New conversation">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            disabled={!settingsStore.activeConversationId}
-            onClick={() => {
-              if (settingsStore.activeConversationId) {
-                settingsStore.setActiveConversation(undefined);
-              }
-            }}
-          >
-            <IconMessageCirclePlus className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="tooltip tooltip-bottom" data-tip="History">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            disabled={(conversationList?.length ?? 0) <= 0}
-            onClick={() => {
-              if ((conversationList?.length ?? 0) > 0) {
-                openModal(HistoryModalId);
-              }
-            }}
-          >
-            <IconHistory className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="tooltip tooltip-bottom" data-tip="Settings">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            onClick={() => openModal(SettingsModalId)}
-          >
-            <IconSettings className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="tooltip tooltip-bottom" data-tip="About">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            onClick={() => openModal(AboutModalId)}
-          >
-            <IconInfoCircle className="h-6 w-6" />
-          </button>
-        </div>
+      <div className="navbar-end flex-1">
+        <ModelSelector />
       </div>
     </div>
   );
 }
 
-function AssistantSelector() {
+function ModelSelector() {
   const settingsStore = useSettings();
   const models: Model[] | undefined = useLiveQuery(async () =>
     db.model.toArray()
@@ -105,7 +44,7 @@ function AssistantSelector() {
   };
 
   return (
-    <div className="dropdown">
+    <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="m-1 flex items-center">
         <div className="flex flex-col me-3">{activeModel?.id}</div>
         <IconChevronDown className="w-4 h-4" />

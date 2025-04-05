@@ -14,6 +14,7 @@ import Markdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import { IconChevronDown } from "@tabler/icons-react";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -167,9 +168,6 @@ export default function Chats() {
                 src={andyNote}
                 className="mx-auto"
               />
-              <p className="text-sm">
-                Write something below to start a conversation
-              </p>
             </div>
           </div>
         )}
@@ -179,12 +177,38 @@ export default function Chats() {
         onSubmit={activeModel ? handleSubmit(onSubmit) : undefined}
       >
         <fieldset className="fieldset">
+          <legend className="fieldset-legend">
+            <div className="dropdown dropdown-top">
+              <div tabIndex={0} role="button" className="m-1 flex items-center">
+                <div className="flex flex-col me-3">No prompt</div>
+                <IconChevronDown className="w-4 h-4" />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm"
+              >
+                <li>
+                  <button
+                    type="button"
+                    className={`flex items-center bg-primary`}
+                  >
+                    <div className="flex flex-col">No prompt</div>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" className={`flex items-center`}>
+                    <div className="flex flex-col">Rephrase</div>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </legend>
           <textarea
             autoFocus
             id="chatInput"
             disabled={isSubmitting || isLoading}
             className="textarea w-full"
-            placeholder="Ask me anything .."
+            placeholder="Write here"
             {...register("input")}
           />
           <div className="fieldset-label">
