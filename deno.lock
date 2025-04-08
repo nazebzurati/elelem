@@ -4,30 +4,31 @@
     "npm:@hookform/resolvers@^5.0.1": "5.0.1_react-hook-form@7.55.0__react@19.1.0_react@19.1.0",
     "npm:@redux-devtools/extension@^3.3.0": "3.3.0_redux@5.0.1",
     "npm:@tabler/icons-react@^3.31.0": "3.31.0_react@19.1.0",
-    "npm:@tailwindcss/vite@^4.1.2": "4.1.2_vite@6.2.5",
+    "npm:@tailwindcss/vite@^4.1.3": "4.1.3_vite@6.2.5",
     "npm:@tauri-apps/api@2": "2.2.0",
     "npm:@tauri-apps/cli@^2.4.1": "2.4.1",
     "npm:@tauri-apps/plugin-opener@2": "2.2.5",
     "npm:@types/react-dom@^19.1.1": "19.1.1_@types+react@19.1.0",
     "npm:@types/react@^19.1.0": "19.1.0",
     "npm:@vitejs/plugin-react@^4.3.4": "4.3.4_vite@6.2.5_@babel+core@7.26.10",
-    "npm:daisyui@^5.0.12": "5.0.12",
+    "npm:daisyui@^5.0.16": "5.0.16",
     "npm:dayjs@^1.11.13": "1.11.13",
     "npm:dexie-react-hooks@^1.1.7": "1.1.7_@types+react@19.1.0_dexie@4.0.11_react@19.1.0",
     "npm:dexie@^4.0.11": "4.0.11",
     "npm:katex@~0.16.21": "0.16.21",
-    "npm:openai@^4.91.1": "4.91.1",
+    "npm:openai@^4.92.1": "4.92.1",
+    "npm:radash@^12.1.0": "12.1.0",
     "npm:react-dom@^19.1.0": "19.1.0_react@19.1.0",
     "npm:react-hook-form@^7.55.0": "7.55.0_react@19.1.0",
     "npm:react-markdown@^10.1.0": "10.1.0_@types+react@19.1.0_react@19.1.0",
-    "npm:react-router@^7.4.1": "7.4.1_react@19.1.0_react-dom@19.1.0__react@19.1.0",
+    "npm:react-router@^7.5.0": "7.5.0_react@19.1.0_react-dom@19.1.0__react@19.1.0",
     "npm:react@^19.1.0": "19.1.0",
     "npm:rehype-katex@^7.0.1": "7.0.1",
     "npm:remark-gfm@^4.0.1": "4.0.1",
     "npm:remark-math@6": "6.0.0",
-    "npm:tailwindcss@^4.1.2": "4.1.2",
-    "npm:typescript@~5.8.2": "5.8.2",
-    "npm:vite-tsconfig-paths@^5.1.4": "5.1.4_vite@6.2.5_typescript@5.8.2",
+    "npm:tailwindcss@^4.1.3": "4.1.3",
+    "npm:typescript@~5.8.3": "5.8.3",
+    "npm:vite-tsconfig-paths@^5.1.4": "5.1.4_vite@6.2.5_typescript@5.8.3",
     "npm:vite@^6.2.5": "6.2.5",
     "npm:yup@^1.6.1": "1.6.1",
     "npm:zustand@^5.0.3": "5.0.3_@types+react@19.1.0_react@19.1.0"
@@ -366,8 +367,8 @@
     "@tabler/icons@3.31.0": {
       "integrity": "sha512-dblAdeKY3+GA1U+Q9eziZ0ooVlZMHsE8dqP0RkwvRtEsAULoKOYaCUOcJ4oW1DjWegdxk++UAt2SlQVnmeHv+g=="
     },
-    "@tailwindcss/node@4.1.2": {
-      "integrity": "sha512-ZwFnxH+1z8Ehh8bNTMX3YFrYdzAv7JLY5X5X7XSFY+G9QGJVce/P9xb2mh+j5hKt8NceuHmdtllJvAHWKtsNrQ==",
+    "@tailwindcss/node@4.1.3": {
+      "integrity": "sha512-H/6r6IPFJkCfBJZ2dKZiPJ7Ueb2wbL592+9bQEl2r73qbX6yGnmQVIfiUvDRB2YI0a3PWDrzUwkvQx1XW1bNkA==",
       "dependencies": [
         "enhanced-resolve",
         "jiti",
@@ -375,41 +376,41 @@
         "tailwindcss"
       ]
     },
-    "@tailwindcss/oxide-android-arm64@4.1.2": {
-      "integrity": "sha512-IxkXbntHX8lwGmwURUj4xTr6nezHhLYqeiJeqa179eihGv99pRlKV1W69WByPJDQgSf4qfmwx904H6MkQqTA8w=="
+    "@tailwindcss/oxide-android-arm64@4.1.3": {
+      "integrity": "sha512-cxklKjtNLwFl3mDYw4XpEfBY+G8ssSg9ADL4Wm6//5woi3XGqlxFsnV5Zb6v07dxw1NvEX2uoqsxO/zWQsgR+g=="
     },
-    "@tailwindcss/oxide-darwin-arm64@4.1.2": {
-      "integrity": "sha512-ZRtiHSnFYHb4jHKIdzxlFm6EDfijTCOT4qwUhJ3GWxfDoW2yT3z/y8xg0nE7e72unsmSj6dtfZ9Y5r75FIrlpA=="
+    "@tailwindcss/oxide-darwin-arm64@4.1.3": {
+      "integrity": "sha512-mqkf2tLR5VCrjBvuRDwzKNShRu99gCAVMkVsaEOFvv6cCjlEKXRecPu9DEnxp6STk5z+Vlbh1M5zY3nQCXMXhw=="
     },
-    "@tailwindcss/oxide-darwin-x64@4.1.2": {
-      "integrity": "sha512-BiKUNZf1A0pBNzndBvnPnBxonCY49mgbOsPfILhcCE5RM7pQlRoOgN7QnwNhY284bDbfQSEOWnFR0zbPo6IDTw=="
+    "@tailwindcss/oxide-darwin-x64@4.1.3": {
+      "integrity": "sha512-7sGraGaWzXvCLyxrc7d+CCpUN3fYnkkcso3rCzwUmo/LteAl2ZGCDlGvDD8Y/1D3ngxT8KgDj1DSwOnNewKhmg=="
     },
-    "@tailwindcss/oxide-freebsd-x64@4.1.2": {
-      "integrity": "sha512-Z30VcpUfRGkiddj4l5NRCpzbSGjhmmklVoqkVQdkEC0MOelpY+fJrVhzSaXHmWrmSvnX8yiaEqAbdDScjVujYQ=="
+    "@tailwindcss/oxide-freebsd-x64@4.1.3": {
+      "integrity": "sha512-E2+PbcbzIReaAYZe997wb9rId246yDkCwAakllAWSGqe6VTg9hHle67hfH6ExjpV2LSK/siRzBUs5wVff3RW9w=="
     },
-    "@tailwindcss/oxide-linux-arm-gnueabihf@4.1.2": {
-      "integrity": "sha512-w3wsK1ChOLeQ3gFOiwabtWU5e8fY3P1Ss8jR3IFIn/V0va3ir//hZ8AwURveS4oK1Pu6b8i+yxesT4qWnLVUow=="
+    "@tailwindcss/oxide-linux-arm-gnueabihf@4.1.3": {
+      "integrity": "sha512-GvfbJ8wjSSjbLFFE3UYz4Eh8i4L6GiEYqCtA8j2Zd2oXriPuom/Ah/64pg/szWycQpzRnbDiJozoxFU2oJZyfg=="
     },
-    "@tailwindcss/oxide-linux-arm64-gnu@4.1.2": {
-      "integrity": "sha512-oY/u+xJHpndTj7B5XwtmXGk8mQ1KALMfhjWMMpE8pdVAznjJsF5KkCceJ4Fmn5lS1nHMCwZum5M3/KzdmwDMdw=="
+    "@tailwindcss/oxide-linux-arm64-gnu@4.1.3": {
+      "integrity": "sha512-35UkuCWQTeG9BHcBQXndDOrpsnt3Pj9NVIB4CgNiKmpG8GnCNXeMczkUpOoqcOhO6Cc/mM2W7kaQ/MTEENDDXg=="
     },
-    "@tailwindcss/oxide-linux-arm64-musl@4.1.2": {
-      "integrity": "sha512-k7G6vcRK/D+JOWqnKzKN/yQq1q4dCkI49fMoLcfs2pVcaUAXEqCP9NmA8Jv+XahBv5DtDjSAY3HJbjosEdKczg=="
+    "@tailwindcss/oxide-linux-arm64-musl@4.1.3": {
+      "integrity": "sha512-dm18aQiML5QCj9DQo7wMbt1Z2tl3Giht54uVR87a84X8qRtuXxUqnKQkRDK5B4bCOmcZ580lF9YcoMkbDYTXHQ=="
     },
-    "@tailwindcss/oxide-linux-x64-gnu@4.1.2": {
-      "integrity": "sha512-fLL+c678TkYKgkDLLNxSjPPK/SzTec7q/E5pTwvpTqrth867dftV4ezRyhPM5PaiCqX651Y8Yk0wRQMcWUGnmQ=="
+    "@tailwindcss/oxide-linux-x64-gnu@4.1.3": {
+      "integrity": "sha512-LMdTmGe/NPtGOaOfV2HuO7w07jI3cflPrVq5CXl+2O93DCewADK0uW1ORNAcfu2YxDUS035eY2W38TxrsqngxA=="
     },
-    "@tailwindcss/oxide-linux-x64-musl@4.1.2": {
-      "integrity": "sha512-0tU1Vjd1WucZ2ooq6y4nI9xyTSaH2g338bhrqk+2yzkMHskBm+pMsOCfY7nEIvALkA1PKPOycR4YVdlV7Czo+A=="
+    "@tailwindcss/oxide-linux-x64-musl@4.1.3": {
+      "integrity": "sha512-aalNWwIi54bbFEizwl1/XpmdDrOaCjRFQRgtbv9slWjmNPuJJTIKPHf5/XXDARc9CneW9FkSTqTbyvNecYAEGw=="
     },
-    "@tailwindcss/oxide-win32-arm64-msvc@4.1.2": {
-      "integrity": "sha512-r8QaMo3QKiHqUcn+vXYCypCEha+R0sfYxmaZSgZshx9NfkY+CHz91aS2xwNV/E4dmUDkTPUag7sSdiCHPzFVTg=="
+    "@tailwindcss/oxide-win32-arm64-msvc@4.1.3": {
+      "integrity": "sha512-PEj7XR4OGTGoboTIAdXicKuWl4EQIjKHKuR+bFy9oYN7CFZo0eu74+70O4XuERX4yjqVZGAkCdglBODlgqcCXg=="
     },
-    "@tailwindcss/oxide-win32-x64-msvc@4.1.2": {
-      "integrity": "sha512-lYCdkPxh9JRHXoBsPE8Pu/mppUsC2xihYArNAESub41PKhHTnvn6++5RpmFM+GLSt3ewyS8fwCVvht7ulWm6cw=="
+    "@tailwindcss/oxide-win32-x64-msvc@4.1.3": {
+      "integrity": "sha512-T8gfxECWDBENotpw3HR9SmNiHC9AOJdxs+woasRZ8Q/J4VHN0OMs7F+4yVNZ9EVN26Wv6mZbK0jv7eHYuLJLwA=="
     },
-    "@tailwindcss/oxide@4.1.2": {
-      "integrity": "sha512-Zwz//1QKo6+KqnCKMT7lA4bspGfwEgcPAHlSthmahtgrpKDfwRGk8PKQrW8Zg/ofCDIlg6EtjSTKSxxSufC+CQ==",
+    "@tailwindcss/oxide@4.1.3": {
+      "integrity": "sha512-t16lpHCU7LBxDe/8dCj9ntyNpXaSTAgxWm1u2XQP5NiIu4KGSyrDJJRlK9hJ4U9yJxx0UKCVI67MJWFNll5mOQ==",
       "dependencies": [
         "@tailwindcss/oxide-android-arm64",
         "@tailwindcss/oxide-darwin-arm64",
@@ -424,8 +425,8 @@
         "@tailwindcss/oxide-win32-x64-msvc"
       ]
     },
-    "@tailwindcss/vite@4.1.2_vite@6.2.5": {
-      "integrity": "sha512-3r/ZdMW0gxY8uOx1To0lpYa4coq4CzINcCX4laM1rS340Kcn0ac4A/MMFfHN8qba51aorZMYwMcOxYk4wJ9FYg==",
+    "@tailwindcss/vite@4.1.3_vite@6.2.5": {
+      "integrity": "sha512-lUI/QaDxLtlV52Lho6pu07CG9pSnRYLOPmKGIQjyHdTBagemc6HmgZxyjGAQ/5HMPrNeWBfTVIpQl0/jLXvWHQ==",
       "dependencies": [
         "@tailwindcss/node",
         "@tailwindcss/oxide",
@@ -680,8 +681,8 @@
     "csstype@3.1.3": {
       "integrity": "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="
     },
-    "daisyui@5.0.12": {
-      "integrity": "sha512-01DU0eYBcHgPtuf5fxcrkGkIN6/Uyaqmkle5Yo3ZyW9YVAu036ALZbjv2KH5euvUbeQ4r9q3gAarGcf7Tywhng=="
+    "daisyui@5.0.16": {
+      "integrity": "sha512-MQiZQ21+r91zrKv3fxDOF56dzkfrr2FyXOaR/1T4f9AIeI/ilkc0i+UqOIE/VqjIfkWyq+wBPmBcyIf6iPJpYQ=="
     },
     "dayjs@1.11.13": {
       "integrity": "sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg=="
@@ -1556,8 +1557,8 @@
     "node-releases@2.0.19": {
       "integrity": "sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw=="
     },
-    "openai@4.91.1": {
-      "integrity": "sha512-DbjrR0hIMQFbxz8+3qBsfPJnh3+I/skPgoSlT7f9eiZuhGBUissPQULNgx6gHNkLoZ3uS0uYS6eXPUdtg4nHzw==",
+    "openai@4.92.1": {
+      "integrity": "sha512-rFjyiQF/eHXIuzyoT2qkCY/xmI+zyq9xlMZmOEFkSsyGhc8tpNaf7rW25m5uTddnk6B5gRfRX640onMhAQyTww==",
       "dependencies": [
         "@types/node@18.19.86",
         "@types/node-fetch",
@@ -1606,6 +1607,9 @@
     "property-information@7.0.0": {
       "integrity": "sha512-7D/qOz/+Y4X/rzSB6jKxKUsQnphO046ei8qxG59mtM3RG3DHgTK81HrxrmoDVINJb8NKT5ZsRbwHvQ6B68Iyhg=="
     },
+    "radash@12.1.0": {
+      "integrity": "sha512-b0Zcf09AhqKS83btmUeYBS8tFK7XL2e3RvLmZcm0sTdF1/UUlHSsjXdCcWNxe7yfmAlPve5ym0DmKGtTzP6kVQ=="
+    },
     "react-dom@19.1.0_react@19.1.0": {
       "integrity": "sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==",
       "dependencies": [
@@ -1640,8 +1644,8 @@
     "react-refresh@0.14.2": {
       "integrity": "sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA=="
     },
-    "react-router@7.4.1_react@19.1.0_react-dom@19.1.0__react@19.1.0": {
-      "integrity": "sha512-Vmizn9ZNzxfh3cumddqv3kLOKvc7AskUT0dC1prTabhiEi0U4A33LmkDOJ79tXaeSqCqMBXBU/ySX88W85+EUg==",
+    "react-router@7.5.0_react@19.1.0_react-dom@19.1.0__react@19.1.0": {
+      "integrity": "sha512-estOHrRlDMKdlQa6Mj32gIks4J+AxNsYoE0DbTTxiMy2mPzZuWSDU+N85/r1IlNR7kGfznF3VCUlvc5IUO+B9g==",
       "dependencies": [
         "@types/cookie",
         "cookie",
@@ -1780,8 +1784,8 @@
         "inline-style-parser"
       ]
     },
-    "tailwindcss@4.1.2": {
-      "integrity": "sha512-VCsK+fitIbQF7JlxXaibFhxrPq4E2hDcG8apzHUdWFMCQWD8uLdlHg4iSkZ53cgLCCcZ+FZK7vG8VjvLcnBgKw=="
+    "tailwindcss@4.1.3": {
+      "integrity": "sha512-2Q+rw9vy1WFXu5cIxlvsabCwhU2qUwodGq03ODhLJ0jW4ek5BUtoCsnLB0qG+m8AHgEsSJcJGDSDe06FXlP74g=="
     },
     "tapable@2.2.1": {
       "integrity": "sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ=="
@@ -1801,7 +1805,7 @@
     "trough@2.2.0": {
       "integrity": "sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw=="
     },
-    "tsconfck@3.1.5_typescript@5.8.2": {
+    "tsconfck@3.1.5_typescript@5.8.3": {
       "integrity": "sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==",
       "dependencies": [
         "typescript"
@@ -1813,8 +1817,8 @@
     "type-fest@2.19.0": {
       "integrity": "sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA=="
     },
-    "typescript@5.8.2": {
-      "integrity": "sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ=="
+    "typescript@5.8.3": {
+      "integrity": "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="
     },
     "undici-types@5.26.5": {
       "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
@@ -1910,7 +1914,7 @@
         "vfile-message"
       ]
     },
-    "vite-tsconfig-paths@5.1.4_vite@6.2.5_typescript@5.8.2": {
+    "vite-tsconfig-paths@5.1.4_vite@6.2.5_typescript@5.8.3": {
       "integrity": "sha512-cYj0LRuLV2c2sMqhqhGpaO3LretdtMn/BVX4cPLanIZuwwrkVl+lK84E/miEXkCHWXuq65rhNN4rXsBcOB3S4w==",
       "dependencies": [
         "debug",
@@ -1973,29 +1977,30 @@
         "npm:@hookform/resolvers@^5.0.1",
         "npm:@redux-devtools/extension@^3.3.0",
         "npm:@tabler/icons-react@^3.31.0",
-        "npm:@tailwindcss/vite@^4.1.2",
+        "npm:@tailwindcss/vite@^4.1.3",
         "npm:@tauri-apps/api@2",
         "npm:@tauri-apps/cli@^2.4.1",
         "npm:@tauri-apps/plugin-opener@2",
         "npm:@types/react-dom@^19.1.1",
         "npm:@types/react@^19.1.0",
         "npm:@vitejs/plugin-react@^4.3.4",
-        "npm:daisyui@^5.0.12",
+        "npm:daisyui@^5.0.16",
         "npm:dayjs@^1.11.13",
         "npm:dexie-react-hooks@^1.1.7",
         "npm:dexie@^4.0.11",
         "npm:katex@~0.16.21",
-        "npm:openai@^4.91.1",
+        "npm:openai@^4.92.1",
+        "npm:radash@^12.1.0",
         "npm:react-dom@^19.1.0",
         "npm:react-hook-form@^7.55.0",
         "npm:react-markdown@^10.1.0",
-        "npm:react-router@^7.4.1",
+        "npm:react-router@^7.5.0",
         "npm:react@^19.1.0",
         "npm:rehype-katex@^7.0.1",
         "npm:remark-gfm@^4.0.1",
         "npm:remark-math@6",
-        "npm:tailwindcss@^4.1.2",
-        "npm:typescript@~5.8.2",
+        "npm:tailwindcss@^4.1.3",
+        "npm:typescript@~5.8.3",
         "npm:vite-tsconfig-paths@^5.1.4",
         "npm:vite@^6.2.5",
         "npm:yup@^1.6.1",

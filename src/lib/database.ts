@@ -1,7 +1,8 @@
 import Dexie, { type EntityTable } from "dexie";
-import { Prompt, Chat, Conversation, Model } from "./model.types";
+import { Chat, Conversation, Model, Prompt, Provider } from "./model.types";
 
 const db = new Dexie("elelem") as Dexie & {
+  provider: EntityTable<Provider, "id">;
   model: EntityTable<Model, "id">;
   prompt: EntityTable<Prompt, "id">;
   conversation: EntityTable<Conversation, "id">;
@@ -9,10 +10,11 @@ const db = new Dexie("elelem") as Dexie & {
 };
 
 db.version(2).stores({
-  model: "id, baseURL, apiKey",
+  provider: "++id, baseURL, apiKey",
+  model: "id, providerId, isActive",
   prompt: "++id, title, prompt",
-  conversation: "++id, title",
-  chat: "++id, conversationId, promptId, user, assistant, sendAt, receivedAt",
+  conversation: "++id, title, createdAt",
+  chat: "++id, conversationId, promptId, modelId, user, assistant, sendAt, receivedAt",
 });
 
 export default db;

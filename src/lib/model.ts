@@ -1,12 +1,17 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import db from "./database";
-import { Chat, ChatWithInfo, ConversationWithInfo, Model } from "./model.types";
+import {
+  Chat,
+  ChatWithDetails,
+  ConversationWithDetails,
+  ModelWithDetails,
+} from "./model.types";
 
 export const fetchModels = async (baseURL?: string, apiKey?: string) => {
   const client = new OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
   const models = await client.models.list();
-  return models.data.map((m) => ({ id: m.id, baseURL, apiKey }));
+  return models.data.map((m) => m.id);
 };
 
 export const prepareMessages = ({
@@ -30,28 +35,9 @@ export const prepareMessages = ({
   return messages;
 };
 
-export const updateModelList = async (newList: Model[]) => {
-  const existingList = await db.model.toArray();
-
-  const modelToBeAdded = newList.filter(
-    (m1) =>
-      !existingList.some((m2) => m1.id === m2.id && m1.baseURL === m2.baseURL)
-  );
-  for (const model of modelToBeAdded) {
-    await db.model.add(model);
-  }
-
-  const modelToBeRemoved: Model[] = existingList.filter(
-    (m1) => !newList.some((m2) => m1.id === m2.id && m1.baseURL === m2.baseURL)
-  );
-  for (const model of modelToBeRemoved) {
-    await db.model.delete(model.id);
-  }
-};
-
 export const getConversation = async (
   conversationId: number
-): Promise<ConversationWithInfo | undefined> => {
+): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
 
@@ -59,11 +45,12 @@ export const getConversation = async (
     .where({ conversationId: conversation.id })
     .toArray();
 
-  let chats: ChatWithInfo[] = [];
+  let chats: ChatWithDetails[] = [];
   for (const chat of relatedChats) {
+    const model: any = await db.model.get(chat.modelId);
     chats.push({
       ...chat,
-      model: (await db.model.get(chat.modelId))!,
+      model: { ...model, provider: await db.provider.get(model.providerId) },
       prompt: chat.promptId ? await db.prompt.get(chat.promptId) : undefined,
     });
   }
@@ -71,7 +58,9 @@ export const getConversation = async (
   return { ...conversation, chats };
 };
 
-export const getConversationAll = async (): Promise<ConversationWithInfo[]> => {
+export const getConversationAll = async (): Promise<
+  ConversationWithDetails[]
+> => {
   const conversationList = await db.conversation.reverse().sortBy("id");
 
   const conversationHistoryList = [];
@@ -82,6 +71,11 @@ export const getConversationAll = async (): Promise<ConversationWithInfo[]> => {
   return conversationHistoryList;
 };
 
-export const getActiveModel = async (
-  modelId: string
-): Promise<Model | undefined> => await db.model.get(modelId);
+export const getActiveModel = async (): Promise<
+  ModelWithDetails | undefined
+> => {
+  const model = await db.model.where({ isActive: 1 }).first();
+  if (!model) return undefined;
+  const provider = (await db.provider.get(model.providerId))!;
+  return { ...model, provider };
+};

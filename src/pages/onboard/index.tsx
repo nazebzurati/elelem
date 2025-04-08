@@ -1,16 +1,7 @@
-import db from "@lib/database";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useState } from "react";
 import { Step1, Step2, Step3, Step4 } from "./onboarding-steps";
 
 export default function Onboard() {
-  const navigation = useNavigate();
-  useEffect(() => {
-    db.model.count().then((count) => {
-      if (count > 0) navigation("/chat");
-    });
-  }, []);
-
   const [step, setStep] = useState(1);
   return (
     <div className="h-svh p-8 space-y-10 flex flex-col justify-between">

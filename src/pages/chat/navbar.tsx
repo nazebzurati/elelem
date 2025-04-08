@@ -1,10 +1,8 @@
 import db from "@lib/database";
-import { Model } from "@lib/model.types";
-import useSettings from "@store/settings";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useMemo, useRef } from "react";
-import Drawer from "./drawer";
+import { useRef } from "react";
+import Drawer from "../../components/drawer";
 
 const MENU_CLOSING_DELAY_MS = 100;
 
@@ -22,25 +20,22 @@ export default function Navbar() {
 }
 
 function ModelSelector() {
-  const settingsStore = useSettings();
-  const models: Model[] | undefined = useLiveQuery(async () =>
-    db.model.toArray()
-  );
-
-  const activeModel = useMemo(() => {
-    return models?.find((m) => m.id === settingsStore.activeModelId);
-  }, [models, settingsStore.activeModelId]);
+  const modelList = useLiveQuery(async () => await db.model.toArray());
+  const activeModel = modelList?.find((model) => model.isActive);
 
   const menuRef = useRef<HTMLDetailsElement>(null);
-  const onSelect = (modelId: string) => {
-    settingsStore.setActiveModel(modelId);
+  const onSelect = async (modelId: string) => {
+    const activeModels = await db.model.where({ isActive: 1 }).toArray();
+    await db.model.bulkUpdate(
+      activeModels.map((model) => ({
+        key: model.id,
+        changes: { isActive: 0 },
+      }))
+    );
+    await db.model.update(modelId, { isActive: 1 });
     setTimeout(() => {
       menuRef.current?.click();
     }, MENU_CLOSING_DELAY_MS);
-  };
-
-  const checkIfActive = (id: string) => {
-    return id === activeModel?.id ? "bg-primary" : "";
   };
 
   return (
@@ -53,12 +48,14 @@ function ModelSelector() {
         tabIndex={0}
         className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm"
       >
-        {models?.map((model) => (
+        {modelList?.map((model) => (
           <li key={model.id}>
             <button
               type="button"
               onClick={() => onSelect(model.id)}
-              className={`flex items-center ${checkIfActive(model.id)}`}
+              className={`flex items-center ${
+                model.isActive ? "bg-primary" : ""
+              }`}
             >
               <div className="flex flex-col">{model.id}</div>
             </button>

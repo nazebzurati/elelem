@@ -46,10 +46,10 @@ export default function Drawer() {
             <h2 className="menu-title">Conversation</h2>
             <ul>
               <li>
-                <a>New conversation</a>
+                <a href="/#chat">New conversation</a>
               </li>
               <li>
-                <a>Conversation history</a>
+                <a href="/#history">Conversation history</a>
               </li>
             </ul>
           </li>
@@ -60,10 +60,10 @@ export default function Drawer() {
                 <a>REST API services</a>
               </li>
               <li>
-                <a>LLM models</a>
+                <a href="/#model">LLM models</a>
               </li>
               <li>
-                <a>Prompts</a>
+                <a href="/#prompt">Prompts</a>
               </li>
             </ul>
           </li>

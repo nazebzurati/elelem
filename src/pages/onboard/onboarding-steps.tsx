@@ -3,12 +3,9 @@ import andyWave from "@assets/andy-wave.png";
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
-import { fetchModels, updateModelList } from "@lib/model";
-import { Model } from "@lib/model.types";
-import useSettings from "@store/settings";
+import { fetchModels } from "@lib/model";
 import { IconCircleX } from "@tabler/icons-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as yup from "yup";
@@ -23,10 +20,8 @@ function Step1({
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Hey there!</h1>
         <p className="px-12">
-          Elelem is an LLM client that lets you seamlessly switch instructions
-          using shortcuts while working with your favorite models. Customize
-          your interactions and swap contexts effortlessly—making AI assistance
-          faster and more intuitive than ever!
+          Elelem is an LLM client. Nothing fancy, just your trusty
+          cross-platform sidekick for chatting with smart machines.
         </p>
         <img
           width={150}
@@ -54,8 +49,6 @@ function Step2({
 }: {
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const settingsStore = useSettings();
-
   const schema = yup
     .object()
     .shape({ baseURL: yup.string(), apiKey: yup.string() });
@@ -70,11 +63,46 @@ function Step2({
   const onNext = async (data: yup.InferType<typeof schema>) => {
     setError("");
 
-    const modelList: Model[] = await fetchModels(data.baseURL, data.apiKey);
-    await updateModelList(modelList);
-    settingsStore.update([{ baseURL: data.baseURL, apiKey: data.apiKey }]);
+    // get model list
+    let modelIds: string[] = [];
+    try {
+      modelIds = await fetchModels(data.baseURL, data.apiKey);
+    } catch (error) {
+      setError("Failed to connect");
+      return;
+    }
+    if (modelIds.length <= 0) {
+      setError("No model was found");
+      return;
+    }
+
+    // add provider and model
+    const providerData = { baseURL: data.baseURL, apiKey: data.apiKey };
+    const provider = await db.provider.where(providerData).first();
+    const providerId = provider
+      ? provider.id
+      : await db.provider.add(providerData);
+
+    // clear model and add
+    await db.model.clear();
+    Promise.allSettled(
+      modelIds.map(async (modelId, index) => {
+        const isModelIdExisted =
+          (await db.model.where({ id: modelId }).count()) > 0;
+        if (isModelIdExisted) return;
+        await db.model.add({
+          id: modelId,
+          providerId,
+          isActive: Number(index === 0),
+        });
+      })
+    );
 
     setStep(3);
+  };
+
+  const onErrorDismiss = () => {
+    setError("");
   };
 
   return (
@@ -82,10 +110,8 @@ function Step2({
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Prep Time</h1>
         <p className="px-12">
-          Before you start, Elelem needs an OpenAI-compatible setup—a host URL
-          and API key. Any LLM aggregator or backend following the OpenAI Chat
-          Completion API spec will work! Let's add one service first—you can add
-          more later.
+          To get started, Elelem just needs a host URL and API key. Any
+          OpenAI-compatible provider will do—add one now, more can join later.
         </p>
         <form
           id="onboardStep2Form"
@@ -99,12 +125,16 @@ function Step2({
             <input
               type="text"
               className="input w-full"
-              placeholder="http://localhost:11434/v1"
+              placeholder="http://localhost:11434/v1/"
               {...register("baseURL")}
             />
-            {errors.baseURL && (
+            {errors.baseURL ? (
               <p className="fieldset-label text-error">
                 {errors.baseURL.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                You can leave it blank if you're using OpenAI API key.
               </p>
             )}
           </fieldset>
@@ -118,18 +148,25 @@ function Step2({
               placeholder="sk-*****"
               {...register("apiKey")}
             />
-            {errors.apiKey && (
+            {errors.apiKey ? (
               <p className="fieldset-label text-error">
                 {errors.apiKey.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                You can leave it blank if you're using Ollama.
               </p>
             )}
           </fieldset>
         </form>
         {error && (
-          <div role="alert" className="alert alert-error">
+          <button onClick={onErrorDismiss} className="alert alert-error w-full">
             <IconCircleX />
-            <span>{error}</span>
-          </div>
+            <div>
+              <h3 className="font-bold">{error}</h3>
+              <div className="text-xs">Click to dismiss.</div>
+            </div>
+          </button>
         )}
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
@@ -156,33 +193,23 @@ function Step3({
 }: {
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const prompts = useLiveQuery(async () => await db.prompt.toArray());
-
   const schema = yup
-    .object({ title: yup.string(), prompt: yup.string() })
+    .object({ title: yup.string().required(), prompt: yup.string().required() })
     .required();
   const {
-    reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting },
-  } = useForm({ resolver: yupResolver(schema) });
-
-  const settingsStore = useSettings();
-  useEffect(() => {
-    if (prompts && prompts.length > 0) {
-      settingsStore.setActivePrompt(prompts[0].id);
-      reset(prompts[0]);
-    }
-  }, [prompts]);
+    formState: { errors, isLoading, isSubmitting, isDirty },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: { title: "", prompt: "" },
+  });
 
   const onNext = async (data: yup.InferType<typeof schema>) => {
-    if (data.title && data.prompt) {
-      await db.prompt.add({
-        title: data.title,
-        prompt: data.prompt,
-      });
-    }
+    await db.prompt.add({
+      title: data.title,
+      prompt: data.prompt,
+    });
     setStep(4);
   };
 
@@ -238,11 +265,21 @@ function Step3({
         >
           Previous
         </button>
-        <SubmitButton
-          formId="onboardStep3Form"
-          text="Next"
-          isLoading={isLoading || isSubmitting}
-        />
+        {isDirty ? (
+          <SubmitButton
+            formId="onboardStep3Form"
+            text="Next"
+            isLoading={isLoading || isSubmitting}
+          />
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary btn-outline"
+            onClick={() => setStep(4)}
+          >
+            Skip
+          </button>
+        )}
       </div>
     </>
   );

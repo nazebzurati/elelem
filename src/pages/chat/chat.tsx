@@ -4,33 +4,58 @@ import andyNote from "@assets/andy-note.png";
 import useChat from "@hooks/use-chat";
 import { parseThinkingReply, TIME_FORMAT } from "@lib/chat";
 import db from "@lib/database";
-import { prepareMessages } from "@lib/model";
-import { Chat } from "@lib/model.types";
+import { getActiveModel, getConversation, prepareMessages } from "@lib/model";
+import {
+  Chat,
+  ConversationWithDetails,
+  ModelWithDetails,
+  Prompt,
+} from "@lib/model.types";
 import useSettings from "@store/settings";
+import { IconChevronDown } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
 import { useCallback, useEffect } from "react";
 import Markdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { IconChevronDown } from "@tabler/icons-react";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
   const settingsStore = useSettings();
+
+  const activeModel: ModelWithDetails | undefined = useLiveQuery(async () =>
+    getActiveModel()
+  );
+
+  const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
+    async () =>
+      settingsStore.activeConversationId
+        ? await getConversation(settingsStore.activeConversationId)
+        : undefined,
+    [settingsStore.activeConversationId]
+  );
+
+  const activePrompt: Prompt | undefined = useLiveQuery(
+    async () =>
+      settingsStore.activePromptId
+        ? await db.prompt.get(settingsStore.activePromptId)
+        : undefined,
+    [settingsStore.activePromptId]
+  );
+
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
     scrollRef,
-    activeModel,
-    activePrompt,
-    activeConversation,
     isThinking,
     messages,
     setMessages,
   } = useChat();
 
+  // const onSubmit = () => {};
   const onSubmit = useCallback(
     async (data: { input: string }) => {
       if (!activeModel) return;
@@ -41,6 +66,7 @@ export default function Chats() {
         ? activeConversation.id
         : await db.conversation.add({
             title: data.input,
+            createdAt: Date.now(),
           });
       const chatId = await db.chat.add({
         conversationId,
@@ -55,8 +81,8 @@ export default function Chats() {
       try {
         const client = new OpenAI({
           dangerouslyAllowBrowser: true,
-          baseURL: activeModel.baseURL,
-          apiKey: activeModel.apiKey,
+          baseURL: activeModel.provider.baseURL,
+          apiKey: activeModel.provider.apiKey,
         });
         const stream = await client.chat.completions.create(
           {
@@ -172,10 +198,7 @@ export default function Chats() {
           </div>
         )}
       </div>
-      <form
-        className="m-6 mt-0 flex-none"
-        onSubmit={activeModel ? handleSubmit(onSubmit) : undefined}
-      >
+      <form className="m-6 mt-0 flex-none" onSubmit={handleSubmit(onSubmit)}>
         <fieldset className="fieldset">
           <legend className="fieldset-legend">
             <div className="dropdown dropdown-top">

@@ -1,9 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import db from "@lib/database";
-import { getConversation } from "@lib/model";
-import { ConversationWithInfo, Model, Prompt } from "@lib/model.types";
 import useSettings from "@store/settings";
-import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -12,29 +8,6 @@ const useChat = () => {
   // store and states
   const settingsStore = useSettings();
   const [messages, setMessages] = useState<string[]>([]);
-
-  // database
-  const activeModel: Model | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activeModelId
-        ? await db.model.get(settingsStore.activeModelId)
-        : undefined,
-    [settingsStore.activeModelId]
-  );
-  const activePrompt: Prompt | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activePromptId
-        ? await db.prompt.get(settingsStore.activePromptId)
-        : undefined,
-    [settingsStore.activePromptId]
-  );
-  const activeConversation: ConversationWithInfo | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activeConversationId
-        ? await getConversation(settingsStore.activeConversationId)
-        : undefined,
-    [settingsStore.activeConversationId]
-  );
 
   // form
   const {
@@ -89,9 +62,6 @@ const useChat = () => {
       setFocus,
     },
     scrollRef,
-    activeModel,
-    activePrompt,
-    activeConversation,
     isThinking,
     messages,
     setMessages,

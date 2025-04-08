@@ -11,9 +11,6 @@ interface SettingsState {
   configs: ServiceConfig[];
   update: (configs: ServiceConfig[]) => void;
 
-  activeModelId: string | undefined;
-  setActiveModel: (modelId: string | undefined) => void;
-
   activePromptId: number | undefined;
   setActivePrompt: (promptId: number | undefined) => void;
 
@@ -37,13 +34,6 @@ const useSettings = create<SettingsState>()(
           set((state) => ({
             ...state,
             activePromptId: promptId,
-          })),
-
-        activeModelId: undefined,
-        setActiveModel: (modelId) =>
-          set((state) => ({
-            ...state,
-            activeModelId: modelId,
           })),
 
         activeConversationId: undefined,
