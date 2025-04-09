@@ -2,7 +2,7 @@ import andyDance from "@assets/andy-dance.png";
 import andyWave from "@assets/andy-wave.png";
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { OPENAI_SUPPORTED_MODELS } from "@lib/constants";
+import { OPENAI_UNSUPPORTED_CHAT_COMPLETION_MODELS } from "@lib/constants";
 import db from "@lib/database";
 import { fetchModels } from "@lib/model";
 import { IconCircleX } from "@tabler/icons-react";
@@ -90,8 +90,12 @@ function Step2({
     await db.model.clear();
     Promise.allSettled(
       modelIds.map(async (modelId, index) => {
-        if (isEmpty(data.baseURL) && !OPENAI_SUPPORTED_MODELS.includes(modelId))
+        if (
+          isEmpty(data.baseURL) &&
+          OPENAI_UNSUPPORTED_CHAT_COMPLETION_MODELS.includes(modelId)
+        ) {
           return;
+        }
 
         const isModelIdExisted =
           (await db.model.where({ id: modelId }).count()) > 0;
