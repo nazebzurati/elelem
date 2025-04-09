@@ -125,6 +125,10 @@ export default function Chats() {
     [activeModel, activeConversation, settingsStore]
   );
 
+  const onSelectPrompt = (promptId?: number) => {
+    settingsStore.setActivePrompt(promptId);
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.shiftKey) {
@@ -207,7 +211,11 @@ export default function Chats() {
           <legend className="fieldset-legend">
             <div className="dropdown dropdown-top">
               <div tabIndex={0} role="button" className="m-1 flex items-center">
-                <div className="flex flex-col me-3">No prompt</div>
+                <div className="flex flex-col me-3">
+                  {promptList?.find(
+                    (prompt) => prompt.id === settingsStore.activePromptId
+                  )?.title ?? "No prompt"}
+                </div>
                 <IconChevronDown className="w-4 h-4" />
               </div>
               <ul
@@ -217,14 +225,25 @@ export default function Chats() {
                 <li>
                   <button
                     type="button"
-                    className={`flex items-center text-primary`}
+                    className={`flex items-center ${
+                      !settingsStore.activePromptId ? "text-primary" : ""
+                    }`}
+                    onClick={() => onSelectPrompt(undefined)}
                   >
                     <div className="flex flex-col">No prompt</div>
                   </button>
                 </li>
                 {promptList?.map((prompt) => (
                   <li key={prompt.id}>
-                    <button type="button" className={`flex items-center`}>
+                    <button
+                      type="button"
+                      className={`flex items-center ${
+                        settingsStore.activePromptId === prompt.id
+                          ? "text-primary"
+                          : ""
+                      }`}
+                      onClick={() => onSelectPrompt(prompt.id)}
+                    >
                       <div className="flex flex-col">{prompt.title}</div>
                     </button>
                   </li>

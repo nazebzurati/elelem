@@ -46,7 +46,7 @@ function ModelSelector() {
       </div>
       <ul
         tabIndex={0}
-        className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm"
+        className="dropdown-content menu menu-horizontal line-clamp-1 bg-base-200 w-max rounded-box z-1 shadow-sm overflow-y-auto max-h-60"
       >
         {modelList?.map((model) => (
           <li key={model.id}>
