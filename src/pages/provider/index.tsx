@@ -2,7 +2,6 @@ import Drawer from "@components/drawer";
 import db from "@lib/database";
 import { IconPlus } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { isEmpty } from "radash";
 
 export default function Provider() {
   const providerList = useLiveQuery(async () => {
@@ -17,11 +16,6 @@ export default function Provider() {
       }))
     );
   });
-
-  const hideApiKey = (apiKey?: string) => {
-    if (!apiKey || isEmpty(apiKey)) return "none";
-    return apiKey.substring(0, 4) + "*".repeat(10);
-  };
 
   return (
     <div>
@@ -50,10 +44,10 @@ export default function Provider() {
             <div className="card-body">
               <h2 className="card-title line-clamp-1">{provider.baseURL}</h2>
               <p className="text-sm -mt-2 line-clamp-1">
-                {hideApiKey(provider.apiKey)}
+                ****{provider.apiKey?.slice(-6)}
               </p>
-              <div className="card-actions justify-end mt-4">
-                <button className="btn btn-sm">View Model</button>
+              <div className="card-actions justify-end mt-2">
+                <button className="btn btn-sm">View model</button>
                 <button className="btn btn-sm">Update</button>
                 <button className="btn btn-sm">Delete</button>
               </div>

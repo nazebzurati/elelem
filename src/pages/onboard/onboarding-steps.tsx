@@ -2,9 +2,11 @@ import andyDance from "@assets/andy-dance.png";
 import andyWave from "@assets/andy-wave.png";
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { OPENAI_SUPPORTED_MODELS } from "@lib/constants";
 import db from "@lib/database";
 import { fetchModels } from "@lib/model";
 import { IconCircleX } from "@tabler/icons-react";
+import { isEmpty } from "radash";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -64,9 +66,10 @@ function Step2({
     setError("");
 
     // get model list
+    const baseURL = data.baseURL || "https://api.openai.com/v1";
     let modelIds: string[] = [];
     try {
-      modelIds = await fetchModels(data.baseURL, data.apiKey);
+      modelIds = await fetchModels(baseURL, data.apiKey);
     } catch (error) {
       setError("Failed to connect");
       return;
@@ -77,7 +80,7 @@ function Step2({
     }
 
     // add provider and model
-    const providerData = { baseURL: data.baseURL, apiKey: data.apiKey };
+    const providerData = { baseURL: baseURL, apiKey: data.apiKey };
     const provider = await db.provider.where(providerData).first();
     const providerId = provider
       ? provider.id
@@ -87,9 +90,13 @@ function Step2({
     await db.model.clear();
     Promise.allSettled(
       modelIds.map(async (modelId, index) => {
+        if (isEmpty(data.baseURL) && !OPENAI_SUPPORTED_MODELS.includes(modelId))
+          return;
+
         const isModelIdExisted =
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
+
         await db.model.add({
           id: modelId,
           providerId,
@@ -250,7 +257,7 @@ function Step3({
             <textarea
               rows={2}
               className="textarea w-full !min-h-10"
-              placeholder="e.g. Rephrase the following sentence, shorten it and make sure the fix any grammar mistake."
+              placeholder="e.g. Rephrase the given sentences, shorten it and make sure the fix any grammar mistake. Don't use em dashes, en dashes, and hyphens in the sentences."
               {...register("prompt")}
             />
           </fieldset>

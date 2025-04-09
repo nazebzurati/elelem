@@ -30,12 +30,16 @@ export default function Prompt() {
       {promptList && promptList.length <= 0 && (
         <div className="px-7">No custom prompt was found.</div>
       )}
-      <div className="px-4 grid grid-cols-3 gap-2">
+      <div className="px-4 grid grid-cols-2 gap-2">
         {promptList?.map((prompt) => (
-          <div className="card card-border bg-base-200">
+          <div className="card card-border bg-base-300">
             <div className="card-body">
               <h2 className="card-title line-clamp-1">{prompt.title}</h2>
               <p className="text-sm -mt-2 line-clamp-1">{prompt.prompt}</p>
+              <div className="card-actions justify-end mt-2">
+                <button className="btn btn-sm">Update</button>
+                <button className="btn btn-sm">Delete</button>
+              </div>
             </div>
           </div>
         ))}
