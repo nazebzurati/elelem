@@ -5,7 +5,7 @@ import {
 import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
-export const DrawerId = "drawer";
+const DrawerId = "drawer";
 
 export default function Drawer() {
   const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });
@@ -46,10 +46,10 @@ export default function Drawer() {
             <h2 className="menu-title">Conversation</h2>
             <ul>
               <li>
-                <a href="/#chat">New conversation</a>
+                <a href="/chat">New conversation</a>
               </li>
               <li>
-                <a href="/#history">Conversation history</a>
+                <a href="/history">Conversation history</a>
               </li>
             </ul>
           </li>
@@ -57,21 +57,24 @@ export default function Drawer() {
             <h2 className="menu-title">Configuration</h2>
             <ul>
               <li>
-                <a>REST API services</a>
+                <a href="/provider">Providers</a>
               </li>
               <li>
-                <a href="/#model">LLM models</a>
-              </li>
-              <li>
-                <a href="/#prompt">Prompts</a>
+                <a href="/prompt">Prompts</a>
               </li>
             </ul>
           </li>
           <li className="mt-auto">
-            <a>Donate</a>
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://ko-fi.com/nazebzurati"
+            >
+              Donate
+            </a>
           </li>
           <li>
-            <a>
+            <a href="/about">
               {appInfo.name} v{appInfo.version}
             </a>
           </li>

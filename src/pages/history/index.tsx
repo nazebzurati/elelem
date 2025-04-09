@@ -9,18 +9,18 @@ export default function History() {
     <div>
       {/* navbar */}
       <div className="navbar bg-base-100 flex-none px-6 flex">
-        <div className="navbar-start me-6 flex-0">
+        <div className="navbar-start me-6">
           <Drawer />
         </div>
       </div>
       {/* title */}
       <div className="ps-7 pb-8 pt-2">
         <div className="text-xl font-bold">Conversation history</div>
-        <p className="text-sm">Past conversations list.</p>
+        <p>Past conversations list.</p>
       </div>
       {/* items */}
       {conversationList && conversationList.length <= 0 && (
-        <div className="px-4">No conversation history was found.</div>
+        <div className="px-7">No conversation history was found.</div>
       )}
       <div className="px-4 grid grid-cols-3 gap-2">
         {conversationList?.map((conversation) => (

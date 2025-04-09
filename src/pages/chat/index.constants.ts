@@ -1,1 +1,0 @@
-export const MODAL_DISMISS_TIMEOUT_MS = 250;

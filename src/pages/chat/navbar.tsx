@@ -54,7 +54,7 @@ function ModelSelector() {
               type="button"
               onClick={() => onSelect(model.id)}
               className={`flex items-center ${
-                model.isActive ? "bg-primary" : ""
+                model.isActive ? "text-primary" : ""
               }`}
             >
               <div className="flex flex-col">{model.id}</div>

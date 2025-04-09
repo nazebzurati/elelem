@@ -39,6 +39,10 @@ export default function Chats() {
     [settingsStore.activeConversationId]
   );
 
+  const promptList: Prompt[] | undefined = useLiveQuery(async () =>
+    db.prompt.toArray()
+  );
+
   const activePrompt: Prompt | undefined = useLiveQuery(
     async () =>
       settingsStore.activePromptId
@@ -213,16 +217,18 @@ export default function Chats() {
                 <li>
                   <button
                     type="button"
-                    className={`flex items-center bg-primary`}
+                    className={`flex items-center text-primary`}
                   >
                     <div className="flex flex-col">No prompt</div>
                   </button>
                 </li>
-                <li>
-                  <button type="button" className={`flex items-center`}>
-                    <div className="flex flex-col">Rephrase</div>
-                  </button>
-                </li>
+                {promptList?.map((prompt) => (
+                  <li key={prompt.id}>
+                    <button type="button" className={`flex items-center`}>
+                      <div className="flex flex-col">{prompt.title}</div>
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
           </legend>
