@@ -4,14 +4,25 @@ import db from "@lib/database";
 import { fetchModels } from "@lib/model";
 import { toggleModal } from "@lib/utils";
 import { ModalState } from "@lib/utils.types";
+import useProvider from "@store/provider";
 import { IconCircleX, IconX } from "@tabler/icons-react";
-import { useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-export const AddProviderModalId = "addProviderModal";
+export const UpdateProviderModalId = "updateProviderModal";
 
-export default function AddProviderModal() {
+export default function UpdateProviderModal() {
+  const providerStore = useProvider();
+  const selectedProvider = useLiveQuery(
+    async () =>
+      providerStore.selectedProviderId
+        ? await db.provider.get(providerStore.selectedProviderId)
+        : undefined,
+    [providerStore],
+  );
+
   const schema = yup
     .object()
     .shape({ baseURL: yup.string(), apiKey: yup.string() });
@@ -23,11 +34,20 @@ export default function AddProviderModal() {
     formState: { errors, isLoading, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: { baseURL: "", apiKey: "" },
   });
 
+  useEffect(() => {
+    if (selectedProvider) {
+      reset({
+        baseURL: selectedProvider.baseURL,
+        apiKey: selectedProvider.apiKey,
+      });
+    }
+  }, [selectedProvider]);
+
   const [error, setError] = useState<string>("");
-  const onAdd = async (data: yup.InferType<typeof schema>) => {
+  const onUpdate = async (data: yup.InferType<typeof schema>) => {
+    if (!selectedProvider) return;
     setError("");
 
     // get model list
@@ -46,28 +66,32 @@ export default function AddProviderModal() {
     }
 
     // add provider
-    const providerData = { baseURL: baseURL, apiKey: data.apiKey };
-    const provider = await db.provider.where(providerData).first();
-    const providerId = provider
-      ? provider.id
-      : await db.provider.add(providerData);
+    await db.provider.update(selectedProvider.id, {
+      baseURL: baseURL,
+      apiKey: data.apiKey,
+    });
 
     // add models
+    const relatedModelList = await db.model
+      .where("providerId")
+      .equals(selectedProvider.id)
+      .toArray();
+    await db.model.bulkDelete(relatedModelList.map((m) => m.id));
     await Promise.allSettled(
-      modelIds.map(async (modelId, index) => {
+      modelIds.map(async (modelId) => {
         const isModelIdExisted =
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
         await db.model.add({
           id: modelId,
-          providerId,
-          isActive: Number(index === 0),
+          providerId: selectedProvider.id,
+          isActive: 0,
         });
       }),
     );
 
-    toggleModal(AddProviderModalId, ModalState.CLOSE);
+    toggleModal(UpdateProviderModalId, ModalState.CLOSE);
     reset();
   };
 
@@ -76,7 +100,7 @@ export default function AddProviderModal() {
   };
 
   return (
-    <dialog id={AddProviderModalId} className="modal">
+    <dialog id={UpdateProviderModalId} className="modal">
       <div className="modal-box">
         <div className="flex justify-between items-center">
           <h3 className="font-bold text-lg">Add Provider</h3>
@@ -86,7 +110,7 @@ export default function AddProviderModal() {
             </button>
           </form>
         </div>
-        <form id="addProviderForm" onSubmit={handleSubmit(onAdd)}>
+        <form id="updateProviderForm" onSubmit={handleSubmit(onUpdate)}>
           <fieldset className="fieldset">
             <div>
               <legend className="fieldset-legend">Host URL</legend>
@@ -142,12 +166,15 @@ export default function AddProviderModal() {
         )}
         <div className="modal-action flex mt-3">
           <SubmitButton
-            formId="addProviderForm"
+            formId="updateProviderForm"
             text="Next"
             isLoading={isLoading || isSubmitting}
           />
         </div>
       </div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
     </dialog>
   );
 }

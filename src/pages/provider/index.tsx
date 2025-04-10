@@ -7,21 +7,13 @@ import { toggleModal } from "@lib/utils";
 import { ModalState } from "@lib/utils.types";
 import DeleteProviderModal, { DeleteProviderModalId } from "./delete.modal";
 import useProvider from "@store/provider";
+import UpdateProviderModal, { UpdateProviderModalId } from "./update.modal";
+import ViewProviderModelModal, {
+  ViewProviderModelModalId,
+} from "./view-model.modal";
 
 export default function Provider() {
-  const providerList = useLiveQuery(async () => {
-    const _providerList = await db.provider.toArray();
-    return Promise.all(
-      _providerList.map(async (provider) => ({
-        ...provider,
-        models: await db.model
-          .where("providerId")
-          .equals(provider.id)
-          .toArray(),
-      }))
-    );
-  });
-
+  const providerList = useLiveQuery(async () => db.provider.toArray());
   const providerStore = useProvider();
 
   return (
@@ -57,12 +49,25 @@ export default function Provider() {
           <div key={provider.id} className="card card-border bg-base-300">
             <div className="card-body">
               <h2 className="card-title line-clamp-1">{provider.baseURL}</h2>
-              <p className="text-sm -mt-2 line-clamp-1">
-                {provider.apiKey ? `****${provider.apiKey?.slice(-6)}` : "None"}
-              </p>
               <div className="card-actions justify-end mt-2">
-                <button className="btn">View model</button>
-                <button className="btn">Update</button>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    providerStore.setSelectedProviderId(provider.id);
+                    toggleModal(ViewProviderModelModalId, ModalState.OPEN);
+                  }}
+                >
+                  View model
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    providerStore.setSelectedProviderId(provider.id);
+                    toggleModal(UpdateProviderModalId, ModalState.OPEN);
+                  }}
+                >
+                  Update
+                </button>
                 <button
                   className="btn"
                   onClick={() => {
@@ -80,6 +85,8 @@ export default function Provider() {
       {/* modals */}
       <AddProviderModal />
       <DeleteProviderModal />
+      <UpdateProviderModal />
+      <ViewProviderModelModal />
     </div>
   );
 }

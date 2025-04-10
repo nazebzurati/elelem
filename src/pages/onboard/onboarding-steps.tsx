@@ -2,11 +2,9 @@ import andyDance from "@assets/andy-dance.png";
 import andyWave from "@assets/andy-wave.png";
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { OPENAI_UNSUPPORTED_CHAT_COMPLETION_MODELS } from "@lib/constants";
 import db from "@lib/database";
 import { fetchModels } from "@lib/model";
 import { IconCircleX } from "@tabler/icons-react";
-import { isEmpty } from "radash";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -94,13 +92,6 @@ function Step2({
     await db.model.clear();
     Promise.allSettled(
       modelIds.map(async (modelId, index) => {
-        if (
-          isEmpty(data.baseURL) &&
-          OPENAI_UNSUPPORTED_CHAT_COMPLETION_MODELS.includes(modelId)
-        ) {
-          return;
-        }
-
         const isModelIdExisted =
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
@@ -110,7 +101,7 @@ function Step2({
           providerId,
           isActive: Number(index === 0),
         });
-      })
+      }),
     );
 
     setStep(3);

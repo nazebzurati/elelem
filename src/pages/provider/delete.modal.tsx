@@ -9,28 +9,24 @@ export const DeleteProviderModalId = "deleteProviderModal";
 
 export default function DeleteProviderModal() {
   const providerStore = useProvider();
-
   const selectedProvider = useLiveQuery(
     async () =>
       providerStore.selectedProviderId
         ? db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore.selectedProviderId]
+    [providerStore.selectedProviderId],
   );
 
   const onDelete = async () => {
-    if (!providerStore.selectedProviderId) {
+    if (!selectedProvider) {
       return;
     }
 
     const providerRelatedModelId = (
-      await db.model
-        .where("providerId")
-        .equals(providerStore.selectedProviderId)
-        .toArray()
+      await db.model.where("providerId").equals(selectedProvider.id).toArray()
     ).map((m) => m.id);
     await db.model.bulkDelete(providerRelatedModelId);
-    await db.provider.delete(providerStore.selectedProviderId);
+    await db.provider.delete(selectedProvider.id);
     toggleModal(DeleteProviderModalId, ModalState.CLOSE);
   };
 
@@ -60,6 +56,9 @@ export default function DeleteProviderModal() {
           </button>
         </div>
       </div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
     </dialog>
   );
 }
