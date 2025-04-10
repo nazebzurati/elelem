@@ -1,11 +1,11 @@
 export interface Model {
   id: string;
-  providerId: string;
+  providerId: number;
   isActive: number;
 }
 
 export interface Provider {
-  id: string;
+  id: number;
   baseURL?: string;
   apiKey?: string;
 }

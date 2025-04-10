@@ -28,11 +28,11 @@ export default function Prompt() {
       </div>
       {/* items */}
       {promptList && promptList.length <= 0 && (
-        <div className="px-7">No custom prompt was found.</div>
+        <div className="px-7">No prompt was found.</div>
       )}
       <div className="px-4 grid grid-cols-2 gap-2">
         {promptList?.map((prompt) => (
-          <div className="card card-border bg-base-300">
+          <div key={prompt.id} className="card card-border bg-base-300">
             <div className="card-body">
               <h2 className="card-title line-clamp-1">{prompt.title}</h2>
               <p className="text-sm -mt-2 line-clamp-1">{prompt.prompt}</p>

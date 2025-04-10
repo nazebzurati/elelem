@@ -59,14 +59,18 @@ function Step2({
     register,
     handleSubmit,
     formState: { errors, isLoading, isSubmitting },
-  } = useForm({ resolver: yupResolver(schema) });
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: { baseURL: "", apiKey: "" },
+  });
 
   const [error, setError] = useState<string>("");
   const onNext = async (data: yup.InferType<typeof schema>) => {
     setError("");
 
     // get model list
-    const baseURL = data.baseURL || "https://api.openai.com/v1";
+    const baseURL =
+      data.baseURL?.replace(/\/$/, "") || "https://api.openai.com/v1";
     let modelIds: string[] = [];
     try {
       modelIds = await fetchModels(baseURL, data.apiKey);
@@ -136,7 +140,7 @@ function Step2({
             <input
               type="text"
               className="input w-full"
-              placeholder="http://localhost:11434/v1/"
+              placeholder="http://localhost:11434/v1"
               {...register("baseURL")}
             />
             {errors.baseURL ? (
@@ -217,10 +221,7 @@ function Step3({
   });
 
   const onNext = async (data: yup.InferType<typeof schema>) => {
-    await db.prompt.add({
-      title: data.title,
-      prompt: data.prompt,
-    });
+    await db.prompt.add({ title: data.title, prompt: data.prompt });
     setStep(4);
   };
 

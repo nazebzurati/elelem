@@ -2,6 +2,11 @@ import Drawer from "@components/drawer";
 import db from "@lib/database";
 import { IconPlus } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
+import AddProviderModal, { AddProviderModalId } from "./add.modal";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import DeleteProviderModal, { DeleteProviderModalId } from "./delete.modal";
+import useProvider from "@store/provider";
 
 export default function Provider() {
   const providerList = useLiveQuery(async () => {
@@ -17,6 +22,8 @@ export default function Provider() {
     );
   });
 
+  const providerStore = useProvider();
+
   return (
     <div>
       {/* navbar */}
@@ -26,7 +33,11 @@ export default function Provider() {
         </div>
         <div className="navbar-end">
           <div className="tooltip tooltip-bottom" data-tip="Add provider">
-            <button type="button" className="btn btn-ghost btn-circle">
+            <button
+              type="button"
+              className="btn btn-ghost btn-circle"
+              onClick={() => toggleModal(AddProviderModalId, ModalState.OPEN)}
+            >
               <IconPlus className="h-6 w-6" />
             </button>
           </div>
@@ -38,23 +49,37 @@ export default function Provider() {
         <p className="text-sm">List of added model provider.</p>
       </div>
       {/* items */}
+      {providerList && providerList.length <= 0 && (
+        <div className="px-7">No provider was found.</div>
+      )}
       <div className="px-4 grid grid-cols-2 gap-2">
         {providerList?.map((provider) => (
-          <div className="card card-border bg-base-300">
+          <div key={provider.id} className="card card-border bg-base-300">
             <div className="card-body">
               <h2 className="card-title line-clamp-1">{provider.baseURL}</h2>
               <p className="text-sm -mt-2 line-clamp-1">
-                ****{provider.apiKey?.slice(-6)}
+                {provider.apiKey ? `****${provider.apiKey?.slice(-6)}` : "None"}
               </p>
               <div className="card-actions justify-end mt-2">
-                <button className="btn btn-sm">View model</button>
-                <button className="btn btn-sm">Update</button>
-                <button className="btn btn-sm">Delete</button>
+                <button className="btn">View model</button>
+                <button className="btn">Update</button>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    providerStore.setSelectedProviderId(provider.id);
+                    toggleModal(DeleteProviderModalId, ModalState.OPEN);
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {/* modals */}
+      <AddProviderModal />
+      <DeleteProviderModal />
     </div>
   );
 }
