@@ -1,13 +1,18 @@
+import useSettings from "@store/settings";
 import {
   IconLayoutSidebarLeftCollapseFilled,
   IconLayoutSidebarLeftExpandFilled,
 } from "@tabler/icons-react";
 import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 const DrawerId = "drawer";
 
 export default function Drawer() {
+  const settingsStore = useSettings();
+  const navigation = useNavigate();
+
   const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });
   useEffect(() => {
     (async () => {
@@ -31,7 +36,7 @@ export default function Drawer() {
           htmlFor={DrawerId}
           aria-label="close sidebar"
           className="drawer-overlay"
-        ></label>
+        />
         <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
           <li>
             <label
@@ -46,7 +51,14 @@ export default function Drawer() {
             <h2 className="menu-title">Conversation</h2>
             <ul>
               <li>
-                <a href="/chat">New conversation</a>
+                <button
+                  onClick={() => {
+                    settingsStore.setActiveConversation(undefined);
+                    navigation("/chat");
+                  }}
+                >
+                  New conversation
+                </button>
               </li>
               <li>
                 <a href="/history">Conversation history</a>

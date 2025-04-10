@@ -51,7 +51,7 @@ export default function Prompt() {
                 <button
                   className="btn btn-sm"
                   onClick={() => {
-                    promptStore.setSelectedPromptId(prompt.id);
+                    promptStore.setSelectedPrompt(prompt.id);
                     toggleModal(UpdatePromptModalId, ModalState.OPEN);
                   }}
                 >
@@ -60,7 +60,7 @@ export default function Prompt() {
                 <button
                   className="btn btn-sm"
                   onClick={() => {
-                    promptStore.setSelectedPromptId(prompt.id);
+                    promptStore.setSelectedPrompt(prompt.id);
                     toggleModal(DeletePromptModalId, ModalState.OPEN);
                   }}
                 >

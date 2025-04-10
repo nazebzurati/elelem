@@ -4,7 +4,7 @@ import { devtools, persist } from "zustand/middleware";
 
 interface ProviderState {
   selectedProviderId?: number;
-  setSelectedProviderId: (id: number) => void;
+  setSelectedProvider: (id: number) => void;
 }
 
 const useProvider = create<ProviderState>()(
@@ -12,7 +12,7 @@ const useProvider = create<ProviderState>()(
     persist(
       (set) => ({
         selectedProviderId: undefined,
-        setSelectedProviderId: (id: number) =>
+        setSelectedProvider: (id: number) =>
           set((state) => ({
             ...state,
             selectedProviderId: id,

@@ -1,12 +1,9 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import useSettings from "@store/settings";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 const useChat = () => {
-  // store and states
-  const settingsStore = useSettings();
   const [messages, setMessages] = useState<string[]>([]);
 
   // form
@@ -20,14 +17,9 @@ const useChat = () => {
     resolver: yupResolver(
       yup
         .object({ input: yup.string().required("Input is a required field.") })
-        .required()
+        .required(),
     ),
   });
-
-  // always start new conversation on page first load
-  useEffect(() => {
-    settingsStore.setActiveConversation(undefined);
-  }, []);
 
   // reset input and clear streamed text after complete
   useEffect(() => {
@@ -55,6 +47,7 @@ const useChat = () => {
 
   return {
     form: {
+      reset,
       register,
       handleSubmit,
       isLoading,

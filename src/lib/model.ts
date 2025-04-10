@@ -36,7 +36,7 @@ export const prepareMessages = ({
 };
 
 export const getConversation = async (
-  conversationId: number
+  conversationId: number,
 ): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;

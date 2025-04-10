@@ -4,7 +4,7 @@ import { devtools, persist } from "zustand/middleware";
 
 interface PromptState {
   selectedPromptId?: number;
-  setSelectedPromptId: (id: number) => void;
+  setSelectedPrompt: (id: number) => void;
 }
 
 const usePrompt = create<PromptState>()(
@@ -12,7 +12,7 @@ const usePrompt = create<PromptState>()(
     persist(
       (set) => ({
         selectedPromptId: undefined,
-        setSelectedPromptId: (id: number) =>
+        setSelectedPrompt: (id: number) =>
           set((state) => ({
             ...state,
             selectedPromptId: id,

@@ -17,10 +17,7 @@ import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
 import { useCallback, useEffect } from "react";
-import Markdown from "react-markdown";
-import rehypeKatex from "rehype-katex";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
+import { MarkdownRenderer } from "./markdown";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -28,19 +25,11 @@ export default function Chats() {
   const settingsStore = useSettings();
 
   const activeModel: ModelWithDetails | undefined = useLiveQuery(async () =>
-    getActiveModel()
-  );
-
-  const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activeConversationId
-        ? await getConversation(settingsStore.activeConversationId)
-        : undefined,
-    [settingsStore.activeConversationId]
+    getActiveModel(),
   );
 
   const promptList: Prompt[] | undefined = useLiveQuery(async () =>
-    db.prompt.toArray()
+    db.prompt.toArray(),
   );
 
   const activePrompt: Prompt | undefined = useLiveQuery(
@@ -48,18 +37,25 @@ export default function Chats() {
       settingsStore.activePromptId
         ? await db.prompt.get(settingsStore.activePromptId)
         : undefined,
-    [settingsStore.activePromptId]
+    [settingsStore.activePromptId],
+  );
+
+  const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
+    async () =>
+      settingsStore.activeConversationId
+        ? await getConversation(settingsStore.activeConversationId)
+        : undefined,
+    [settingsStore.activeConversationId],
   );
 
   const {
-    form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
+    form: { reset, register, handleSubmit, isLoading, isSubmitting, setFocus },
     scrollRef,
     isThinking,
     messages,
     setMessages,
   } = useChat();
 
-  // const onSubmit = () => {};
   const onSubmit = useCallback(
     async (data: { input: string }) => {
       if (!activeModel) return;
@@ -98,7 +94,7 @@ export default function Chats() {
               input: data.input,
             }),
           },
-          { headers: { "x-stainless-timeout": null } }
+          { headers: { "x-stainless-timeout": null } },
         );
 
         // stream chat
@@ -122,7 +118,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore]
+    [activeModel, activeConversation, settingsStore],
   );
 
   const onSelectPrompt = (promptId?: number) => {
@@ -135,12 +131,13 @@ export default function Chats() {
         event.preventDefault();
         if (!isSubmitting) handleSubmit(onSubmit)();
       } else if (event.ctrlKey && event.key === "n") {
-        if (settingsStore.activeConversationId) {
+        if (activeConversation) {
           settingsStore.setActiveConversation(undefined);
           setTimeout(() => {
             setFocus("input");
           }, INPUT_REFOCUS_DELAY_MS);
         }
+        reset();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -152,7 +149,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput"
+        "chatInput",
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }
@@ -181,13 +178,10 @@ export default function Chats() {
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
-                <div className="chat-bubble prose markdown">
-                  <Markdown
-                    remarkPlugins={[remarkGfm, remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                  >
+                <div className="chat-bubble prose">
+                  <MarkdownRenderer>
                     {parseThinkingReply(messages.join(""))}
-                  </Markdown>
+                  </MarkdownRenderer>
                 </div>
               </div>
             )}
@@ -213,7 +207,7 @@ export default function Chats() {
               <div tabIndex={0} role="button" className="m-1 flex items-center">
                 <div className="flex flex-col me-3">
                   {promptList?.find(
-                    (prompt) => prompt.id === settingsStore.activePromptId
+                    (prompt) => prompt.id === settingsStore.activePromptId,
                   )?.title ?? "No prompt"}
                 </div>
                 <IconChevronDown className="w-4 h-4" />
@@ -273,12 +267,7 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
         <div className="chat-bubble chat-bubble-primary prose markdown">
-          <Markdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-          >
-            {chat.user}
-          </Markdown>
+          <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
         <div className="chat-footer opacity-50">
           {dayjs(chat.sendAt).format(TIME_FORMAT)}
@@ -287,12 +276,7 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
       {chat.assistant && (
         <div className="chat chat-end space-y-1">
           <div className="chat-bubble prose markdown">
-            <Markdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex]}
-            >
-              {parseThinkingReply(chat.assistant)}
-            </Markdown>
+            <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
           <div className="chat-footer opacity-50">
             {dayjs(chat.receivedAt).format(TIME_FORMAT)}

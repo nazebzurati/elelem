@@ -30,7 +30,7 @@ function ModelSelector() {
       activeModels.map((model) => ({
         key: model.id,
         changes: { isActive: 0 },
-      }))
+      })),
     );
     await db.model.update(modelId, { isActive: 1 });
     setTimeout(() => {

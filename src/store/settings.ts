@@ -3,19 +3,19 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
 type ServiceConfig = {
-  baseURL: string | undefined;
-  apiKey: string | undefined;
+  baseURL?: string;
+  apiKey?: string;
 };
 
 interface SettingsState {
   configs: ServiceConfig[];
   update: (configs: ServiceConfig[]) => void;
 
-  activePromptId: number | undefined;
-  setActivePrompt: (promptId: number | undefined) => void;
+  activePromptId?: number;
+  setActivePrompt: (promptId?: number) => void;
 
-  activeConversationId: number | undefined;
-  setActiveConversation: (conversationId: number | undefined) => void;
+  activeConversationId?: number;
+  setActiveConversation: (conversationId?: number) => void;
 }
 
 const useSettings = create<SettingsState>()(

@@ -1,12 +1,12 @@
 import Drawer from "@components/drawer";
 import db from "@lib/database";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import useProvider from "@store/provider";
 import { IconPlus } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import AddProviderModal, { AddProviderModalId } from "./add.modal";
-import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
 import DeleteProviderModal, { DeleteProviderModalId } from "./delete.modal";
-import useProvider from "@store/provider";
 import UpdateProviderModal, { UpdateProviderModalId } from "./update.modal";
 import ViewProviderModelModal, {
   ViewProviderModelModalId,
@@ -53,7 +53,7 @@ export default function Provider() {
                 <button
                   className="btn"
                   onClick={() => {
-                    providerStore.setSelectedProviderId(provider.id);
+                    providerStore.setSelectedProvider(provider.id);
                     toggleModal(ViewProviderModelModalId, ModalState.OPEN);
                   }}
                 >
@@ -62,7 +62,7 @@ export default function Provider() {
                 <button
                   className="btn"
                   onClick={() => {
-                    providerStore.setSelectedProviderId(provider.id);
+                    providerStore.setSelectedProvider(provider.id);
                     toggleModal(UpdateProviderModalId, ModalState.OPEN);
                   }}
                 >
@@ -71,7 +71,7 @@ export default function Provider() {
                 <button
                   className="btn"
                   onClick={() => {
-                    providerStore.setSelectedProviderId(provider.id);
+                    providerStore.setSelectedProvider(provider.id);
                     toggleModal(DeleteProviderModalId, ModalState.OPEN);
                   }}
                 >
