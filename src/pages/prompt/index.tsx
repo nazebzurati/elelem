@@ -1,9 +1,16 @@
-import db from "@lib/database";
 import Drawer from "@components/drawer";
-import { useLiveQuery } from "dexie-react-hooks";
+import db from "@lib/database";
+import { toggleModal } from "@lib/utils";
+import { ModalState } from "@lib/utils.types";
+import usePrompt from "@store/prompt";
 import { IconPlus } from "@tabler/icons-react";
+import { useLiveQuery } from "dexie-react-hooks";
+import AddPromptModal, { AddPromptModalId } from "./add.modal";
+import DeletePromptModal, { DeletePromptModalId } from "./delete.modal";
+import UpdatePromptModal, { UpdatePromptModalId } from "./update.modal";
 
 export default function Prompt() {
+  const promptStore = usePrompt();
   const promptList = useLiveQuery(async () => db.prompt.toArray());
 
   return (
@@ -14,8 +21,12 @@ export default function Prompt() {
           <Drawer />
         </div>
         <div className="navbar-end">
-          <div className="tooltip tooltip-bottom" data-tip="Add provider">
-            <button type="button" className="btn btn-ghost btn-circle">
+          <div className="tooltip tooltip-bottom" data-tip="Add prompt">
+            <button
+              type="button"
+              className="btn btn-ghost btn-circle"
+              onClick={() => toggleModal(AddPromptModalId, ModalState.OPEN)}
+            >
               <IconPlus className="h-6 w-6" />
             </button>
           </div>
@@ -37,13 +48,33 @@ export default function Prompt() {
               <h2 className="card-title line-clamp-1">{prompt.title}</h2>
               <p className="text-sm -mt-2 line-clamp-1">{prompt.prompt}</p>
               <div className="card-actions justify-end mt-2">
-                <button className="btn btn-sm">Update</button>
-                <button className="btn btn-sm">Delete</button>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => {
+                    promptStore.setSelectedPromptId(prompt.id);
+                    toggleModal(UpdatePromptModalId, ModalState.OPEN);
+                  }}
+                >
+                  Update
+                </button>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => {
+                    promptStore.setSelectedPromptId(prompt.id);
+                    toggleModal(DeletePromptModalId, ModalState.OPEN);
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {/* modal */}
+      <AddPromptModal />
+      <DeletePromptModal />
+      <UpdatePromptModal />
     </div>
   );
 }

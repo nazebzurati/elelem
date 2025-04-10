@@ -18,11 +18,9 @@ const useProvider = create<ProviderState>()(
             selectedProviderId: id,
           })),
       }),
-      {
-        name: "provider",
-      }
-    )
-  )
+      { name: "provider" },
+    ),
+  ),
 );
 
 export default useProvider;
