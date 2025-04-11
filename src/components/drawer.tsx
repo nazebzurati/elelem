@@ -30,7 +30,7 @@ export default function Drawer() {
           <IconMenu2 className="h-6 w-6" />
         </label>
       </div>
-      <div className="drawer-side z-2">
+      <div className="drawer-side z-20">
         <label
           htmlFor={DrawerId}
           aria-label="close sidebar"

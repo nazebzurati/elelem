@@ -7,6 +7,7 @@ import { UiToggleState } from "@lib/utils.types";
 import useProvider from "@store/provider";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { isEmpty } from "radash";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -50,9 +51,13 @@ export default function UpdateProviderModal() {
     if (!selectedProvider) return;
     setError("");
 
+    // set base URL
+    let baseURL = data.baseURL?.replace(/\/$/, "");
+    if (!baseURL || isEmpty(baseURL)) {
+      baseURL = "https://api.openai.com/v1";
+    }
+
     // get model list
-    const baseURL =
-      data.baseURL?.replace(/\/$/, "") || "https://api.openai.com/v1";
     let modelIds: string[] = [];
     try {
       modelIds = await fetchModels(baseURL, data.apiKey);

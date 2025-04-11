@@ -23,6 +23,7 @@
     "dexie-react-hooks": "^1.1.7",
     "katex": "^0.16.22",
     "openai": "^4.93.0",
+    "radash": "^12.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@tauri-apps/api": "^2",

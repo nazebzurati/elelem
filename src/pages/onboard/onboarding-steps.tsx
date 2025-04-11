@@ -9,12 +9,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
+import { isEmpty } from "radash";
 
 function Step1({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
+}>) {
   return (
     <>
       <div className="w-full text-center space-y-6">
@@ -46,9 +47,9 @@ function Step1({
 
 function Step2({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
+}>) {
   const schema = yup
     .object()
     .shape({ baseURL: yup.string(), apiKey: yup.string() });
@@ -66,9 +67,13 @@ function Step2({
   const onNext = async (data: yup.InferType<typeof schema>) => {
     setError("");
 
+    // set base URL
+    let baseURL = data.baseURL?.replace(/\/$/, "");
+    if (!baseURL || isEmpty(baseURL)) {
+      baseURL = "https://api.openai.com/v1";
+    }
+
     // get model list
-    const baseURL =
-      data.baseURL?.replace(/\/$/, "") || "https://api.openai.com/v1";
     let modelIds: string[] = [];
     try {
       modelIds = await fetchModels(baseURL, data.apiKey);
@@ -196,9 +201,9 @@ function Step2({
 
 function Step3({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
+}>) {
   const schema = yup
     .object({ title: yup.string().required(), prompt: yup.string().required() })
     .required();
@@ -290,9 +295,9 @@ function Step3({
 
 function Step4({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
+}>) {
   const navigation = useNavigate();
   return (
     <>

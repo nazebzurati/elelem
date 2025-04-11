@@ -66,7 +66,7 @@ export default function Chats() {
 
   const onSubmit = useCallback(
     async (data: { input: string }) => {
-      if (!activeModel || !activeModel.provider) return;
+      if (!activeModel?.provider) return;
 
       // create chat
       const isNewConversation = !!activeConversation;
@@ -105,7 +105,7 @@ export default function Chats() {
 
         // stream chat
         for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content || "";
+          const text = chunk.choices[0]?.delta?.content ?? "";
           setMessages((prev) => [...prev, text]);
           fullText += text;
         }
@@ -170,14 +170,14 @@ export default function Chats() {
             {isSubmitting && messages.length <= 0 && (
               <div className="chat chat-end space-y-1">
                 <div className="chat-bubble">
-                  <span className="loading loading-dots loading-sm"></span>
+                  <span className="loading loading-dots loading-sm" />
                 </div>
               </div>
             )}
             {isThinking && (
               <div className="chat chat-end space-y-1">
                 <div className="chat-bubble italic">
-                  <span className="loading loading-ring loading-xs me-2"></span>
+                  <span className="loading loading-ring loading-xs" />{" "}
                   Thinking...
                 </div>
               </div>
@@ -213,25 +213,22 @@ export default function Chats() {
         <fieldset className="fieldset">
           <legend className="fieldset-legend">
             <div className="dropdown dropdown-top">
-              <div tabIndex={0} role="button" className="m-1 flex items-center">
+              <button type="button" className="m-1 flex items-center">
                 <div className="flex flex-col me-3">
                   {promptList?.find(
                     (prompt) => prompt.id === settingsStore.activePromptId
                   )?.title ?? "No prompt"}
                 </div>
                 <IconChevronDown className="w-4 h-4" />
-              </div>
-              <ul
-                tabIndex={0}
-                className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm"
-              >
+              </button>
+              <ul className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm">
                 <li>
                   <button
                     type="button"
                     className={`flex items-center ${
                       !settingsStore.activePromptId ? "text-primary" : ""
                     }`}
-                    onClick={() => onSelectPrompt(undefined)}
+                    onClick={() => onSelectPrompt()}
                   >
                     <div className="flex flex-col">No prompt</div>
                   </button>

@@ -40,14 +40,14 @@ function ModelSelector() {
 
   return (
     <div className="dropdown dropdown-end">
-      <div tabIndex={0} role="button" className="m-1 flex items-center">
+      <button type="button" className="m-1 flex items-center">
         <div className="flex flex-col font-bold me-3">
           {activeModel?.id ?? "No model selected"}
         </div>
         <IconChevronDown className="w-4 h-4" />
-      </div>
+      </button>
       <div className="dropdown-content max-h-60 overflow-y-auto w-max">
-        <ul tabIndex={0} className="menu bg-base-200 rounded-box">
+        <ul className="menu bg-base-200 rounded-box">
           {modelList?.map((model) => (
             <li key={model.id}>
               <button

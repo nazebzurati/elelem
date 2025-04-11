@@ -12,7 +12,7 @@ type MarkdownRendererProps = {
 
 export function MarkdownRenderer({
   children: markdown,
-}: MarkdownRendererProps) {
+}: Readonly<MarkdownRendererProps>) {
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath]}
