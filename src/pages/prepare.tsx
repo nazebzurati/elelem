@@ -1,6 +1,6 @@
 import db from "@lib/database";
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Loading from "./loading";
 
 export default function Prepare() {
@@ -8,7 +8,7 @@ export default function Prepare() {
 
   useEffect(() => {
     db.model.count().then((count) => {
-      count > 0 ? navigation("/chat") : navigation("/onboard");
+      count > 0 ? navigation("/conversation") : navigation("/onboard");
     });
   }, []);
 

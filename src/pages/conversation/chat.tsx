@@ -1,6 +1,6 @@
 import andyNote from "@assets/andy-note.png";
 import useChat from "@hooks/use-chat";
-import { parseThinkingReply, TIME_FORMAT } from "@lib/chat";
+import { parseThinkingReply, TIME_FORMAT } from "@lib/conversation";
 import db from "@lib/database";
 import { getActiveModel, getConversation, prepareMessages } from "@lib/model";
 import {
@@ -66,7 +66,7 @@ export default function Chats() {
 
   const onSubmit = useCallback(
     async (data: { input: string }) => {
-      if (!activeModel) return;
+      if (!activeModel || !activeModel.provider) return;
 
       // create chat
       const isNewConversation = !!activeConversation;
@@ -166,7 +166,7 @@ export default function Chats() {
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
         {activeConversation ? (
           <>
-            <Conversation chats={activeConversation.chats} />
+            <ChatBubbles chats={activeConversation.chats} />
             {isSubmitting && messages.length <= 0 && (
               <div className="chat chat-end space-y-1">
                 <div className="chat-bubble">
@@ -278,7 +278,7 @@ export default function Chats() {
   );
 }
 
-function Conversation({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
+function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
@@ -286,7 +286,10 @@ function Conversation({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
           <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
         <div className="chat-footer opacity-50">
-          {[dayjs(chat.sendAt).format(TIME_FORMAT), chat.prompt?.title]
+          {[
+            dayjs(chat.sendAt).format(TIME_FORMAT),
+            chat.prompt?.title ?? "No prompt",
+          ]
             .filter((s) => !!s)
             .join(", ")}
         </div>

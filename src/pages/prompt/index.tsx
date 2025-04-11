@@ -21,7 +21,7 @@ export default function Prompt() {
           <Drawer />
         </div>
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Prompt List</a>
+          <h1 className="btn btn-ghost text-xl">Prompt List</h1>
         </div>
         <div className="flex-none">
           <div className="tooltip tooltip-bottom" data-tip="Add prompt">
@@ -48,7 +48,7 @@ export default function Prompt() {
               <div className="card-actions justify-end mt-2">
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-neutral"
                   onClick={() => {
                     promptStore.setSelectedPrompt(prompt.id);
                     toggleModal(UpdatePromptModalId, UiToggleState.OPEN);
@@ -58,7 +58,7 @@ export default function Prompt() {
                 </button>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-error"
                   onClick={() => {
                     promptStore.setSelectedPrompt(prompt.id);
                     toggleModal(DeletePromptModalId, UiToggleState.OPEN);

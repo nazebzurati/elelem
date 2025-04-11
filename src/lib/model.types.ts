@@ -33,11 +33,11 @@ export interface Chat {
 }
 
 export interface ModelWithDetails extends Model {
-  provider: Provider;
+  provider?: Provider;
 }
 
 export interface ChatWithDetails extends Chat {
-  model: ModelWithDetails;
+  model?: ModelWithDetails;
   prompt?: Prompt;
 }
 

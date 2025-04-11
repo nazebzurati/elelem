@@ -4,7 +4,7 @@ import useSettings from "@store/settings";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const DrawerId = "drawer";
 
@@ -55,14 +55,14 @@ export default function Drawer() {
                   aria-label="close sidebar"
                   onClick={() => {
                     settingsStore.setActiveConversation(undefined);
-                    navigation("/chat");
+                    navigation("/conversation");
                     toggleDrawer(DrawerId, UiToggleState.CLOSE);
                   }}
                 >
                   New Conversation
                 </button>
               </li>
-              <DrawerItemPath text="Conversation" path="/chat" />
+              <DrawerItemPath text="Conversation" path="/conversation" />
               <DrawerItemPath text="History" path="/history" />
             </ul>
           </li>
@@ -97,9 +97,9 @@ const DrawerItemPath = ({ path, text }: { path: string; text: string }) => {
   const className = path === location.pathname ? "font-bold text-primary" : "";
   return (
     <li>
-      <a href={path} className={className}>
+      <Link to={path} className={className}>
         {text}
-      </a>
+      </Link>
     </li>
   );
 };

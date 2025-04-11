@@ -1,7 +1,7 @@
 {
   "name": "elelem",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.3.0-rc.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,7 +29,7 @@
     "@tauri-apps/plugin-opener": "^2",
     "react-hook-form": "^7.55.0",
     "react-markdown": "^10.1.0",
-    "react-router": "^7.5.0",
+    "react-router-dom": "^7.5.0",
     "react-syntax-highlighter": "^15.6.1",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",

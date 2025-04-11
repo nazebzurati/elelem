@@ -3,7 +3,7 @@ import { getConversationAll } from "@lib/model";
 import useSettings from "@store/settings";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function History() {
   const settingsStore = useSettings();
@@ -19,7 +19,7 @@ export default function History() {
           <Drawer />
         </div>
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">History</a>
+          <h1 className="btn btn-ghost text-xl">History</h1>
         </div>
       </div>
       {/* items */}
@@ -40,10 +40,10 @@ export default function History() {
               <div className="card-actions justify-end mt-2">
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-neutral"
                   onClick={() => {
                     settingsStore.setActiveConversation(conversation.id);
-                    navigation("/chat");
+                    navigation("/conversation");
                   }}
                 >
                   Open

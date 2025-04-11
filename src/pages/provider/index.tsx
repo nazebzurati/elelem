@@ -24,7 +24,7 @@ export default function Provider() {
           <Drawer />
         </div>
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Provider List</a>
+          <h1 className="btn btn-ghost text-xl">Provider List</h1>
         </div>
         <div className="flex-none">
           <div className="tooltip tooltip-bottom" data-tip="Add provider">
@@ -57,7 +57,7 @@ export default function Provider() {
               <div className="card-actions justify-end mt-2">
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-neutral btn-outline"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
                     toggleModal(ViewProviderModelModalId, UiToggleState.OPEN);
@@ -67,7 +67,7 @@ export default function Provider() {
                 </button>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-neutral"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
                     toggleModal(UpdateProviderModalId, UiToggleState.OPEN);
@@ -77,7 +77,7 @@ export default function Provider() {
                 </button>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-error"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
                     toggleModal(DeleteProviderModalId, UiToggleState.OPEN);

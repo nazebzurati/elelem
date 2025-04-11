@@ -11,8 +11,7 @@ export default function ViewProviderModelModal() {
     async () =>
       providerStore.selectedProviderId
         ? await db.model
-            .where("providerId")
-            .equals(providerStore.selectedProviderId)
+            .where({ providerId: providerStore.selectedProviderId })
             .toArray()
         : undefined,
     [providerStore.selectedProviderId]
@@ -34,7 +33,7 @@ export default function ViewProviderModelModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button type="button">close</button>
+        <button type="submit">close</button>
       </form>
     </dialog>
   );

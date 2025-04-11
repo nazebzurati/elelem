@@ -4,6 +4,7 @@ import { UiToggleState } from "@lib/utils.types";
 import useProvider from "@store/provider";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useNavigate } from "react-router-dom";
 
 export const DeleteProviderModalId = "deleteProviderModal";
 
@@ -17,16 +18,21 @@ export default function DeleteProviderModal() {
     [providerStore.selectedProviderId]
   );
 
+  const navigation = useNavigate();
   const onDelete = async () => {
     if (!selectedProvider) {
       return;
     }
 
     const providerRelatedModelId = (
-      await db.model.where("providerId").equals(selectedProvider.id).toArray()
+      await db.model.where({ providerId: selectedProvider.id }).toArray()
     ).map((m) => m.id);
     await db.model.bulkDelete(providerRelatedModelId);
     await db.provider.delete(selectedProvider.id);
+
+    providerStore.setSelectedProvider(undefined);
+    if ((await db.provider.count()) <= 0) navigation("/");
+
     toggleModal(DeleteProviderModalId, UiToggleState.CLOSE);
   };
 
@@ -57,7 +63,7 @@ export default function DeleteProviderModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button type="button">close</button>
+        <button type="submit">close</button>
       </form>
     </dialog>
   );

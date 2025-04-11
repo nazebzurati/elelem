@@ -54,16 +54,12 @@ export default function AddProviderModal() {
 
     // add models
     await Promise.allSettled(
-      modelIds.map(async (modelId, index) => {
+      modelIds.map(async (modelId) => {
         const isModelIdExisted =
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
-        await db.model.add({
-          id: modelId,
-          providerId,
-          isActive: Number(index === 0),
-        });
+        await db.model.add({ id: modelId, providerId, isActive: 0 });
       })
     );
 

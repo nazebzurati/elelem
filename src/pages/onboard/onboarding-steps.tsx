@@ -7,7 +7,7 @@ import { fetchModels } from "@lib/model";
 import { IconCircleX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
 function Step1({
@@ -91,16 +91,12 @@ function Step2({
     // clear model and add
     await db.model.clear();
     Promise.allSettled(
-      modelIds.map(async (modelId, index) => {
+      modelIds.map(async (modelId) => {
         const isModelIdExisted =
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
-        await db.model.add({
-          id: modelId,
-          providerId,
-          isActive: Number(index === 0),
-        });
+        await db.model.add({ id: modelId, providerId, isActive: 0 });
       })
     );
 
@@ -255,7 +251,7 @@ function Step3({
               <legend className="fieldset-legend">Prompt</legend>
             </div>
             <textarea
-              rows={2}
+              rows={3}
               className="textarea w-full !min-h-10"
               placeholder="e.g. Rephrase the given sentences, shorten it and make sure the fix any grammar mistake. Don't use em dashes, en dashes, and hyphens in the sentences."
               {...register("prompt")}
@@ -322,7 +318,7 @@ function Step4({
         <button
           type="button"
           className="btn btn-success"
-          onClick={() => navigation("/chat")}
+          onClick={() => navigation("/conversation")}
         >
           Let's go!
         </button>

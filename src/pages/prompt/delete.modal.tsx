@@ -2,12 +2,14 @@ import db from "@lib/database";
 import { toggleModal } from "@lib/utils";
 import { UiToggleState } from "@lib/utils.types";
 import usePrompt from "@store/prompt";
+import useSettings from "@store/settings";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 
 export const DeletePromptModalId = "deletePromptModal";
 
 export default function DeletePromptModal() {
+  const settingsStore = useSettings();
   const promptStore = usePrompt();
   const selectedPrompt = useLiveQuery(
     async () =>
@@ -20,6 +22,12 @@ export default function DeletePromptModal() {
   const onDelete = async () => {
     if (!selectedPrompt) return;
     await db.prompt.delete(selectedPrompt.id);
+
+    promptStore.setSelectedPrompt(undefined);
+    if (promptStore.selectedPromptId === settingsStore.activePromptId) {
+      settingsStore.setActivePrompt(undefined);
+    }
+
     toggleModal(DeletePromptModalId, UiToggleState.CLOSE);
   };
 
@@ -49,7 +57,7 @@ export default function DeletePromptModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button type="button">close</button>
+        <button type="submit">close</button>
       </form>
     </dialog>
   );

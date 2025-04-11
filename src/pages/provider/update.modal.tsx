@@ -72,10 +72,8 @@ export default function UpdateProviderModal() {
     });
 
     // add models
-    const relatedModelList = await db.model
-      .where("providerId")
-      .equals(selectedProvider.id)
-      .toArray();
+    const providerId = selectedProvider.id;
+    const relatedModelList = await db.model.where({ providerId }).toArray();
     await db.model.bulkDelete(relatedModelList.map((m) => m.id));
     await Promise.allSettled(
       modelIds.map(async (modelId) => {
@@ -83,11 +81,7 @@ export default function UpdateProviderModal() {
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
-        await db.model.add({
-          id: modelId,
-          providerId: selectedProvider.id,
-          isActive: 0,
-        });
+        await db.model.add({ id: modelId, providerId, isActive: 0 });
       })
     );
 
@@ -174,7 +168,7 @@ export default function UpdateProviderModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button type="button">close</button>
+        <button type="submit">close</button>
       </form>
     </dialog>
   );

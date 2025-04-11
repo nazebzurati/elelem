@@ -1,7 +1,7 @@
 import Chats from "./chat";
 import Navbar from "./navbar";
 
-function Chat() {
+function Conversation() {
   return (
     <div className="h-svh flex flex-col overflow-hidden">
       <Navbar />
@@ -10,4 +10,4 @@ function Chat() {
   );
 }
 
-export default Chat;
+export default Conversation;

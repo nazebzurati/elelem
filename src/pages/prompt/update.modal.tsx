@@ -24,7 +24,7 @@ export default function UpdatePromptModal() {
 
   const schema = yup
     .object()
-    .shape({ title: yup.string(), prompt: yup.string() });
+    .shape({ title: yup.string().required(), prompt: yup.string().required() });
 
   const {
     reset,
@@ -93,6 +93,11 @@ export default function UpdatePromptModal() {
               placeholder="e.g. Rephrase the given sentences, shorten it and make sure the fix any grammar mistake. Don't use em dashes, en dashes, and hyphens in the sentences."
               {...register("prompt")}
             />
+            {errors.prompt && (
+              <p className="fieldset-label text-error">
+                {errors.prompt.message}
+              </p>
+            )}
           </fieldset>
         </form>
         <div className="modal-action flex mt-3">
@@ -104,7 +109,7 @@ export default function UpdatePromptModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button type="button">close</button>
+        <button type="submit">close</button>
       </form>
     </dialog>
   );

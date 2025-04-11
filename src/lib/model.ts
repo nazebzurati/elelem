@@ -48,10 +48,12 @@ export const getConversation = async (
 
   const chats: ChatWithDetails[] = [];
   for (const chat of relatedChats) {
-    const model: Model = (await db.model.get(chat.modelId))!;
+    const model: Model | undefined = await db.model.get(chat.modelId);
     chats.push({
       ...chat,
-      model: { ...model, provider: (await db.provider.get(model.providerId))! },
+      model: model
+        ? { ...model, provider: await db.provider.get(model.providerId) }
+        : undefined,
       prompt: chat.promptId ? await db.prompt.get(chat.promptId) : undefined,
     });
   }
@@ -77,6 +79,5 @@ export const getActiveModel = async (): Promise<
 > => {
   const model = await db.model.where({ isActive: 1 }).first();
   if (!model) return undefined;
-  const provider = (await db.provider.get(model.providerId))!;
-  return { ...model, provider };
+  return { ...model, provider: await db.provider.get(model.providerId) };
 };
