@@ -2,57 +2,23 @@ import type {} from "@redux-devtools/extension"; // required for devtools typing
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-type UpdateSettings = {
-  openAiApiKey: string | undefined;
-  ollamaUrl: string | undefined;
-};
-
 interface SettingsState {
-  ollamaUrl: string;
-  openAiApiKey: string;
-  update: ({ openAiApiKey, ollamaUrl }: UpdateSettings) => void;
+  activePromptId?: number;
+  setActivePrompt: (promptId?: number) => void;
 
-  isOnboardingCompleted: boolean;
-  resetOnboardingFlag: () => void;
-  setOnboardingComplete: () => void;
-
-  activeAssistantId: number | undefined;
-  setActiveAssistant: (assistantId: number | undefined) => void;
-
-  activeConversationId: number | undefined;
-  setActiveConversation: (conversationId: number | undefined) => void;
+  activeConversationId?: number;
+  setActiveConversation: (conversationId?: number) => void;
 }
 
 const useSettings = create<SettingsState>()(
   devtools(
     persist(
       (set) => ({
-        ollamaUrl: "",
-        openAiApiKey: "",
-        update: ({ openAiApiKey, ollamaUrl }) =>
+        activePromptId: undefined,
+        setActivePrompt: (promptId) =>
           set((state) => ({
             ...state,
-            openAiApiKey: openAiApiKey ?? "",
-            ollamaUrl: ollamaUrl ?? "",
-          })),
-
-        isOnboardingCompleted: false,
-        resetOnboardingFlag: () =>
-          set((state) => ({
-            ...state,
-            isOnboardingCompleted: false,
-            activeAssistantId: undefined,
-            activeConversationId: undefined,
-          })),
-        setOnboardingComplete: () =>
-          set((state) => ({ ...state, isOnboardingCompleted: true })),
-
-        activeAssistantId: undefined,
-        setActiveAssistant: (assistantId) =>
-          set((state) => ({
-            ...state,
-            activeAssistantId: assistantId,
-            activeConversationId: undefined,
+            activePromptId: promptId,
           })),
 
         activeConversationId: undefined,
@@ -62,9 +28,7 @@ const useSettings = create<SettingsState>()(
             activeConversationId: conversationId,
           })),
       }),
-      {
-        name: "settings",
-      }
+      { name: "settings" }
     )
   )
 );

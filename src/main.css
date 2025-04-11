@@ -6,16 +6,10 @@ html {
   scrollbar-gutter: auto !important;
 }
 
-/* fix markdown list */
-.markdown > ol,
-.markdown > ul {
-  padding-left: 2rem;
+/* fix markdown not rendering properly */
+.markdown {
+  max-width: 650px;
 }
-
-.markdown > ol {
-  list-style: decimal;
-}
-
-.markdown > ul {
-  list-style: circle;
+.markdown > * {
+  all: revert;
 }

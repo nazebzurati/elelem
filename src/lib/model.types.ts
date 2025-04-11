@@ -1,58 +1,46 @@
 export interface Model {
   id: string;
-  baseUrl?: string;
+  providerId: number;
+  isActive: number;
 }
 
-export interface Assistant {
+export interface Provider {
   id: number;
-  name: string;
-  modelId: string;
-  prompt: string | undefined;
+  baseURL?: string;
+  apiKey?: string;
+}
+export interface Prompt {
+  id: number;
+  title: string;
+  prompt: string;
 }
 
 export interface Conversation {
   id: number;
-  assistantId: number;
-  title: string;
+  title?: string;
+  createdAt: number;
 }
 
 export interface Chat {
   id: number;
   conversationId: number;
+  promptId?: number;
+  modelId: string;
   user: string;
   assistant?: string;
   sendAt: number;
   receivedAt?: number;
 }
 
-export interface IOllamaModelInfo {
-  name: string;
-  modified_at: string;
-  size: number;
-  digest: string;
-  details: {
-    format: string;
-    family: string;
-    families: string;
-    parameter_size: string;
-    quantization_level: string;
-  };
+export interface ModelWithDetails extends Model {
+  provider?: Provider;
 }
 
-export interface ActiveAssistant extends Assistant {
-  model: Model | undefined;
+export interface ChatWithDetails extends Chat {
+  model?: ModelWithDetails;
+  prompt?: Prompt;
 }
 
-export interface AssistantListing extends Assistant {
-  index: number;
-}
-
-export interface ActiveConversation extends Conversation {
-  assistant: ActiveAssistant | undefined;
-  chats: Chat[];
-}
-
-export interface ConversationHistoryItem extends Conversation {
-  firstChat: Chat | undefined;
-  assistant: Assistant | undefined;
+export interface ConversationWithDetails extends Conversation {
+  chats: ChatWithDetails[];
 }

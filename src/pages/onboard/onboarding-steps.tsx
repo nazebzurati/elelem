@@ -3,34 +3,26 @@ import andyWave from "@assets/andy-wave.png";
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
-import {
-  fetchOllamaModels,
-  fetchOpenAiModels,
-  updateModelList,
-} from "@lib/model";
-import { Model } from "@lib/model.types";
-import useSettings from "@store/settings";
+import { fetchModels } from "@lib/model";
 import { IconCircleX } from "@tabler/icons-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
+import { isEmpty } from "radash";
 
 function Step1({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
+}>) {
   return (
     <>
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Hey there!</h1>
-        <p>
-          We're thrilled you're here! Elelem is your friendly assistant that
-          dresses up your favorite models in fun personalities — just name them
-          and give a prompt! Switching between your personalized pals is a
-          breeze with keyboard shortcuts.
+        <p className="px-12">
+          Elelem is an LLM client. Nothing fancy, just your trusty
+          cross-platform sidekick for chatting with smart machines.
         </p>
         <img
           width={150}
@@ -55,31 +47,12 @@ function Step1({
 
 function Step2({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
-  const settingsStore = useSettings();
-
-  const schema = yup.object().shape({
-    ollamaUrl: yup
-      .string()
-      .test(
-        "oneOf",
-        "Provide either Ollama URL or OpenAI API Key.",
-        function (value) {
-          return this.parent.openAiApiKey ? true : !!value;
-        }
-      ),
-    openAiApiKey: yup
-      .string()
-      .test(
-        "oneOf",
-        "Provide either OpenAI API Key or Ollama URL.",
-        function (value) {
-          return this.parent.ollamaUrl ? true : !!value;
-        }
-      ),
-  });
+}>) {
+  const schema = yup
+    .object()
+    .shape({ baseURL: yup.string(), apiKey: yup.string() });
 
   const {
     register,
@@ -87,53 +60,65 @@ function Step2({
     formState: { errors, isLoading, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      openAiApiKey: settingsStore.openAiApiKey,
-      ollamaUrl: settingsStore.ollamaUrl,
-    },
+    defaultValues: { baseURL: "", apiKey: "" },
   });
 
   const [error, setError] = useState<string>("");
   const onNext = async (data: yup.InferType<typeof schema>) => {
     setError("");
-    let modelList: Model[] = [];
 
-    if (data.openAiApiKey) {
-      const models = await fetchOpenAiModels(data.openAiApiKey);
-      if (models.length <= 0) {
-        setError("Unable to get OpenAI models.");
-        return;
-      }
-      modelList = modelList.concat(models);
+    // set base URL
+    let baseURL = data.baseURL?.replace(/\/$/, "");
+    if (!baseURL || isEmpty(baseURL)) {
+      baseURL = "https://api.openai.com/v1";
     }
 
-    if (data.ollamaUrl) {
-      const models = await fetchOllamaModels(data.ollamaUrl);
-      if (models.length <= 0) {
-        setError("Unable to get Ollama models.");
-        return;
-      }
-      modelList = modelList.concat(models);
+    // get model list
+    let modelIds: string[] = [];
+    try {
+      modelIds = await fetchModels(baseURL, data.apiKey);
+    } catch (_error) {
+      setError("Failed to connect");
+      return;
+    }
+    if (modelIds.length <= 0) {
+      setError("No model was found");
+      return;
     }
 
-    await updateModelList(modelList);
-    settingsStore.update({
-      ollamaUrl: data.ollamaUrl,
-      openAiApiKey: data.openAiApiKey,
-    });
+    // add provider and model
+    const providerData = { baseURL: baseURL, apiKey: data.apiKey };
+    const provider = await db.provider.where(providerData).first();
+    const providerId = provider
+      ? provider.id
+      : await db.provider.add(providerData);
+
+    // clear model and add
+    await db.model.clear();
+    Promise.allSettled(
+      modelIds.map(async (modelId) => {
+        const isModelIdExisted =
+          (await db.model.where({ id: modelId }).count()) > 0;
+        if (isModelIdExisted) return;
+
+        await db.model.add({ id: modelId, providerId, isActive: 0 });
+      })
+    );
+
     setStep(3);
+  };
+
+  const onErrorDismiss = () => {
+    setError("");
   };
 
   return (
     <>
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">Prep Time</h1>
-        <p>
-          Before you get started, there's a quick step to complete: obtain an
-          OpenAI API key or set up your own Ollama server. Make sure you have
-          one of these ready before diving in! You'll need at least one of the
-          OpenAI API or Ollama server, but feel free to provide both for extra
-          options.
+        <p className="px-12">
+          To get started, Elelem just needs a host URL and API key. Any
+          OpenAI-compatible provider will do—add one now, more can join later.
         </p>
         <form
           id="onboardStep2Form"
@@ -142,51 +127,57 @@ function Step2({
         >
           <fieldset className="fieldset">
             <div>
-              <legend className="fieldset-legend">Ollama URL</legend>
+              <legend className="fieldset-legend">Host URL</legend>
             </div>
             <input
               type="text"
               className="input w-full"
-              placeholder="http://localhost:11434"
-              {...register("ollamaUrl")}
+              placeholder="http://localhost:11434/v1"
+              {...register("baseURL")}
             />
-
-            {errors.ollamaUrl ? (
+            {errors.baseURL ? (
               <p className="fieldset-label text-error">
-                {errors.ollamaUrl.message}
+                {errors.baseURL.message}
               </p>
             ) : (
               <p className="fieldset-label">
-                Learn more at https://ollama.com.
+                You can leave it blank if you're using OpenAI API key.
               </p>
             )}
           </fieldset>
           <fieldset className="fieldset">
             <div>
-              <legend className="fieldset-legend">OpenAI API Key</legend>
+              <legend className="fieldset-legend">API Key</legend>
             </div>
             <input
               type="text"
               className="input w-full"
               placeholder="sk-*****"
-              {...register("openAiApiKey")}
+              {...register("apiKey")}
             />
-            {errors.openAiApiKey ? (
+            {errors.apiKey ? (
               <p className="fieldset-label text-error">
-                {errors.openAiApiKey.message}
+                {errors.apiKey.message}
               </p>
             ) : (
               <p className="fieldset-label">
-                Don't worry, we keep the key to yourself.
+                You can leave it blank if you're using Ollama.
               </p>
             )}
           </fieldset>
         </form>
         {error && (
-          <div role="alert" className="alert alert-error">
+          <button
+            type="button"
+            onClick={onErrorDismiss}
+            className="alert alert-error w-full"
+          >
             <IconCircleX />
-            <span>{error}</span>
-          </div>
+            <div>
+              <h3 className="font-bold">{error}</h3>
+              <div className="text-xs">Click to dismiss.</div>
+            </div>
+          </button>
         )}
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
@@ -210,150 +201,68 @@ function Step2({
 
 function Step3({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
-  const modelList = useLiveQuery(async () => await db.model.toArray());
-  const assistant = useLiveQuery(async () => await db.assistant.toArray());
-
+}>) {
   const schema = yup
-    .object({
-      name: yup.string().required("Name is a required field."),
-      modelId: yup.string().required("Model is a required field."),
-      prompt: yup.string(),
-    })
+    .object({ title: yup.string().required(), prompt: yup.string().required() })
     .required();
   const {
-    reset,
     register,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting },
+    formState: { errors, isLoading, isSubmitting, isDirty },
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: { title: "", prompt: "" },
   });
 
-  const settingsStore = useSettings();
-  useEffect(() => {
-    if (assistant && assistant.length > 0) {
-      settingsStore.setActiveAssistant(assistant[0].id);
-      reset(assistant[0]);
-    }
-  }, [assistant]);
-
-  useEffect(() => {
-    if (assistant && assistant.length > 0) return;
-    if (modelList && modelList.length > 0) {
-      reset({ modelId: modelList[0].id });
-    }
-  }, [modelList]);
-
-  const [error, setError] = useState<string>("");
   const onNext = async (data: yup.InferType<typeof schema>) => {
-    try {
-      if (!settingsStore.activeAssistantId) {
-        const assistantId = await db.assistant.add({
-          name: data.name,
-          modelId: data.modelId,
-          prompt: data.prompt,
-        });
-        settingsStore.setActiveAssistant(assistantId);
-      } else {
-        await db.assistant.update(settingsStore.activeAssistantId, {
-          name: data.name,
-          prompt: data.prompt,
-          modelId: data.modelId,
-        });
-      }
-    } catch (_error) {
-      setError("Unable to create assistant.");
-      return;
-    }
+    await db.prompt.add({ title: data.title, prompt: data.prompt });
     setStep(4);
   };
 
   return (
     <>
       <div className="w-full text-center space-y-6">
-        <h1 className="text-2xl font-bold">Designing Assistant</h1>
-        <p>
-          Let's create your assistant! Pick a name and a prompt, and don't
-          forget to choose the right model to help keep costs down while getting
-          the job done effectively.
+        <h1 className="text-2xl font-bold">Personalization</h1>
+        <p className="px-12">
+          Let's customize your assistant with prompt or instruction! Pick a
+          title and write a prompt to shape its behavior. However, this is
+          optional if you want to use a model without a prompt.
         </p>
         <form
           id="onboardStep3Form"
           className="text-start"
           onSubmit={handleSubmit(onNext)}
         >
-          <div className="grid grid-cols-2 gap-2">
-            <fieldset className="fieldset">
-              <div>
-                <legend className="fieldset-legend">Model</legend>
-              </div>
-              <select
-                className="select select-bordered w-full"
-                {...register("modelId")}
-              >
-                {modelList?.map((model) => (
-                  <option key={model.id} value={model.id}>
-                    {model.id}
-                  </option>
-                ))}
-              </select>
-              {!errors.modelId ? (
-                <p className="fieldset-label">
-                  Only chat completion models are supported.
-                </p>
-              ) : (
-                <p className="fieldset-label text-error">
-                  {errors.modelId.message}
-                </p>
-              )}
-            </fieldset>
-            <fieldset className="fieldset">
-              <div>
-                <legend className="fieldset-legend">Name (required)</legend>
-              </div>
-              <input
-                type="text"
-                className="input w-full"
-                placeholder="Rephrase"
-                {...register("name")}
-              />
-
-              {errors.name ? (
-                <p className="fieldset-label text-error">
-                  {errors.name.message}
-                </p>
-              ) : (
-                <p className="fieldset-label">
-                  Name will not be provided to model.
-                </p>
-              )}
-            </fieldset>
-          </div>
           <fieldset className="fieldset">
             <div>
-              <legend className="fieldset-legend">Prompt (optional)</legend>
+              <legend className="fieldset-legend">Title</legend>
+            </div>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder="Rephrase"
+              {...register("title")}
+            />
+            {errors.title && (
+              <p className="fieldset-label text-error">
+                {errors.title.message}
+              </p>
+            )}
+          </fieldset>
+          <fieldset className="fieldset">
+            <div>
+              <legend className="fieldset-legend">Prompt</legend>
             </div>
             <textarea
-              rows={2}
+              rows={3}
               className="textarea w-full !min-h-10"
-              placeholder="e.g. Rephrase the following sentence, shorten it and make sure the fix any grammar mistake."
+              placeholder="e.g. Rephrase the given sentences, shorten it and make sure the fix any grammar mistake. Don't use em dashes, en dashes, and hyphens in the sentences."
               {...register("prompt")}
             />
-            <p className="fieldset-label">
-              Leave this field empty if you want to use the model without a
-              system prompt.
-            </p>
           </fieldset>
         </form>
-        {error && (
-          <div role="alert" className="alert alert-error">
-            <IconCircleX />
-            <span>{error}</span>
-          </div>
-        )}
       </div>
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button
@@ -364,11 +273,21 @@ function Step3({
         >
           Previous
         </button>
-        <SubmitButton
-          formId="onboardStep3Form"
-          text="Next"
-          isLoading={isLoading || isSubmitting}
-        />
+        {isDirty ? (
+          <SubmitButton
+            formId="onboardStep3Form"
+            text="Next"
+            isLoading={isLoading || isSubmitting}
+          />
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary btn-outline"
+            onClick={() => setStep(4)}
+          >
+            Skip
+          </button>
+        )}
       </div>
     </>
   );
@@ -376,21 +295,15 @@ function Step3({
 
 function Step4({
   setStep,
-}: {
+}: Readonly<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
-}) {
-  const settingsStore = useSettings();
+}>) {
   const navigation = useNavigate();
   return (
     <>
       <div className="w-full text-center space-y-6">
         <h1 className="text-2xl font-bold">At Your Service!</h1>
-        <p>
-          Congratulations, your assistant is ready to go! Use{" "}
-          <kbd className="kbd kbd-sm">ALT</kbd> + number (e.g.{" "}
-          <kbd className="kbd kbd-sm">ALT + 1</kbd>) to choose your preferred
-          one.
-        </p>
+        <p className="px-12">Congratulations, we're good to go.</p>
         <img
           width={150}
           height={150}
@@ -410,10 +323,7 @@ function Step4({
         <button
           type="button"
           className="btn btn-success"
-          onClick={() => {
-            settingsStore.setOnboardingComplete();
-            navigation("/chat");
-          }}
+          onClick={() => navigation("/conversation")}
         >
           Let's go!
         </button>
