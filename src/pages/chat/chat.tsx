@@ -1,12 +1,10 @@
-import "katex/dist/katex.min.css";
-
 import andyNote from "@assets/andy-note.png";
 import useChat from "@hooks/use-chat";
 import { parseThinkingReply, TIME_FORMAT } from "@lib/chat";
 import db from "@lib/database";
 import { getActiveModel, getConversation, prepareMessages } from "@lib/model";
 import {
-  Chat,
+  ChatWithDetails,
   ConversationWithDetails,
   ModelWithDetails,
   Prompt,
@@ -16,7 +14,7 @@ import { IconChevronDown } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
@@ -24,12 +22,12 @@ const INPUT_REFOCUS_DELAY_MS = 250;
 export default function Chats() {
   const settingsStore = useSettings();
 
-  const activeModel: ModelWithDetails | undefined = useLiveQuery(async () =>
-    getActiveModel(),
+  const activeModel: ModelWithDetails | undefined = useLiveQuery(
+    async () => await getActiveModel()
   );
 
-  const promptList: Prompt[] | undefined = useLiveQuery(async () =>
-    db.prompt.toArray(),
+  const promptList: Prompt[] | undefined = useLiveQuery(
+    async () => await db.prompt.toArray()
   );
 
   const activePrompt: Prompt | undefined = useLiveQuery(
@@ -37,7 +35,7 @@ export default function Chats() {
       settingsStore.activePromptId
         ? await db.prompt.get(settingsStore.activePromptId)
         : undefined,
-    [settingsStore.activePromptId],
+    [settingsStore.activePromptId]
   );
 
   const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
@@ -45,16 +43,26 @@ export default function Chats() {
       settingsStore.activeConversationId
         ? await getConversation(settingsStore.activeConversationId)
         : undefined,
-    [settingsStore.activeConversationId],
+    [settingsStore.activeConversationId]
   );
 
   const {
     form: { reset, register, handleSubmit, isLoading, isSubmitting, setFocus },
-    scrollRef,
     isThinking,
     messages,
     setMessages,
   } = useChat();
+
+  // autoscroll
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [isSubmitting, messages, activeConversation?.chats]);
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, []);
 
   const onSubmit = useCallback(
     async (data: { input: string }) => {
@@ -73,6 +81,7 @@ export default function Chats() {
         user: data.input,
         sendAt: Date.now(),
         modelId: activeModel.id,
+        promptId: activePrompt?.id,
       });
       settingsStore.setActiveConversation(conversationId);
 
@@ -84,18 +93,15 @@ export default function Chats() {
           baseURL: activeModel.provider.baseURL,
           apiKey: activeModel.provider.apiKey,
         });
-        const stream = await client.chat.completions.create(
-          {
-            stream: true,
-            model: activeModel.id,
-            messages: prepareMessages({
-              chats: activeConversation?.chats ?? [],
-              system: activePrompt?.prompt ?? "",
-              input: data.input,
-            }),
-          },
-          { headers: { "x-stainless-timeout": null } },
-        );
+        const stream = await client.chat.completions.create({
+          stream: true,
+          model: activeModel.id,
+          messages: prepareMessages({
+            chats: activeConversation?.chats ?? [],
+            system: activePrompt?.prompt ?? "",
+            input: data.input,
+          }),
+        });
 
         // stream chat
         for await (const chunk of stream) {
@@ -118,7 +124,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore],
+    [activeModel, activeConversation, settingsStore]
   );
 
   const onSelectPrompt = (promptId?: number) => {
@@ -149,7 +155,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput",
+        "chatInput"
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }
@@ -200,14 +206,17 @@ export default function Chats() {
           </div>
         )}
       </div>
-      <form className="m-6 mt-0 flex-none" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="mx-6 mt-0 mb-2 flex-none"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <fieldset className="fieldset">
           <legend className="fieldset-legend">
             <div className="dropdown dropdown-top">
               <div tabIndex={0} role="button" className="m-1 flex items-center">
                 <div className="flex flex-col me-3">
                   {promptList?.find(
-                    (prompt) => prompt.id === settingsStore.activePromptId,
+                    (prompt) => prompt.id === settingsStore.activePromptId
                   )?.title ?? "No prompt"}
                 </div>
                 <IconChevronDown className="w-4 h-4" />
@@ -253,8 +262,15 @@ export default function Chats() {
             placeholder="Write here"
             {...register("input")}
           />
-          <div className="fieldset-label">
-            Enter to submit. Shift+Enter to newline.
+          <div>
+            <div className="fieldset-label hidden sm:block">
+              Enter to submit. Shift+Enter to newline. Ctrl+n to new
+              conversation.
+            </div>
+            <div className="fieldset-label">
+              Not all models support chat completions. Model response can make
+              mistakes and always verify info.
+            </div>
           </div>
         </fieldset>
       </form>
@@ -262,7 +278,7 @@ export default function Chats() {
   );
 }
 
-function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
+function Conversation({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
@@ -270,7 +286,9 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
           <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
         <div className="chat-footer opacity-50">
-          {dayjs(chat.sendAt).format(TIME_FORMAT)}
+          {[dayjs(chat.sendAt).format(TIME_FORMAT), chat.prompt?.title]
+            .filter((s) => !!s)
+            .join(", ")}
         </div>
       </div>
       {chat.assistant && (
@@ -279,7 +297,9 @@ function Conversation({ chats }: Readonly<{ chats: Chat[] }>) {
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
           <div className="chat-footer opacity-50">
-            {dayjs(chat.receivedAt).format(TIME_FORMAT)}
+            {[dayjs(chat.receivedAt).format(TIME_FORMAT), chat.modelId]
+              .filter((s) => !!s)
+              .join(", ")}
           </div>
         </div>
       )}

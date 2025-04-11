@@ -16,13 +16,14 @@ export default function About() {
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex">
+      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
         <div className="navbar-start me-6">
           <Drawer />
         </div>
       </div>
       {/* title */}
-      <div className="ps-7 pb-8 pt-2 space-y-4 max-w-md">
+      <div className="px-7 py-4 space-y-4 max-w-md">
+        <img src="/elelem.png" alt="icon" className="h-16 w-16" />
         <div className="text-xl font-bold">
           {appInfo.name} v{appInfo.version}
         </div>

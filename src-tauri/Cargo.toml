@@ -1,6 +1,6 @@
 [package]
 name = "elelem"
-version = "0.2.1"
+version = "0.3.0"
 description = "A friendly assistant with LLM"
 authors = ["Nazeb Zurati"]
 edition = "2021"

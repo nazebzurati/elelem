@@ -9,10 +9,13 @@ const MENU_CLOSING_DELAY_MS = 100;
 export default function Navbar() {
   return (
     <div className="navbar bg-base-100 flex-none px-6 flex">
-      <div className="navbar-start me-6 flex-0">
+      <div className="flex-none me-2">
         <Drawer />
       </div>
-      <div className="navbar-end flex-1">
+      <div className="flex-1">
+        <a className="btn btn-ghost text-xl">Conversation</a>
+      </div>
+      <div className="flex-none">
         <ModelSelector />
       </div>
     </div>
@@ -30,7 +33,7 @@ function ModelSelector() {
       activeModels.map((model) => ({
         key: model.id,
         changes: { isActive: 0 },
-      })),
+      }))
     );
     await db.model.update(modelId, { isActive: 1 });
     setTimeout(() => {
@@ -41,27 +44,26 @@ function ModelSelector() {
   return (
     <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="m-1 flex items-center">
-        <div className="flex flex-col me-3">{activeModel?.id}</div>
+        <div className="flex flex-col font-bold me-3">{activeModel?.id}</div>
         <IconChevronDown className="w-4 h-4" />
       </div>
-      <ul
-        tabIndex={0}
-        className="dropdown-content menu menu-horizontal line-clamp-1 bg-base-200 w-max rounded-box z-1 shadow-sm overflow-y-auto max-h-60"
-      >
-        {modelList?.map((model) => (
-          <li key={model.id}>
-            <button
-              type="button"
-              onClick={() => onSelect(model.id)}
-              className={`flex items-center ${
-                model.isActive ? "text-primary" : ""
-              }`}
-            >
-              <div className="flex flex-col">{model.id}</div>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="dropdown-content max-h-60 overflow-y-auto w-max">
+        <ul tabIndex={0} className="menu bg-base-200 rounded-box">
+          {modelList?.map((model) => (
+            <li key={model.id}>
+              <button
+                type="button"
+                onClick={() => onSelect(model.id)}
+                className={`flex items-center ${
+                  model.isActive ? "text-primary font-bold" : ""
+                }`}
+              >
+                <div className="flex flex-col">{model.id}</div>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

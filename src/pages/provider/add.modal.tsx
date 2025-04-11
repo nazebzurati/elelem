@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
 import { fetchModels } from "@lib/model";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -36,7 +36,7 @@ export default function AddProviderModal() {
     let modelIds: string[] = [];
     try {
       modelIds = await fetchModels(baseURL, data.apiKey);
-    } catch (error) {
+    } catch (_error) {
       setError("Failed to connect");
       return;
     }
@@ -64,10 +64,10 @@ export default function AddProviderModal() {
           providerId,
           isActive: Number(index === 0),
         });
-      }),
+      })
     );
 
-    toggleModal(AddProviderModalId, ModalState.CLOSE);
+    toggleModal(AddProviderModalId, UiToggleState.CLOSE);
     reset();
   };
 
@@ -130,6 +130,7 @@ export default function AddProviderModal() {
         </form>
         {error && (
           <button
+            type="button"
             onClick={onErrorDismiss}
             className="alert alert-error w-full my-2"
           >

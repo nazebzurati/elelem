@@ -1,6 +1,6 @@
 import db from "@lib/database";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import usePrompt from "@store/prompt";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -14,13 +14,13 @@ export default function DeletePromptModal() {
       promptStore.selectedPromptId
         ? await db.prompt.get(promptStore.selectedPromptId)
         : undefined,
-    [promptStore],
+    [promptStore]
   );
 
   const onDelete = async () => {
     if (!selectedPrompt) return;
     await db.prompt.delete(selectedPrompt.id);
-    toggleModal(DeletePromptModalId, ModalState.CLOSE);
+    toggleModal(DeletePromptModalId, UiToggleState.CLOSE);
   };
 
   return (
@@ -35,9 +35,8 @@ export default function DeletePromptModal() {
           </form>
         </div>
         <div>
-          Before we delete ‘{selectedPrompt?.title}’, we just want to make sure
-          you’re certain. This change can’t be undone, so if you’re ready, we’ll
-          go ahead and remove it.
+          Deleting '{selectedPrompt?.title}' prompt doesn't remove chat created
+          using the prompt; just no longer displayed using any prompt.
         </div>
         <div className="modal-action flex mt-3">
           <button
@@ -50,7 +49,7 @@ export default function DeletePromptModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button type="button">close</button>
       </form>
     </dialog>
   );

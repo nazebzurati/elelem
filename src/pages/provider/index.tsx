@@ -1,7 +1,7 @@
 import Drawer from "@components/drawer";
 import db from "@lib/database";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import useProvider from "@store/provider";
 import { IconPlus } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -13,66 +13,74 @@ import ViewProviderModelModal, {
 } from "./view-model.modal";
 
 export default function Provider() {
-  const providerList = useLiveQuery(async () => db.provider.toArray());
+  const providerList = useLiveQuery(async () => await db.provider.toArray());
   const providerStore = useProvider();
 
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex">
-        <div className="navbar-start me-6">
+      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
+        <div className="flex-none me-2">
           <Drawer />
         </div>
-        <div className="navbar-end">
+        <div className="flex-1">
+          <a className="btn btn-ghost text-xl">Provider List</a>
+        </div>
+        <div className="flex-none">
           <div className="tooltip tooltip-bottom" data-tip="Add provider">
             <button
               type="button"
               className="btn btn-ghost btn-circle"
-              onClick={() => toggleModal(AddProviderModalId, ModalState.OPEN)}
+              onClick={() =>
+                toggleModal(AddProviderModalId, UiToggleState.OPEN)
+              }
             >
               <IconPlus className="h-6 w-6" />
             </button>
           </div>
         </div>
       </div>
-      {/* title */}
-      <div className="ps-7 pb-8 pt-2">
-        <div className="text-xl font-bold">Provider List</div>
-        <p className="text-sm">List of added model provider.</p>
-      </div>
       {/* items */}
       {providerList && providerList.length <= 0 && (
-        <div className="px-7">No provider was found.</div>
+        <div className="px-7 py-4">No provider was found.</div>
       )}
-      <div className="px-4 grid grid-cols-2 gap-2">
+      <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {providerList?.map((provider) => (
           <div key={provider.id} className="card card-border bg-base-300">
             <div className="card-body">
-              <h2 className="card-title line-clamp-1">{provider.baseURL}</h2>
+              <h2 className="card-title line-clamp-1">
+                {provider.baseURL
+                  ? new URL(provider.baseURL).hostname
+                  : provider.baseURL}
+              </h2>
+              <p className="text-sm -mt-2 line-clamp-1">{provider.baseURL}</p>
               <div className="card-actions justify-end mt-2">
                 <button
+                  type="button"
                   className="btn"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
-                    toggleModal(ViewProviderModelModalId, ModalState.OPEN);
+                    toggleModal(ViewProviderModelModalId, UiToggleState.OPEN);
                   }}
                 >
                   View model
                 </button>
                 <button
+                  type="button"
                   className="btn"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
-                    toggleModal(UpdateProviderModalId, ModalState.OPEN);
+                    toggleModal(UpdateProviderModalId, UiToggleState.OPEN);
                   }}
                 >
                   Update
                 </button>
                 <button
+                  type="button"
                   className="btn"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
-                    toggleModal(DeleteProviderModalId, ModalState.OPEN);
+                    toggleModal(DeleteProviderModalId, UiToggleState.OPEN);
                   }}
                 >
                   Delete

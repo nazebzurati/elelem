@@ -1,11 +1,10 @@
+import { toggleDrawer } from "@lib/utils";
+import { UiToggleState } from "@lib/utils.types";
 import useSettings from "@store/settings";
-import {
-  IconLayoutSidebarLeftCollapseFilled,
-  IconLayoutSidebarLeftExpandFilled,
-} from "@tabler/icons-react";
+import { IconMenu2, IconX } from "@tabler/icons-react";
 import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const DrawerId = "drawer";
 
@@ -28,7 +27,7 @@ export default function Drawer() {
       <input id={DrawerId} type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor={DrawerId} className="drawer-button">
-          <IconLayoutSidebarLeftExpandFilled className="h-6 w-6" />
+          <IconMenu2 className="h-6 w-6" />
         </label>
       </div>
       <div className="drawer-side z-2">
@@ -37,14 +36,14 @@ export default function Drawer() {
           aria-label="close sidebar"
           className="drawer-overlay"
         />
-        <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-          <li>
+        <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-2">
+          <li className="py-2">
             <label
               htmlFor={DrawerId}
               aria-label="close sidebar"
               className="drawer-overlay"
             >
-              <IconLayoutSidebarLeftCollapseFilled className="h-6 w-6" />
+              <IconX className="h-6 w-6" />
             </label>
           </li>
           <li>
@@ -52,28 +51,26 @@ export default function Drawer() {
             <ul>
               <li>
                 <button
+                  type="button"
+                  aria-label="close sidebar"
                   onClick={() => {
                     settingsStore.setActiveConversation(undefined);
                     navigation("/chat");
+                    toggleDrawer(DrawerId, UiToggleState.CLOSE);
                   }}
                 >
-                  New conversation
+                  New Conversation
                 </button>
               </li>
-              <li>
-                <a href="/history">Conversation history</a>
-              </li>
+              <DrawerItemPath text="Conversation" path="/chat" />
+              <DrawerItemPath text="History" path="/history" />
             </ul>
           </li>
           <li>
             <h2 className="menu-title">Configuration</h2>
             <ul>
-              <li>
-                <a href="/provider">Providers</a>
-              </li>
-              <li>
-                <a href="/prompt">Prompts</a>
-              </li>
+              <DrawerItemPath text="Provider List" path="/provider" />
+              <DrawerItemPath text="Prompt List" path="/prompt" />
             </ul>
           </li>
           <li className="mt-auto">
@@ -85,13 +82,24 @@ export default function Drawer() {
               Donate
             </a>
           </li>
-          <li>
-            <a href="/about">
-              {appInfo.name} v{appInfo.version}
-            </a>
-          </li>
+          <DrawerItemPath
+            text={`${appInfo.name} v${appInfo.version}`}
+            path="/about"
+          />
         </ul>
       </div>
     </div>
   );
 }
+
+const DrawerItemPath = ({ path, text }: { path: string; text: string }) => {
+  const location = useLocation();
+  const className = path === location.pathname ? "font-bold text-primary" : "";
+  return (
+    <li>
+      <a href={path} className={className}>
+        {text}
+      </a>
+    </li>
+  );
+};

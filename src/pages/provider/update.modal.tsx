@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
 import { fetchModels } from "@lib/model";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import useProvider from "@store/provider";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -20,7 +20,7 @@ export default function UpdateProviderModal() {
       providerStore.selectedProviderId
         ? await db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore],
+    [providerStore]
   );
 
   const schema = yup
@@ -56,7 +56,7 @@ export default function UpdateProviderModal() {
     let modelIds: string[] = [];
     try {
       modelIds = await fetchModels(baseURL, data.apiKey);
-    } catch (error) {
+    } catch (_error) {
       setError("Failed to connect");
       return;
     }
@@ -88,10 +88,10 @@ export default function UpdateProviderModal() {
           providerId: selectedProvider.id,
           isActive: 0,
         });
-      }),
+      })
     );
 
-    toggleModal(UpdateProviderModalId, ModalState.CLOSE);
+    toggleModal(UpdateProviderModalId, UiToggleState.CLOSE);
     reset();
   };
 
@@ -103,7 +103,7 @@ export default function UpdateProviderModal() {
     <dialog id={UpdateProviderModalId} className="modal">
       <div className="modal-box">
         <div className="flex justify-between items-center">
-          <h3 className="font-bold text-lg">Add Provider</h3>
+          <h3 className="font-bold text-lg">Update Provider</h3>
           <form method="dialog">
             <button type="submit" className="btn btn-circle btn-ghost">
               <IconX className="h-4 w-4" />
@@ -154,6 +154,7 @@ export default function UpdateProviderModal() {
         </form>
         {error && (
           <button
+            type="button"
             onClick={onErrorDismiss}
             className="alert alert-error w-full my-2"
           >
@@ -173,7 +174,7 @@ export default function UpdateProviderModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button type="button">close</button>
       </form>
     </dialog>
   );

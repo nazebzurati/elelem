@@ -1,7 +1,7 @@
 import Drawer from "@components/drawer";
 import db from "@lib/database";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import usePrompt from "@store/prompt";
 import { IconPlus } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -11,37 +11,35 @@ import UpdatePromptModal, { UpdatePromptModalId } from "./update.modal";
 
 export default function Prompt() {
   const promptStore = usePrompt();
-  const promptList = useLiveQuery(async () => db.prompt.toArray());
+  const promptList = useLiveQuery(async () => await db.prompt.toArray());
 
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex">
-        <div className="navbar-start me-6">
+      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
+        <div className="flex-none me-2">
           <Drawer />
         </div>
-        <div className="navbar-end">
+        <div className="flex-1">
+          <a className="btn btn-ghost text-xl">Prompt List</a>
+        </div>
+        <div className="flex-none">
           <div className="tooltip tooltip-bottom" data-tip="Add prompt">
             <button
               type="button"
               className="btn btn-ghost btn-circle"
-              onClick={() => toggleModal(AddPromptModalId, ModalState.OPEN)}
+              onClick={() => toggleModal(AddPromptModalId, UiToggleState.OPEN)}
             >
               <IconPlus className="h-6 w-6" />
             </button>
           </div>
         </div>
       </div>
-      {/* title */}
-      <div className="ps-7 pb-8 pt-2">
-        <div className="text-xl font-bold">Prompt List</div>
-        <p>List of created prompt.</p>
-      </div>
       {/* items */}
       {promptList && promptList.length <= 0 && (
-        <div className="px-7">No prompt was found.</div>
+        <div className="px-7 py-4">No prompt was found.</div>
       )}
-      <div className="px-4 grid grid-cols-2 gap-2">
+      <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {promptList?.map((prompt) => (
           <div key={prompt.id} className="card card-border bg-base-300">
             <div className="card-body">
@@ -49,19 +47,21 @@ export default function Prompt() {
               <p className="text-sm -mt-2 line-clamp-1">{prompt.prompt}</p>
               <div className="card-actions justify-end mt-2">
                 <button
-                  className="btn btn-sm"
+                  type="button"
+                  className="btn"
                   onClick={() => {
                     promptStore.setSelectedPrompt(prompt.id);
-                    toggleModal(UpdatePromptModalId, ModalState.OPEN);
+                    toggleModal(UpdatePromptModalId, UiToggleState.OPEN);
                   }}
                 >
                   Update
                 </button>
                 <button
-                  className="btn btn-sm"
+                  type="button"
+                  className="btn"
                   onClick={() => {
                     promptStore.setSelectedPrompt(prompt.id);
-                    toggleModal(DeletePromptModalId, ModalState.OPEN);
+                    toggleModal(DeletePromptModalId, UiToggleState.OPEN);
                   }}
                 >
                   Delete

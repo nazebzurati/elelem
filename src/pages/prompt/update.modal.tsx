@@ -2,7 +2,7 @@ import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import usePrompt from "@store/prompt";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -19,7 +19,7 @@ export default function UpdatePromptModal() {
       promptStore.selectedPromptId
         ? await db.prompt.get(promptStore.selectedPromptId)
         : undefined,
-    [promptStore],
+    [promptStore]
   );
 
   const schema = yup
@@ -47,7 +47,7 @@ export default function UpdatePromptModal() {
   const onUpdate = async (data: yup.InferType<typeof schema>) => {
     if (!selectedPrompt) return;
     await db.prompt.update(selectedPrompt.id, data);
-    toggleModal(UpdatePromptModalId, ModalState.CLOSE);
+    toggleModal(UpdatePromptModalId, UiToggleState.CLOSE);
     reset();
   };
 
@@ -104,7 +104,7 @@ export default function UpdatePromptModal() {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button type="button">close</button>
       </form>
     </dialog>
   );

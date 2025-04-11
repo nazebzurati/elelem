@@ -7,42 +7,39 @@ import { useNavigate } from "react-router";
 
 export default function History() {
   const settingsStore = useSettings();
-  const conversationList = useLiveQuery(async () => getConversationAll());
+  const conversationList = useLiveQuery(async () => await getConversationAll());
 
   const navigation = useNavigate();
 
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex">
-        <div className="navbar-start me-6">
+      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
+        <div className="flex-none me-2">
           <Drawer />
         </div>
-      </div>
-      {/* title */}
-      <div className="ps-7 pb-8 pt-2">
-        <div className="text-xl font-bold">Conversation history</div>
-        <p>Past conversations list.</p>
+        <div className="flex-1">
+          <a className="btn btn-ghost text-xl">History</a>
+        </div>
       </div>
       {/* items */}
       {conversationList && conversationList.length <= 0 && (
-        <div className="px-7">No conversation history was found.</div>
+        <div className="px-7 py-4">No conversation history was found.</div>
       )}
-      <div className="px-4 grid grid-cols-2 gap-2">
+      <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {conversationList?.map((conversation) => (
-          <div key={conversation.id} className="card card-border bg-base-200">
+          <div key={conversation.id} className="card card-border bg-base-300">
             <div className="card-body">
               <h2 className="card-title line-clamp-1">
                 {conversation.chats[0].user}
               </h2>
-              <p className="-mt-2 line-clamp-1">
-                {conversation.chats[0].modelId}
-              </p>
-              <p className="text-xs -mt-2 line-clamp-1">
+              <p className="text-sm -mt-2 line-clamp-1">
                 {dayjs(conversation.createdAt).format("DD/MM/YYYY, hh:mm:ss A")}
+                , {conversation.chats[0].modelId}
               </p>
               <div className="card-actions justify-end mt-2">
                 <button
+                  type="button"
                   className="btn"
                   onClick={() => {
                     settingsStore.setActiveConversation(conversation.id);

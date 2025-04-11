@@ -2,7 +2,7 @@ import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@lib/database";
 import { toggleModal } from "@lib/utils";
-import { ModalState } from "@lib/utils.types";
+import { UiToggleState } from "@lib/utils.types";
 import { IconX } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -25,7 +25,7 @@ export default function AddPromptModal() {
 
   const onAdd = async (data: yup.InferType<typeof schema>) => {
     await db.prompt.add(data);
-    toggleModal(AddPromptModalId, ModalState.CLOSE);
+    toggleModal(AddPromptModalId, UiToggleState.CLOSE);
     reset();
   };
 

@@ -5,6 +5,7 @@ import {
   Chat,
   ChatWithDetails,
   ConversationWithDetails,
+  Model,
   ModelWithDetails,
 } from "./model.types";
 
@@ -36,7 +37,7 @@ export const prepareMessages = ({
 };
 
 export const getConversation = async (
-  conversationId: number,
+  conversationId: number
 ): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
@@ -45,12 +46,12 @@ export const getConversation = async (
     .where({ conversationId: conversation.id })
     .toArray();
 
-  let chats: ChatWithDetails[] = [];
+  const chats: ChatWithDetails[] = [];
   for (const chat of relatedChats) {
-    const model: any = await db.model.get(chat.modelId);
+    const model: Model = (await db.model.get(chat.modelId))!;
     chats.push({
       ...chat,
-      model: { ...model, provider: await db.provider.get(model.providerId) },
+      model: { ...model, provider: (await db.provider.get(model.providerId))! },
       prompt: chat.promptId ? await db.prompt.get(chat.promptId) : undefined,
     });
   }

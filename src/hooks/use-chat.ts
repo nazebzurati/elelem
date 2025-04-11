@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -17,7 +17,7 @@ const useChat = () => {
     resolver: yupResolver(
       yup
         .object({ input: yup.string().required("Input is a required field.") })
-        .required(),
+        .required()
     ),
   });
 
@@ -26,13 +26,6 @@ const useChat = () => {
     reset();
     setMessages([]);
   }, [isSubmitSuccessful]);
-
-  // autoscroll
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [isSubmitting, messages]);
 
   // check if model is thinking
   const [isThinking, setIsThinking] = useState(false);
@@ -54,7 +47,6 @@ const useChat = () => {
       isSubmitting,
       setFocus,
     },
-    scrollRef,
     isThinking,
     messages,
     setMessages,

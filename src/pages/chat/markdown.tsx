@@ -1,7 +1,8 @@
+import "katex/dist/katex.min.css";
+
 import Markdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Prism } from "react-syntax-highlighter";
 import rehypeKatex from "rehype-katex";
-import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
@@ -15,16 +16,26 @@ export function MarkdownRenderer({
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeRaw, rehypeKatex]}
+      rehypePlugins={[rehypeKatex]}
       components={{
-        code({ node, inline, className, children, ...props }: any) {
+        // deno-lint-ignore no-explicit-any
+        p({ children }: any) {
+          return <p className="!m-2">{children}</p>;
+        },
+        // deno-lint-ignore no-explicit-any
+        code({ children, className, ...props }: any) {
           const match = /language-(\w+)/.exec(className || "");
-          return !inline && match ? (
-            <SyntaxHighlighter PreTag="div" language={match[1]} {...props}>
+          return match ? (
+            <Prism
+              PreTag="div"
+              language={match[1]}
+              customStyle={{ fontSize: "0.875rem", background: "none" }}
+              {...props}
+            >
               {String(children).replace(/\n$/, "")}
-            </SyntaxHighlighter>
+            </Prism>
           ) : (
-            <code className={className} {...props}>
+            <code {...props} className={className + " text-sm"}>
               {children}
             </code>
           );

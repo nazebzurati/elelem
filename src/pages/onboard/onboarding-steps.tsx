@@ -72,7 +72,7 @@ function Step2({
     let modelIds: string[] = [];
     try {
       modelIds = await fetchModels(baseURL, data.apiKey);
-    } catch (error) {
+    } catch (_error) {
       setError("Failed to connect");
       return;
     }
@@ -101,7 +101,7 @@ function Step2({
           providerId,
           isActive: Number(index === 0),
         });
-      }),
+      })
     );
 
     setStep(3);
@@ -166,7 +166,11 @@ function Step2({
           </fieldset>
         </form>
         {error && (
-          <button onClick={onErrorDismiss} className="alert alert-error w-full">
+          <button
+            type="button"
+            onClick={onErrorDismiss}
+            className="alert alert-error w-full"
+          >
             <IconCircleX />
             <div>
               <h3 className="font-bold">{error}</h3>

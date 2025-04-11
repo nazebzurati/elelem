@@ -10,12 +10,12 @@ export default function ViewProviderModelModal() {
   const modelList = useLiveQuery(
     async () =>
       providerStore.selectedProviderId
-        ? db.model
+        ? await db.model
             .where("providerId")
             .equals(providerStore.selectedProviderId)
             .toArray()
         : undefined,
-    [providerStore.selectedProviderId],
+    [providerStore.selectedProviderId]
   );
 
   return (
@@ -29,12 +29,12 @@ export default function ViewProviderModelModal() {
             </button>
           </form>
         </div>
-        <ul className="list-inside list-disc">
-          {modelList?.map((model) => <li>{model.id}</li>)}
-        </ul>
+        <div className="overflow-y-auto max-h-60">
+          {modelList?.map((model) => model.id).join(", ")}
+        </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button type="button">close</button>
       </form>
     </dialog>
   );

@@ -1,4 +1,4 @@
-export enum ModalState {
+export enum UiToggleState {
   OPEN,
   CLOSE,
 }
