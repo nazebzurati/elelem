@@ -9,6 +9,7 @@ export interface Provider {
   baseURL?: string;
   apiKey?: string;
 }
+
 export interface Prompt {
   id: number;
   title: string;
@@ -30,6 +31,10 @@ export interface Chat {
   assistant?: string;
   sendAt: number;
   receivedAt?: number;
+}
+
+export interface ProviderWithCount extends Provider {
+  modelCount: number;
 }
 
 export interface ModelWithDetails extends Model {

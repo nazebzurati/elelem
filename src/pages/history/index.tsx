@@ -48,7 +48,7 @@ export default function History() {
               <div className="card-actions justify-end mt-2">
                 <button
                   type="button"
-                  className="btn btn-neutral"
+                  className="btn btn-primary"
                   onClick={() => {
                     settingsStore.setActiveConversation(conversation.id);
                     navigation("/conversation");

@@ -1,9 +1,10 @@
 import Drawer from "@components/drawer";
 import db from "@lib/database";
+import { fetchModels } from "@lib/model";
 import { toggleModal } from "@lib/utils";
 import { UiToggleState } from "@lib/utils.types";
 import useProvider from "@store/provider";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconRefresh } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import AddProviderModal, { AddProviderModalId } from "./add.modal";
 import DeleteProviderModal, { DeleteProviderModalId } from "./delete.modal";
@@ -11,10 +12,56 @@ import UpdateProviderModal, { UpdateProviderModalId } from "./update.modal";
 import ViewProviderModelModal, {
   ViewProviderModelModalId,
 } from "./view-model.modal";
+import { useState } from "react";
+import { ProviderWithCount } from "@lib/model.types";
 
 export default function Provider() {
-  const providerList = useLiveQuery(async () => await db.provider.toArray());
+  const providerList = useLiveQuery(async () => {
+    const _providerList: ProviderWithCount[] = [];
+    for (const provider of await db.provider.toArray()) {
+      _providerList.push({
+        ...provider,
+        modelCount: await db.model.where({ providerId: provider.id }).count(),
+      });
+    }
+    return _providerList;
+  });
   const providerStore = useProvider();
+
+  const [isRefresh, setIsRefresh] = useState(false);
+  const onRefreshModel = async () => {
+    if (!providerList || isRefresh) return;
+    setIsRefresh(true);
+
+    for (const provider of providerList) {
+      // get existing and new model list
+      const modelList = await fetchModels(provider.baseURL, provider.apiKey);
+      const existingModelList = (
+        await db.model.where({ providerId: provider.id }).toArray()
+      ).map((model) => model.id);
+
+      // delete missing model
+      const modelIdListToDelete = existingModelList.filter(
+        (modelId) => !modelList.includes(modelId),
+      );
+      for (const modelId of modelIdListToDelete) {
+        await db.model.delete(modelId);
+      }
+
+      // add new model
+      const modelIdListToAdd = modelList.filter(
+        (modelId) => !existingModelList.includes(modelId),
+      );
+      for (const modelId of modelIdListToAdd) {
+        await db.model.add({
+          id: modelId,
+          providerId: provider.id,
+          isActive: 0,
+        });
+      }
+    }
+    setIsRefresh(false);
+  };
 
   return (
     <div>
@@ -27,6 +74,19 @@ export default function Provider() {
           <h1 className="btn btn-ghost text-xl">Provider List</h1>
         </div>
         <div className="flex-none">
+          <div className="tooltip tooltip-bottom" data-tip="Refresh provider">
+            {isRefresh ? (
+              <span className="loading loading-spinner loading-md"></span>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-ghost btn-circle"
+                onClick={onRefreshModel}
+              >
+                <IconRefresh className="h-6 w-6" />
+              </button>
+            )}
+          </div>
           <div className="tooltip tooltip-bottom" data-tip="Add provider">
             <button
               type="button"
@@ -53,11 +113,13 @@ export default function Provider() {
                   ? new URL(provider.baseURL).hostname
                   : provider.baseURL}
               </h2>
-              <p className="text-sm -mt-2 line-clamp-1">{provider.baseURL}</p>
+              <p className="text-sm -mt-2 line-clamp-1">
+                {provider.modelCount} model(s) found
+              </p>
               <div className="card-actions justify-end mt-2">
                 <button
                   type="button"
-                  className="btn btn-neutral btn-outline"
+                  className="btn btn-neutral"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
                     toggleModal(ViewProviderModelModalId, UiToggleState.OPEN);
@@ -67,7 +129,7 @@ export default function Provider() {
                 </button>
                 <button
                   type="button"
-                  className="btn btn-neutral"
+                  className="btn btn-primary"
                   onClick={() => {
                     providerStore.setSelectedProvider(provider.id);
                     toggleModal(UpdateProviderModalId, UiToggleState.OPEN);
