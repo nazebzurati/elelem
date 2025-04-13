@@ -1,4 +1,4 @@
-export const TIME_FORMAT = "hh:mm:ss A, DD/MM/YYYY";
+export const TIME_FORMAT = "DD MMM YYYY, hh:mm:ss a";
 
 export const parseThinkingReply = (message: string): string => {
   const regex = /^<think>(.*?)<\/think>(.*)/s;
