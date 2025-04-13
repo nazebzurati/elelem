@@ -13,9 +13,10 @@ import * as yup from "yup";
 export const AddProviderModalId = "addProviderModal";
 
 export default function AddProviderModal() {
-  const schema = yup
-    .object()
-    .shape({ baseURL: yup.string(), apiKey: yup.string() });
+  const schema = yup.object().shape({
+    baseURL: yup.string().label("Base URL"),
+    apiKey: yup.string().label("API key"),
+  });
 
   const {
     reset,
@@ -65,7 +66,7 @@ export default function AddProviderModal() {
         if (isModelIdExisted) return;
 
         await db.model.add({ id: modelId, providerId, isActive: 0 });
-      })
+      }),
     );
 
     toggleModal(AddProviderModalId, UiToggleState.CLOSE);

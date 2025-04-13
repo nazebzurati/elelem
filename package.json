@@ -1,7 +1,7 @@
 {
   "name": "elelem",
   "private": true,
-  "version": "0.3.0-rc.0",
+  "version": "0.3.0-rc.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -41,8 +41,8 @@
   },
   "devDependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
-    "daisyui": "^5.0.18",
-    "@types/react": "^19.1.0",
+    "daisyui": "^5.0.19",
+    "@types/react": "^19.1.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "~5.8.3",
     "vite": "^6.2.6",

@@ -4,8 +4,16 @@ import useSettings from "@store/settings";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
+import DeleteConversationModal, {
+  DeleteConversationModalId,
+} from "./delete.modal";
+import { toggleModal } from "@lib/utils";
+import { UiToggleState } from "@lib/utils.types";
+import useHistory from "@store/history";
+import { TIME_FORMAT } from "@lib/conversation";
 
 export default function History() {
+  const historyStore = useHistory();
   const settingsStore = useSettings();
   const conversationList = useLiveQuery(async () => await getConversationAll());
 
@@ -34,13 +42,12 @@ export default function History() {
                 {conversation.chats[0].user}
               </h2>
               <p className="text-sm -mt-2 line-clamp-1">
-                {dayjs(conversation.createdAt).format("DD/MM/YYYY, hh:mm:ss A")}
-                , {conversation.chats[0].modelId}
+                {dayjs(conversation.createdAt).format(TIME_FORMAT)}
               </p>
               <div className="card-actions justify-end mt-2">
                 <button
                   type="button"
-                  className="btn btn-neutral"
+                  className="btn btn-primary"
                   onClick={() => {
                     settingsStore.setActiveConversation(conversation.id);
                     navigation("/conversation");
@@ -48,11 +55,23 @@ export default function History() {
                 >
                   Open
                 </button>
+                <button
+                  type="button"
+                  className="btn btn-error"
+                  onClick={() => {
+                    historyStore.setSelectedConversation(conversation.id);
+                    toggleModal(DeleteConversationModalId, UiToggleState.OPEN);
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {/* modals */}
+      <DeleteConversationModal />
     </div>
   );
 }

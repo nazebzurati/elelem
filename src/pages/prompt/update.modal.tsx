@@ -19,12 +19,15 @@ export default function UpdatePromptModal() {
       promptStore.selectedPromptId
         ? await db.prompt.get(promptStore.selectedPromptId)
         : undefined,
-    [promptStore]
+    [promptStore],
   );
 
   const schema = yup
     .object()
-    .shape({ title: yup.string().required(), prompt: yup.string().required() });
+    .shape({
+      title: yup.string().label("Title").required(),
+      prompt: yup.string().label("Prompt").required(),
+    });
 
   const {
     reset,

@@ -15,9 +15,7 @@ export default function Navbar() {
       <div className="flex-1">
         <h1 className="btn btn-ghost text-xl">Conversation</h1>
       </div>
-      <div className="flex-none">
-        <ModelSelector />
-      </div>
+      <ModelSelector />
     </div>
   );
 }
@@ -30,7 +28,10 @@ function ModelSelector() {
   const onSelect = async (modelId: string) => {
     const activeModels = await db.model.where({ isActive: 1 }).toArray();
     await db.model.bulkUpdate(
-      activeModels.map((model) => ({ key: model.id, changes: { isActive: 0 } }))
+      activeModels.map((model) => ({
+        key: model.id,
+        changes: { isActive: 0 },
+      }))
     );
     await db.model.update(modelId, { isActive: 1 });
     setTimeout(() => {
@@ -41,7 +42,7 @@ function ModelSelector() {
   return (
     <div className="dropdown dropdown-end">
       <button type="button" className="m-1 flex items-center">
-        <div className="flex flex-col font-bold me-3">
+        <div className="flex flex-col font-bold me-3 line-clamp-1!">
           {activeModel?.id ?? "No model selected"}
         </div>
         <IconChevronDown className="w-4 h-4" />

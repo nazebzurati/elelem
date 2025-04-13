@@ -21,12 +21,13 @@ export default function UpdateProviderModal() {
       providerStore.selectedProviderId
         ? await db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore]
+    [providerStore],
   );
 
-  const schema = yup
-    .object()
-    .shape({ baseURL: yup.string(), apiKey: yup.string() });
+  const schema = yup.object().shape({
+    baseURL: yup.string().label("Base URL"),
+    apiKey: yup.string().label("API key"),
+  });
 
   const {
     reset,
@@ -87,7 +88,7 @@ export default function UpdateProviderModal() {
         if (isModelIdExisted) return;
 
         await db.model.add({ id: modelId, providerId, isActive: 0 });
-      })
+      }),
     );
 
     toggleModal(UpdateProviderModalId, UiToggleState.CLOSE);

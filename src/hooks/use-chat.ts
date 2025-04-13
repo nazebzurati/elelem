@@ -16,8 +16,10 @@ const useChat = () => {
   } = useForm({
     resolver: yupResolver(
       yup
-        .object({ input: yup.string().required("Input is a required field.") })
-        .required()
+        .object({
+          input: yup.string().label("Input").required(),
+        })
+        .required(),
     ),
   });
 

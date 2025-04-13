@@ -23,11 +23,11 @@ export default function Chats() {
   const settingsStore = useSettings();
 
   const activeModel: ModelWithDetails | undefined = useLiveQuery(
-    async () => await getActiveModel()
+    async () => await getActiveModel(),
   );
 
   const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await db.prompt.toArray()
+    async () => await db.prompt.toArray(),
   );
 
   const activePrompt: Prompt | undefined = useLiveQuery(
@@ -35,7 +35,7 @@ export default function Chats() {
       settingsStore.activePromptId
         ? await db.prompt.get(settingsStore.activePromptId)
         : undefined,
-    [settingsStore.activePromptId]
+    [settingsStore.activePromptId],
   );
 
   const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
@@ -43,7 +43,7 @@ export default function Chats() {
       settingsStore.activeConversationId
         ? await getConversation(settingsStore.activeConversationId)
         : undefined,
-    [settingsStore.activeConversationId]
+    [settingsStore.activeConversationId],
   );
 
   const {
@@ -117,14 +117,14 @@ export default function Chats() {
 
       // update chat when stream finish
       await db.chat.update(chatId, {
-        assistant: fullText,
+        assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
         receivedAt: Date.now(),
       });
       setTimeout(() => {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore]
+    [activeModel, activePrompt, activeConversation, settingsStore],
   );
 
   const onSelectPrompt = (promptId?: number) => {
@@ -155,7 +155,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput"
+        "chatInput",
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }
@@ -184,7 +184,7 @@ export default function Chats() {
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-end space-y-1">
-                <div className="chat-bubble prose">
+                <div className="chat-bubble markdown">
                   <MarkdownRenderer>
                     {parseThinkingReply(messages.join(""))}
                   </MarkdownRenderer>
@@ -216,7 +216,7 @@ export default function Chats() {
               <button type="button" className="m-1 flex items-center">
                 <div className="flex flex-col me-3">
                   {promptList?.find(
-                    (prompt) => prompt.id === settingsStore.activePromptId
+                    (prompt) => prompt.id === settingsStore.activePromptId,
                   )?.title ?? "No prompt"}
                 </div>
                 <IconChevronDown className="w-4 h-4" />
@@ -279,27 +279,21 @@ function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-start space-y-1">
-        <div className="chat-bubble chat-bubble-primary prose markdown">
+        <div className="chat-bubble chat-bubble-primary markdown">
           <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
         <div className="chat-footer opacity-50">
-          {[
-            dayjs(chat.sendAt).format(TIME_FORMAT),
-            chat.prompt?.title ?? "No prompt",
-          ]
-            .filter((s) => !!s)
-            .join(", ")}
+          {dayjs(chat.sendAt).format(TIME_FORMAT)} (
+          {chat.prompt?.title ?? "No prompt"})
         </div>
       </div>
       {chat.assistant && (
         <div className="chat chat-end space-y-1">
-          <div className="chat-bubble prose markdown">
+          <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
           <div className="chat-footer opacity-50">
-            {[dayjs(chat.receivedAt).format(TIME_FORMAT), chat.modelId]
-              .filter((s) => !!s)
-              .join(", ")}
+            {dayjs(chat.receivedAt).format(TIME_FORMAT)} ({chat.modelId})
           </div>
         </div>
       )}

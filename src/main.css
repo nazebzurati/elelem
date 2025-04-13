@@ -8,7 +8,7 @@ html {
 
 /* fix markdown not rendering properly */
 .markdown {
-  max-width: 650px;
+  max-width: 80vw;
 }
 .markdown > * {
   all: revert;
