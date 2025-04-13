@@ -17,7 +17,7 @@ const useChat = () => {
     resolver: yupResolver(
       yup
         .object({
-          input: yup.string().label("Input"),
+          input: yup.string().label("Input").required(),
         })
         .required(),
     ),

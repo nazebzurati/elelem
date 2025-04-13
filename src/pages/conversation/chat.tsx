@@ -117,7 +117,7 @@ export default function Chats() {
 
       // update chat when stream finish
       await db.chat.update(chatId, {
-        assistant: fullText,
+        assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
         receivedAt: Date.now(),
       });
       setTimeout(() => {
