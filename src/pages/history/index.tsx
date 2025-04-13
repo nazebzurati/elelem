@@ -42,8 +42,7 @@ export default function History() {
                 {conversation.chats[0].user}
               </h2>
               <p className="text-sm -mt-2 line-clamp-1">
-                {dayjs(conversation.createdAt).format(TIME_FORMAT)},{" "}
-                {conversation.chats[0].modelId}
+                {dayjs(conversation.createdAt).format(TIME_FORMAT)}
               </p>
               <div className="card-actions justify-end mt-2">
                 <button

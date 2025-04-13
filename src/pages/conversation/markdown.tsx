@@ -117,7 +117,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         },
         table: ({ children, ...props }) => {
           return (
-            <div className="text-sm rounded-box border border-base-content/5 bg-base-100">
+            <div className="overflow-x-auto! text-sm rounded-box border border-base-content/5 bg-base-100">
               <table className="table" {...props}>
                 {children}
               </table>

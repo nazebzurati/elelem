@@ -124,7 +124,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore],
+    [activeModel, activePrompt, activeConversation, settingsStore],
   );
 
   const onSelectPrompt = (promptId?: number) => {
