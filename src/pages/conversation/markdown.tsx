@@ -33,35 +33,40 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
           }
         },
         pre: ({ children }) => <>{children}</>,
-        ol: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        ol: ({ children, ...props }: any) => {
           return (
             <ol className="list-decimal list-outside ml-4" {...props}>
               {children}
             </ol>
           );
         },
-        li: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        li: ({ children, ...props }: any) => {
           return (
             <li className="py-1" {...props}>
               {children}
             </li>
           );
         },
-        ul: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        ul: ({ children, ...props }: any) => {
           return (
             <ul className="list-decimal list-outside ml-4" {...props}>
               {children}
             </ul>
           );
         },
-        strong: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        strong: ({ children, ...props }: any) => {
           return (
             <span className="font-semibold" {...props}>
               {children}
             </span>
           );
         },
-        a: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        a: ({ children, ...props }: any) => {
           return (
             <a
               className="text-blue-500 hover:underline"
@@ -73,49 +78,56 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
             </a>
           );
         },
-        h1: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        h1: ({ children, ...props }: any) => {
           return (
             <h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
               {children}
             </h1>
           );
         },
-        h2: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        h2: ({ children, ...props }: any) => {
           return (
             <h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
               {children}
             </h2>
           );
         },
-        h3: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        h3: ({ children, ...props }: any) => {
           return (
             <h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
               {children}
             </h3>
           );
         },
-        h4: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        h4: ({ children, ...props }: any) => {
           return (
             <h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
               {children}
             </h4>
           );
         },
-        h5: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        h5: ({ children, ...props }: any) => {
           return (
             <h5 className="text-base font-semibold mt-6 mb-2" {...props}>
               {children}
             </h5>
           );
         },
-        h6: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        h6: ({ children, ...props }: any) => {
           return (
             <h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
               {children}
             </h6>
           );
         },
-        table: ({ children, ...props }) => {
+        // deno-lint-ignore no-explicit-any
+        table: ({ children, ...props }: any) => {
           return (
             <div className="overflow-x-auto! text-sm rounded-box border border-base-content/5 bg-base-100">
               <table className="table" {...props}>
