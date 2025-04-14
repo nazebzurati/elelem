@@ -35,6 +35,7 @@
     "linux": {
       "deb": {
         "files": {
+          "/usr/share/applications/Elelem.desktop": "../misc/entry.desktop",
           "/usr/share/net.fionix.elelem.metainfo.xml": "../misc/metainfo.xml"
         }
       }
