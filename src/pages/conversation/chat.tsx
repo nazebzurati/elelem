@@ -6,21 +6,26 @@ import { getActiveModel, getConversation, prepareMessages } from "@lib/model";
 import {
   ChatWithDetails,
   ConversationWithDetails,
+  Model,
   ModelWithDetails,
   Prompt,
 } from "@lib/model.types";
 import useSettings from "@store/settings";
-import { IconChevronDown } from "@tabler/icons-react";
+import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
   const settingsStore = useSettings();
+
+  const modelList: Model[] | undefined = useLiveQuery(
+    async () => await db.model.toArray(),
+  );
 
   const activeModel: ModelWithDetails | undefined = useLiveQuery(
     async () => await getActiveModel(),
@@ -30,13 +35,11 @@ export default function Chats() {
     async () => await db.prompt.toArray(),
   );
 
-  const activePrompt: Prompt | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activePromptId
-        ? await db.prompt.get(settingsStore.activePromptId)
-        : undefined,
-    [settingsStore.activePromptId],
-  );
+  const activePrompt: Prompt | undefined = useMemo(() => {
+    return !promptList || !settingsStore.activePromptId
+      ? undefined
+      : promptList.find((p) => p.id === settingsStore.activePromptId);
+  }, [promptList, settingsStore.activePromptId]);
 
   const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
     async () =>
@@ -47,7 +50,7 @@ export default function Chats() {
   );
 
   const {
-    form: { reset, register, handleSubmit, isLoading, isSubmitting, setFocus },
+    form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
     isThinking,
     messages,
     setMessages,
@@ -127,23 +130,11 @@ export default function Chats() {
     [activeModel, activePrompt, activeConversation, settingsStore],
   );
 
-  const onSelectPrompt = (promptId?: number) => {
-    settingsStore.setActivePrompt(promptId);
-  };
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (!isSubmitting) handleSubmit(onSubmit)();
-      } else if (event.ctrlKey && event.key === "n") {
-        if (activeConversation) {
-          settingsStore.setActiveConversation(undefined);
-          setTimeout(() => {
-            setFocus("input");
-          }, INPUT_REFOCUS_DELAY_MS);
-        }
-        reset();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -206,70 +197,36 @@ export default function Chats() {
           </div>
         )}
       </div>
-      <form
-        className="mx-6 mt-0 mb-2 flex-none"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <fieldset className="fieldset">
-          <legend className="fieldset-legend">
-            <div className="dropdown dropdown-top">
-              <button type="button" className="m-1 flex items-center">
-                <div className="flex flex-col me-3">
-                  {promptList?.find(
-                    (prompt) => prompt.id === settingsStore.activePromptId,
-                  )?.title ?? "No prompt"}
-                </div>
-                <IconChevronDown className="w-4 h-4" />
-              </button>
-              <ul className="dropdown-content menu bg-base-200 rounded-box z-1 w-max shadow-sm">
-                <li>
-                  <button
-                    type="button"
-                    className={`flex items-center ${
-                      !settingsStore.activePromptId ? "text-primary" : ""
-                    }`}
-                    onClick={() => onSelectPrompt()}
-                  >
-                    <div className="flex flex-col">No prompt</div>
-                  </button>
-                </li>
-                {promptList?.map((prompt) => (
-                  <li key={prompt.id}>
-                    <button
-                      type="button"
-                      className={`flex items-center ${
-                        settingsStore.activePromptId === prompt.id
-                          ? "text-primary"
-                          : ""
-                      }`}
-                      onClick={() => onSelectPrompt(prompt.id)}
-                    >
-                      <div className="flex flex-col">{prompt.title}</div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </legend>
-          <textarea
-            autoFocus
-            id="chatInput"
-            disabled={isSubmitting || isLoading}
-            className="textarea w-full"
-            placeholder="Write here"
-            {...register("input")}
-          />
-          <div>
-            <div className="fieldset-label hidden sm:block">
-              Enter to submit. Shift+Enter to newline. Ctrl+n to new
-              conversation.
-            </div>
-            <div className="fieldset-label">
-              Not all models support chat completions. Model response can make
-              mistakes and always verify info.
+      <form className="m-2 flex-none" onSubmit={handleSubmit(onSubmit)}>
+        <div className="card bg-base-200">
+          <div className="card-body p-2">
+            <textarea
+              autoFocus
+              id="chatInput"
+              disabled={isSubmitting || isLoading}
+              className="textarea textarea-ghost resize-none w-full"
+              placeholder="Write here"
+              {...register("input")}
+            />
+            <div className="flex justify-between items-center w-full">
+              <div>
+                <ModelSelector
+                  modelList={modelList}
+                  activeModel={activeModel}
+                />
+                <PromptSelector
+                  promptList={promptList}
+                  activePrompt={activePrompt}
+                />
+              </div>
+              <div>
+                <button className="btn btn-ghost btn-circle">
+                  <IconSend2 className="h-6 w-6" />
+                </button>
+              </div>
             </div>
           </div>
-        </fieldset>
+        </div>
       </form>
     </>
   );
@@ -299,4 +256,87 @@ function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
       )}
     </div>
   ));
+}
+
+function PromptSelector({
+  promptList,
+  activePrompt,
+}: {
+  promptList?: Prompt[];
+  activePrompt?: Prompt;
+}) {
+  const settingsStore = useSettings();
+  const onSelectPrompt = (promptId?: number) => {
+    settingsStore.setActivePrompt(promptId);
+  };
+
+  return (
+    <details className="dropdown dropdown-top">
+      <summary className="list-none px-4 flex items-center gap-1 w-36">
+        <span className="flex-1 line-clamp-1">
+          {activePrompt?.title ?? "No prompt"}
+        </span>
+        <IconChevronUp className="h-4 w-4" />
+      </summary>
+      <div className="dropdown-content max-h-60 overflow-y-auto w-max rounded-md mb-2">
+        <ul className="menu bg-base-300">
+          <li className={!activePrompt ? "text-primary" : ""}>
+            <button onClick={() => onSelectPrompt()}>No prompt</button>
+          </li>
+          {promptList?.map((prompt) => (
+            <li
+              className={activePrompt?.id === prompt.id ? "text-primary" : ""}
+              key={prompt.id}
+            >
+              <button onClick={() => onSelectPrompt(prompt.id)}>
+                {prompt.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </details>
+  );
+}
+
+function ModelSelector({
+  modelList,
+  activeModel,
+}: {
+  modelList?: Model[];
+  activeModel?: Model;
+}) {
+  const onSelectModel = async (modelId: string) => {
+    const activeModels = await db.model.where({ isActive: 1 }).toArray();
+    await db.model.bulkUpdate(
+      activeModels.map((model) => ({
+        key: model.id,
+        changes: { isActive: 0 },
+      })),
+    );
+    await db.model.update(modelId, { isActive: 1 });
+  };
+
+  return (
+    <details className="dropdown dropdown-top">
+      <summary className="list-none px-4 flex items-center gap-1 w-36">
+        <span className="flex-1 line-clamp-1">{activeModel?.id}</span>
+        <IconChevronUp className="h-4 w-4" />
+      </summary>
+      <div className="dropdown-content max-h-60 overflow-y-auto w-max rounded-md mb-2">
+        <ul className="menu bg-base-300">
+          {modelList?.map((model) => (
+            <li
+              className={activeModel?.id === model.id ? "text-primary" : ""}
+              key={model.id}
+            >
+              <button onClick={() => onSelectModel(model.id)}>
+                {model.id}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </details>
+  );
 }
