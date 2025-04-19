@@ -1,37 +1,46 @@
 import {
+  IconChevronLeft,
   IconCodeAsterix,
   IconMessageCirclePlus,
   IconMessages,
   IconServer,
 } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
     <>
       {/* navbar */}
-      <div className="navbar">
+      <div className="navbar bg-base-200">
         <div className="navbar-start">
-          <a className="btn btn-ghost text-xl">Elelem</a>
+          <ul className="p-0 menu menu-horizontal">
+            <li>
+              <Link to="/history">
+                <IconChevronLeft className="h-6 w-6" />
+                History
+              </Link>
+            </li>
+          </ul>
         </div>
         <div className="navbar-center">
-          <ul className="not-sm:hidden menu menu-horizontal">
+          <ul className="p-0 not-sm:hidden menu menu-horizontal">
             <li>
-              <a className="text-primary">
+              <Link to="/conversation" className="text-primary">
                 <IconMessages className="h-6 w-6" />
                 Chats
-              </a>
+              </Link>
             </li>
             <li>
-              <a>
+              <Link to="/prompt">
                 <IconCodeAsterix className="h-6 w-6" />
                 Prompts
-              </a>
+              </Link>
             </li>
             <li>
-              <a>
+              <Link to="/provider">
                 <IconServer className="h-6 w-6" />
                 Providers
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -42,19 +51,19 @@ export default function Navbar() {
         </div>
       </div>
       {/* dock */}
-      <div className="sm:hidden dock">
-        <button className="dock-active">
+      <div className="sm:hidden dock border-t-0 bg-base-200">
+        <Link to="/conversation" className="text-primary">
           <IconMessages className="h-6 w-6" />
           <span className="dock-label">Chats</span>
-        </button>
-        <button>
+        </Link>
+        <Link to="/prompt">
           <IconCodeAsterix className="h-6 w-6" />
           <span className="dock-label">Prompts</span>
-        </button>
-        <button>
+        </Link>
+        <Link to="/provider">
           <IconServer className="h-6 w-6" />
           <span className="dock-label">Providers</span>
-        </button>
+        </Link>
       </div>
     </>
   );

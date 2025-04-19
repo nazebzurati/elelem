@@ -1,5 +1,9 @@
-import Drawer from "@components/drawer";
+import Navbar from "@components/navbar";
+import { TIME_FORMAT } from "@lib/conversation";
 import { getConversationAll } from "@lib/model";
+import { toggleModal } from "@lib/utils";
+import { UiToggleState } from "@lib/utils.types";
+import useHistory from "@store/history";
 import useSettings from "@store/settings";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -7,10 +11,6 @@ import { useNavigate } from "react-router-dom";
 import DeleteConversationModal, {
   DeleteConversationModalId,
 } from "./delete.modal";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useHistory from "@store/history";
-import { TIME_FORMAT } from "@lib/conversation";
 
 export default function History() {
   const historyStore = useHistory();
@@ -22,14 +22,7 @@ export default function History() {
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2">
-          <Drawer />
-        </div>
-        <div className="flex-1">
-          <h1 className="btn btn-ghost text-xl">History</h1>
-        </div>
-      </div>
+      <Navbar />
       {/* items */}
       {conversationList && conversationList.length <= 0 && (
         <div className="px-7 py-4">No conversation history was found.</div>
@@ -39,7 +32,7 @@ export default function History() {
           <div key={conversation.id} className="card card-border bg-base-300">
             <div className="card-body">
               <h2 className="card-title line-clamp-1">
-                {conversation.chats[0].user}
+                {conversation.chats?.[0].user ?? "n/a"}
               </h2>
               <p className="text-sm -mt-2 line-clamp-1">
                 {dayjs(conversation.createdAt).format(TIME_FORMAT)}

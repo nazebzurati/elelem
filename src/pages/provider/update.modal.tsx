@@ -21,7 +21,7 @@ export default function UpdateProviderModal() {
       providerStore.selectedProviderId
         ? await db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore],
+    [providerStore]
   );
 
   const schema = yup.object().shape({
@@ -87,8 +87,8 @@ export default function UpdateProviderModal() {
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
-        await db.model.add({ id: modelId, providerId, isActive: 0 });
-      }),
+        await db.model.add({ id: modelId, providerId });
+      })
     );
 
     toggleModal(UpdateProviderModalId, UiToggleState.CLOSE);

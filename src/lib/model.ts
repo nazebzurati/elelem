@@ -5,8 +5,8 @@ import {
   Chat,
   ChatWithDetails,
   ConversationWithDetails,
-  Model,
   ModelWithDetails,
+  Prompt,
 } from "./model.types";
 
 export const fetchModels = async (baseURL?: string, apiKey?: string) => {
@@ -36,48 +36,80 @@ export const prepareMessages = ({
   return messages;
 };
 
+export const getModel = async (
+  modelId: string,
+): Promise<ModelWithDetails | undefined> => {
+  const model = await db.model.get(modelId);
+  if (!model) return undefined;
+  return { ...model, provider: await db.provider.get(model.providerId) };
+};
+
+export const getModelList = async (): Promise<ModelWithDetails[]> => {
+  const modelList = await Promise.all(
+    (await db.model.toArray()).map(async (model) => getModel(model.id)),
+  );
+  return modelList.filter((model): model is ModelWithDetails => Boolean(model));
+};
+
+export const getPrompt = async (
+  promptId?: number,
+): Promise<Prompt | undefined> => {
+  if (!promptId) return undefined;
+  return await db.prompt.get(promptId);
+};
+
+export const getPromptList = async (): Promise<Prompt[]> => {
+  return await db.prompt.toArray();
+};
+
+export const getChat = async (
+  chatId?: number,
+): Promise<ChatWithDetails | undefined> => {
+  if (!chatId) return undefined;
+  const chat = await db.chat.get(chatId);
+  if (!chat) return undefined;
+  return {
+    ...chat,
+    model: await getModel(chat.modelId),
+    prompt: await getPrompt(chat.promptId),
+  };
+};
+
+export const getChatList = async (): Promise<Chat[]> => {
+  return await db.chat.toArray();
+};
+
+export const getChats = async (conversationId: number) => {
+  const chats = await db.chat.where({ conversationId }).toArray();
+  return await Promise.all(
+    chats.map(async (chat) => {
+      return {
+        ...chat,
+        model: await getModel(chat.modelId),
+        prompt: await getPrompt(chat.promptId),
+      };
+    }),
+  );
+};
+
 export const getConversation = async (
-  conversationId: number
+  conversationId: number,
 ): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
-
-  const relatedChats = await db.chat
-    .where({ conversationId: conversation.id })
-    .toArray();
-
-  const chats: ChatWithDetails[] = [];
-  for (const chat of relatedChats) {
-    const model: Model | undefined = await db.model.get(chat.modelId);
-    chats.push({
-      ...chat,
-      model: model
-        ? { ...model, provider: await db.provider.get(model.providerId) }
-        : undefined,
-      prompt: chat.promptId ? await db.prompt.get(chat.promptId) : undefined,
-    });
-  }
-
-  return { ...conversation, chats };
+  return { ...conversation, chats: await getChats(conversation.id) };
 };
 
 export const getConversationAll = async (): Promise<
   ConversationWithDetails[]
 > => {
-  const conversationList = await db.conversation.reverse().sortBy("id");
-
-  const conversationHistoryList = [];
-  for (const conversation of conversationList) {
-    const queriedConversation = await getConversation(conversation.id);
-    if (queriedConversation) conversationHistoryList.push(queriedConversation);
-  }
-  return conversationHistoryList;
-};
-
-export const getActiveModel = async (): Promise<
-  ModelWithDetails | undefined
-> => {
-  const model = await db.model.where({ isActive: 1 }).first();
-  if (!model) return undefined;
-  return { ...model, provider: await db.provider.get(model.providerId) };
+  const conversationList = await Promise.all(
+    (await db.conversation.reverse().sortBy("id")).map(async (conversation) => {
+      return await getConversation(conversation.id);
+    }),
+  );
+  return conversationList.filter(
+    (conversation): conversation is ConversationWithDetails =>
+      Boolean(conversation),
+  );
 };

@@ -42,7 +42,7 @@ export default function Provider() {
 
       // delete missing model
       const modelIdListToDelete = existingModelList.filter(
-        (modelId) => !modelList.includes(modelId),
+        (modelId) => !modelList.includes(modelId)
       );
       for (const modelId of modelIdListToDelete) {
         await db.model.delete(modelId);
@@ -50,14 +50,10 @@ export default function Provider() {
 
       // add new model
       const modelIdListToAdd = modelList.filter(
-        (modelId) => !existingModelList.includes(modelId),
+        (modelId) => !existingModelList.includes(modelId)
       );
       for (const modelId of modelIdListToAdd) {
-        await db.model.add({
-          id: modelId,
-          providerId: provider.id,
-          isActive: 0,
-        });
+        await db.model.add({ id: modelId, providerId: provider.id });
       }
     }
     setIsRefresh(false);

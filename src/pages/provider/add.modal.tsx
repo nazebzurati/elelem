@@ -65,8 +65,8 @@ export default function AddProviderModal() {
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
-        await db.model.add({ id: modelId, providerId, isActive: 0 });
-      }),
+        await db.model.add({ id: modelId, providerId });
+      })
     );
 
     toggleModal(AddProviderModalId, UiToggleState.CLOSE);

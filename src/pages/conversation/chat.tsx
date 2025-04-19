@@ -2,7 +2,7 @@ import andyNote from "@assets/andy-note.png";
 import useChat from "@hooks/use-chat";
 import { parseThinkingReply, TIME_FORMAT } from "@lib/conversation";
 import db from "@lib/database";
-import { getActiveModel, getConversation, prepareMessages } from "@lib/model";
+import { getConversation, getModelList, prepareMessages } from "@lib/model";
 import {
   ChatWithDetails,
   ConversationWithDetails,
@@ -23,13 +23,15 @@ const INPUT_REFOCUS_DELAY_MS = 250;
 export default function Chats() {
   const settingsStore = useSettings();
 
-  const modelList: Model[] | undefined = useLiveQuery(
-    async () => await db.model.toArray(),
+  const modelList: ModelWithDetails[] = useLiveQuery(async () =>
+    getModelList(),
   );
 
-  const activeModel: ModelWithDetails | undefined = useLiveQuery(
-    async () => await getActiveModel(),
-  );
+  const activeModel: ModelWithDetails | undefined = useLiveQuery(async () => {
+    return !modelList || !settingsStore.activeModelId
+      ? undefined
+      : modelList.find((p) => p.id === settingsStore.activeModelId);
+  }, [modelList, settingsStore.activeModelId]);
 
   const promptList: Prompt[] | undefined = useLiveQuery(
     async () => await db.prompt.toArray(),
@@ -69,6 +71,7 @@ export default function Chats() {
 
   const onSubmit = useCallback(
     async (data: { input: string }) => {
+      console.log(activeModel);
       if (!activeModel?.provider) return;
 
       // create chat
@@ -127,7 +130,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activePrompt, activeConversation, settingsStore],
+    [activeModel, activeConversation, settingsStore],
   );
 
   useEffect(() => {
@@ -204,7 +207,7 @@ export default function Chats() {
               autoFocus
               id="chatInput"
               disabled={isSubmitting || isLoading}
-              className="textarea textarea-ghost resize-none w-full"
+              className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
               placeholder="Write here"
               {...register("input")}
             />
@@ -235,7 +238,7 @@ export default function Chats() {
 function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
-      <div className="chat chat-start space-y-1">
+      <div className="chat chat-end space-y-1">
         <div className="chat-bubble chat-bubble-primary markdown">
           <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
@@ -245,7 +248,7 @@ function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
         </div>
       </div>
       {chat.assistant && (
-        <div className="chat chat-end space-y-1">
+        <div className="chat chat-start space-y-1">
           <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
@@ -265,14 +268,27 @@ function PromptSelector({
   promptList?: Prompt[];
   activePrompt?: Prompt;
 }) {
+  const dropdownRef = useRef<HTMLDetailsElement>(null);
+
   const settingsStore = useSettings();
   const onSelectPrompt = (promptId?: number) => {
     settingsStore.setActivePrompt(promptId);
+    dropdownRef.current?.removeAttribute("open");
+  };
+
+  const onBlur = (event: React.FocusEvent<HTMLElement>) => {
+    if (!dropdownRef.current?.contains(event.relatedTarget as Node)) {
+      dropdownRef.current?.removeAttribute("open");
+    }
   };
 
   return (
-    <details className="dropdown dropdown-top">
-      <summary className="list-none px-4 flex items-center gap-1 w-36">
+    <details
+      onBlur={onBlur}
+      ref={dropdownRef}
+      className="dropdown dropdown-top"
+    >
+      <summary className="list-none px-4 flex items-center gap-1 w-32 sm:w-44">
         <span className="flex-1 line-clamp-1">
           {activePrompt?.title ?? "No prompt"}
         </span>
@@ -306,21 +322,30 @@ function ModelSelector({
   modelList?: Model[];
   activeModel?: Model;
 }) {
-  const onSelectModel = async (modelId: string) => {
-    const activeModels = await db.model.where({ isActive: 1 }).toArray();
-    await db.model.bulkUpdate(
-      activeModels.map((model) => ({
-        key: model.id,
-        changes: { isActive: 0 },
-      })),
-    );
-    await db.model.update(modelId, { isActive: 1 });
+  const dropdownRef = useRef<HTMLDetailsElement>(null);
+
+  const settingsStore = useSettings();
+  const onSelectModel = (modelId?: string) => {
+    settingsStore.setActiveModel(modelId);
+    dropdownRef.current?.removeAttribute("open");
+  };
+
+  const onBlur = (event: React.FocusEvent<HTMLElement>) => {
+    if (!dropdownRef.current?.contains(event.relatedTarget as Node)) {
+      dropdownRef.current?.removeAttribute("open");
+    }
   };
 
   return (
-    <details className="dropdown dropdown-top">
-      <summary className="list-none px-4 flex items-center gap-1 w-36">
-        <span className="flex-1 line-clamp-1">{activeModel?.id}</span>
+    <details
+      onBlur={onBlur}
+      ref={dropdownRef}
+      className="dropdown dropdown-top"
+    >
+      <summary className="list-none px-4 flex items-center gap-1 w-32 sm:w-44">
+        <span className="flex-1 line-clamp-1">
+          {activeModel?.id ?? "Select a model"}
+        </span>
         <IconChevronUp className="h-4 w-4" />
       </summary>
       <div className="dropdown-content max-h-60 overflow-y-auto w-max rounded-md mb-2">

@@ -66,6 +66,14 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
           );
         },
         // deno-lint-ignore no-explicit-any
+        p: ({ children, ...props }: any) => {
+          return (
+            <p className="!my-2" {...props}>
+              {children}
+            </p>
+          );
+        },
+        // deno-lint-ignore no-explicit-any
         a: ({ children, ...props }: any) => {
           return (
             <a

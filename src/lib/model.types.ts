@@ -1,7 +1,6 @@
 export interface Model {
   id: string;
   providerId: number;
-  isActive: number;
 }
 
 export interface Provider {

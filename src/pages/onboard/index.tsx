@@ -84,7 +84,7 @@ function Step2({
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }>) {
   const existingProvider = useLiveQuery(
-    async () => await db.provider.toArray(),
+    async () => await db.provider.toArray()
   );
 
   const schema = yup.object().shape({
@@ -149,8 +149,8 @@ function Step2({
           (await db.model.where({ id: modelId }).count()) > 0;
         if (isModelIdExisted) return;
 
-        await db.model.add({ id: modelId, providerId, isActive: 0 });
-      }),
+        await db.model.add({ id: modelId, providerId });
+      })
     );
 
     setStep(3);

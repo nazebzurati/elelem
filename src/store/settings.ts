@@ -6,6 +6,9 @@ interface SettingsState {
   activePromptId?: number;
   setActivePrompt: (promptId?: number) => void;
 
+  activeModelId?: string;
+  setActiveModel: (modelId?: string) => void;
+
   activeConversationId?: number;
   setActiveConversation: (conversationId?: number) => void;
 }
@@ -19,6 +22,13 @@ const useSettings = create<SettingsState>()(
           set((state) => ({
             ...state,
             activePromptId: promptId,
+          })),
+
+        activeModelId: undefined,
+        setActiveModel: (modelId) =>
+          set((state) => ({
+            ...state,
+            activeModelId: modelId,
           })),
 
         activeConversationId: undefined,
