@@ -1,10 +1,10 @@
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
 import usePrompt from "@stores/prompt";
-import { IconPlus } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
-import AddPromptModal, { AddPromptModalId } from "./add.modal";
+import AddPromptModal from "./add.modal";
 import DeletePromptModal, { DeletePromptModalId } from "./delete.modal";
+import Navbar from "./navbar";
 import UpdatePromptModal, { UpdatePromptModalId } from "./update.modal";
 
 export default function Prompt() {
@@ -14,23 +14,7 @@ export default function Prompt() {
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2"></div>
-        <div className="flex-1">
-          <h1 className="btn btn-ghost text-xl">Prompt List</h1>
-        </div>
-        <div className="flex-none">
-          <div className="tooltip tooltip-bottom" data-tip="Add prompt">
-            <button
-              type="button"
-              className="btn btn-ghost btn-circle"
-              onClick={() => toggleModal(AddPromptModalId, UiToggleState.OPEN)}
-            >
-              <IconPlus className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <Navbar />
       {/* items */}
       {promptList && promptList.length <= 0 && (
         <div className="px-7 py-4">No prompt was found.</div>

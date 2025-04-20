@@ -1,17 +1,17 @@
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
+import { ProviderWithCount } from "@database/provider";
 import useProvider from "@stores/provider";
-import { IconPlus, IconRefresh } from "@tabler/icons-react";
+import { fetchModelList } from "@utils/conversation";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
-import AddProviderModal, { AddProviderModalId } from "./add.modal";
+import { useState } from "react";
+import AddProviderModal from "./add.modal";
 import DeleteProviderModal, { DeleteProviderModalId } from "./delete.modal";
+import Navbar from "./navbar";
 import UpdateProviderModal, { UpdateProviderModalId } from "./update.modal";
 import ViewProviderModelModal, {
   ViewProviderModelModalId,
 } from "./view-model.modal";
-import { useState } from "react";
-import { ProviderWithCount } from "@database/provider";
-import { fetchModelList } from "@utils/conversation";
 
 export default function Provider() {
   const providerList = useLiveQuery(async () => {
@@ -40,7 +40,7 @@ export default function Provider() {
 
       // delete missing model
       const modelIdListToDelete = existingModelList.filter(
-        (modelId) => !modelList.includes(modelId)
+        (modelId) => !modelList.includes(modelId),
       );
       for (const modelId of modelIdListToDelete) {
         await db.model.delete(modelId);
@@ -48,7 +48,7 @@ export default function Provider() {
 
       // add new model
       const modelIdListToAdd = modelList.filter(
-        (modelId) => !existingModelList.includes(modelId)
+        (modelId) => !existingModelList.includes(modelId),
       );
       for (const modelId of modelIdListToAdd) {
         await db.model.add({ id: modelId, providerId: provider.id });
@@ -60,38 +60,7 @@ export default function Provider() {
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2"></div>
-        <div className="flex-1">
-          <h1 className="btn btn-ghost text-xl">Provider List</h1>
-        </div>
-        <div className="flex-none">
-          <div className="tooltip tooltip-bottom" data-tip="Refresh provider">
-            {isRefresh ? (
-              <span className="loading loading-spinner loading-md"></span>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-ghost btn-circle"
-                onClick={onRefreshModel}
-              >
-                <IconRefresh className="h-6 w-6" />
-              </button>
-            )}
-          </div>
-          <div className="tooltip tooltip-bottom" data-tip="Add provider">
-            <button
-              type="button"
-              className="btn btn-ghost btn-circle"
-              onClick={() =>
-                toggleModal(AddProviderModalId, UiToggleState.OPEN)
-              }
-            >
-              <IconPlus className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <Navbar />
       {/* items */}
       {providerList && providerList.length <= 0 && (
         <div className="px-7 py-4">No provider was found.</div>

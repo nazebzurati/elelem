@@ -9,12 +9,13 @@ import DeleteConversationModal, {
 } from "./delete.modal";
 import { getConversationList } from "@database/conversation";
 import { toggleModal, UiToggleState } from "@utils/toggle";
+import Navbar from "./navbar";
 
 export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
   const conversationList = useLiveQuery(
-    async () => await getConversationList()
+    async () => await getConversationList(),
   );
 
   const navigation = useNavigate();
@@ -22,6 +23,7 @@ export default function History() {
   return (
     <div>
       {/* navbar */}
+      <Navbar />
       {/* items */}
       {conversationList && conversationList.length <= 0 && (
         <div className="px-7 py-4">No conversation history was found.</div>
