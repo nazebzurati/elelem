@@ -1,31 +1,32 @@
 import andyNote from "@assets/andy-note.png";
-import useChat from "@hooks/use-chat";
-import { parseThinkingReply, TIME_FORMAT } from "@lib/conversation";
-import db from "@lib/database";
-import { getConversation, getModelList, prepareMessages } from "@lib/model";
 import {
-  ChatWithDetails,
   ConversationWithDetails,
-  Model,
-  ModelWithDetails,
-  Prompt,
-} from "@lib/model.types";
-import useSettings from "@store/settings";
+  getConversation,
+} from "@database/conversation";
+import { getModelList, Model, ModelWithDetails } from "@database/model";
+import { Prompt } from "@database/prompt";
+import useChat from "@hooks/use-chat";
 import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import db from "@database/config";
+import useSettings from "@stores/settings";
+import {
+  parseThinkingReply,
+  prepareMessages,
+  TIME_FORMAT,
+} from "@utils/conversation";
 import { MarkdownRenderer } from "./markdown";
+import { ChatWithDetails } from "@database/chat";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
   const settingsStore = useSettings();
 
-  const modelList: ModelWithDetails[] = useLiveQuery(async () =>
-    getModelList(),
-  );
+  const modelList = useLiveQuery(async () => await getModelList());
 
   const activeModel: ModelWithDetails | undefined = useLiveQuery(async () => {
     return !modelList || !settingsStore.activeModelId
@@ -34,7 +35,7 @@ export default function Chats() {
   }, [modelList, settingsStore.activeModelId]);
 
   const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await db.prompt.toArray(),
+    async () => await db.prompt.toArray()
   );
 
   const activePrompt: Prompt | undefined = useMemo(() => {
@@ -48,7 +49,7 @@ export default function Chats() {
       settingsStore.activeConversationId
         ? await getConversation(settingsStore.activeConversationId)
         : undefined,
-    [settingsStore.activeConversationId],
+    [settingsStore.activeConversationId]
   );
 
   const {
@@ -130,7 +131,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore],
+    [activeModel, activeConversation, settingsStore]
   );
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput",
+        "chatInput"
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }

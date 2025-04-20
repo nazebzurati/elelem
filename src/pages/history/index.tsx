@@ -1,28 +1,27 @@
-import Navbar from "@components/navbar";
-import { TIME_FORMAT } from "@lib/conversation";
-import { getConversationAll } from "@lib/model";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useHistory from "@store/history";
-import useSettings from "@store/settings";
+import { TIME_FORMAT } from "@utils/conversation";
+import useHistory from "@stores/history";
+import useSettings from "@stores/settings";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 import DeleteConversationModal, {
   DeleteConversationModalId,
 } from "./delete.modal";
+import { getConversationList } from "@database/conversation";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 
 export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
-  const conversationList = useLiveQuery(async () => await getConversationAll());
+  const conversationList = useLiveQuery(
+    async () => await getConversationList()
+  );
 
   const navigation = useNavigate();
 
   return (
     <div>
       {/* navbar */}
-      <Navbar />
       {/* items */}
       {conversationList && conversationList.length <= 0 && (
         <div className="px-7 py-4">No conversation history was found.</div>

@@ -1,4 +1,7 @@
-import { UiToggleState } from "./utils.types";
+export enum UiToggleState {
+  OPEN,
+  CLOSE,
+}
 
 export const toggleModal = (modalId: string, view: UiToggleState) => {
   const modalElement = document.getElementById(modalId) as HTMLDialogElement;

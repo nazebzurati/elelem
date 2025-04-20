@@ -2,8 +2,7 @@ import andyDance from "@assets/andy-dance.png";
 import andyWave from "@assets/andy-wave.png";
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import db from "@lib/database";
-import { fetchModels } from "@lib/model";
+import db from "@database/config";
 import { IconCircleX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { isEmpty } from "radash";
@@ -11,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
+import { fetchModelList } from "@utils/conversation";
 
 export default function Onboard() {
   const [step, setStep] = useState(1);
@@ -124,7 +124,7 @@ function Step2({
     // get model list
     let modelIds: string[] = [];
     try {
-      modelIds = await fetchModels(baseURL, data.apiKey);
+      modelIds = await fetchModelList(baseURL, data.apiKey);
     } catch (_error) {
       setError("Failed to connect");
       return;

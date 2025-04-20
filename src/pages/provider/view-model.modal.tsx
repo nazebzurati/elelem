@@ -1,5 +1,5 @@
-import db from "@lib/database";
-import useProvider from "@store/provider";
+import db from "@database/config";
+import useProvider from "@stores/provider";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 

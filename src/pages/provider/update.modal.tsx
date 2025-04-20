@@ -1,16 +1,15 @@
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import db from "@lib/database";
-import { fetchModels } from "@lib/model";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useProvider from "@store/provider";
+import db from "@database/config";
+import { toggleModal, UiToggleState } from "@utils/toggle";
+import useProvider from "@stores/provider";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { isEmpty } from "radash";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { fetchModelList } from "@utils/conversation";
 
 export const UpdateProviderModalId = "updateProviderModal";
 
@@ -61,7 +60,7 @@ export default function UpdateProviderModal() {
     // get model list
     let modelIds: string[] = [];
     try {
-      modelIds = await fetchModels(baseURL, data.apiKey);
+      modelIds = await fetchModelList(baseURL, data.apiKey);
     } catch (_error) {
       setError("Failed to connect");
       return;

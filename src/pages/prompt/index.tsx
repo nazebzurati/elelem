@@ -1,8 +1,6 @@
-import Drawer from "@components/drawer";
-import db from "@lib/database";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import usePrompt from "@store/prompt";
+import db from "@database/config";
+import { toggleModal, UiToggleState } from "@utils/toggle";
+import usePrompt from "@stores/prompt";
 import { IconPlus } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import AddPromptModal, { AddPromptModalId } from "./add.modal";
@@ -17,9 +15,7 @@ export default function Prompt() {
     <div>
       {/* navbar */}
       <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2">
-          <Drawer />
-        </div>
+        <div className="flex-none me-2"></div>
         <div className="flex-1">
           <h1 className="btn btn-ghost text-xl">Prompt List</h1>
         </div>

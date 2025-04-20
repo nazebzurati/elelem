@@ -1,9 +1,6 @@
-import Drawer from "@components/drawer";
-import db from "@lib/database";
-import { fetchModels } from "@lib/model";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useProvider from "@store/provider";
+import db from "@database/config";
+import { toggleModal, UiToggleState } from "@utils/toggle";
+import useProvider from "@stores/provider";
 import { IconPlus, IconRefresh } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import AddProviderModal, { AddProviderModalId } from "./add.modal";
@@ -13,7 +10,8 @@ import ViewProviderModelModal, {
   ViewProviderModelModalId,
 } from "./view-model.modal";
 import { useState } from "react";
-import { ProviderWithCount } from "@lib/model.types";
+import { ProviderWithCount } from "@database/provider";
+import { fetchModelList } from "@utils/conversation";
 
 export default function Provider() {
   const providerList = useLiveQuery(async () => {
@@ -35,7 +33,7 @@ export default function Provider() {
 
     for (const provider of providerList) {
       // get existing and new model list
-      const modelList = await fetchModels(provider.baseURL, provider.apiKey);
+      const modelList = await fetchModelList(provider.baseURL, provider.apiKey);
       const existingModelList = (
         await db.model.where({ providerId: provider.id }).toArray()
       ).map((model) => model.id);
@@ -63,9 +61,7 @@ export default function Provider() {
     <div>
       {/* navbar */}
       <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2">
-          <Drawer />
-        </div>
+        <div className="flex-none me-2"></div>
         <div className="flex-1">
           <h1 className="btn btn-ghost text-xl">Provider List</h1>
         </div>

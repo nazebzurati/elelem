@@ -1,5 +1,9 @@
 import Dexie, { type EntityTable } from "dexie";
-import { Chat, Conversation, Model, Prompt, Provider } from "./model.types";
+import { Chat } from "./chat";
+import { Conversation } from "./conversation";
+import { Model } from "./model";
+import { Prompt } from "./prompt";
+import { Provider } from "./provider";
 
 const db = new Dexie("elelem") as Dexie & {
   provider: EntityTable<Provider, "id">;
