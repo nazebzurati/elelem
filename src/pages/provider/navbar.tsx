@@ -97,6 +97,7 @@ export default function Navbar({
         <div className="navbar-end">
           <button
             type="button"
+            disabled={isRefresh}
             className="btn btn-ghost btn-circle"
             onClick={onRefreshModel}
           >

@@ -34,9 +34,15 @@ export default function History() {
             </li>
           )}
           {conversationList?.map((conversation) => (
-            <li className="list-row flex">
+            <li key={conversation.id} className="list-row flex">
               <div className="flex-1">
-                <div className="font-bold">
+                <div
+                  className={`font-bold ${
+                    conversation.id === settingsStore.activeConversationId
+                      ? "text-primary"
+                      : ""
+                  }`}
+                >
                   {conversation.chats?.[0].user ?? "n/a"}
                 </div>
                 <div className="text-xs opacity-60">

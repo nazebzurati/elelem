@@ -52,7 +52,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         ul: ({ children, ...props }: any) => {
           return (
-            <ul className="list-decimal list-outside !my-1" {...props}>
+            <ul className="list-disc list-outside !my-1" {...props}>
               {children}
             </ul>
           );
@@ -155,9 +155,9 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         th: ({ children, ...props }: any) => {
           return (
-            <td className="!py-1" {...props}>
+            <th className="!py-1" {...props}>
               {children}
-            </td>
+            </th>
           );
         },
       }}

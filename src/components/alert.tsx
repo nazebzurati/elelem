@@ -3,7 +3,6 @@
 import useAlert, { AlertType, AlertTypeEnum } from "@stores/alert";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { nanoid } from "nanoid";
 import { useEffect } from "react";
 
 const ALERT_POLLING_INTERVAL_IN_MS = 1000;
@@ -27,7 +26,7 @@ export default function Alerts() {
   return (
     <div className="absolute z-10 bottom-0 p-6 not-sm:w-screen sm:right-0 space-y-2">
       {alertStore.alerts.slice(-4).map((alert) => (
-        <Alert key={nanoid()} alert={alert} />
+        <Alert key={alert.id} alert={alert} />
       ))}
     </div>
   );

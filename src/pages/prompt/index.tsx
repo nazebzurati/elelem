@@ -25,7 +25,7 @@ export default function Prompt() {
             </li>
           )}
           {promptList?.map((prompt) => (
-            <li className="list-row flex">
+            <li key={prompt.id} className="list-row flex">
               <div className="flex-1">
                 <div className="font-bold">{prompt.title}</div>
                 <div className="text-xs opacity-60">{prompt.prompt}</div>

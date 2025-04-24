@@ -39,7 +39,7 @@ export default function Provider() {
             </li>
           )}
           {providerList?.map((provider) => (
-            <li className="list-row flex">
+            <li key={provider.id} className="list-row flex">
               <div className="flex-1">
                 <div className="font-bold">
                   {provider.baseURL ? new URL(provider.baseURL).hostname : "?"}

@@ -31,7 +31,9 @@ export const prepareMessages = ({
   }
   (chats || []).forEach((chat) => {
     messages.push({ role: "user", content: chat.user });
-    messages.push({ role: "assistant", content: chat.assistant });
+    if (chat.assistant) {
+      messages.push({ role: "assistant", content: chat.assistant });
+    }
   });
   messages.push({ role: "user", content: input });
   return messages;
