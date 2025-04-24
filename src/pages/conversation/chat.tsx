@@ -164,14 +164,14 @@ export default function Chats() {
               <ChatBubbles chats={activeConversation.chats} />
               {isSubmitting && messages.length <= 0 && (
                 <div className="chat chat-start space-y-1">
-                  <div className="chat-bubble">
+                  <div className="chat-bubble py-4">
                     <span className="loading loading-dots loading-sm" />
                   </div>
                 </div>
               )}
               {isThinking && (
                 <div className="chat chat-start space-y-1">
-                  <div className="chat-bubble italic">
+                  <div className="chat-bubble italic py-4">
                     <span className="mb-1 loading loading-ring loading-xs" />
                     {" "}
                     Thinking...
@@ -180,7 +180,7 @@ export default function Chats() {
               )}
               {!isThinking && messages.length > 0 && (
                 <div className="chat chat-start space-y-1">
-                  <div className="chat-bubble markdown">
+                  <div className="chat-bubble markdown py-4">
                     <MarkdownRenderer>
                       {parseThinkingReply(messages.join(""))}
                     </MarkdownRenderer>
