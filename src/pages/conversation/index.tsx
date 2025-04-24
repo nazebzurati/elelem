@@ -3,7 +3,7 @@ import Navbar from "./navbar";
 
 function Conversation() {
   return (
-    <div className="h-svh flex flex-col overflow-hidden">
+    <div className="h-svh flex flex-col overflow-hidden not-sm:pb-16">
       <Navbar />
       <Chats />
     </div>

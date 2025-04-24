@@ -1,74 +1,79 @@
-import Drawer from "@components/drawer";
-import { getConversationAll } from "@lib/model";
-import useSettings from "@store/settings";
+import { getConversationList } from "@database/conversation";
+import useHistory from "@stores/history";
+import useSettings from "@stores/settings";
+import { IconExternalLink, IconTrash } from "@tabler/icons-react";
+import { TIME_FORMAT } from "@utils/conversation";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 import DeleteConversationModal, {
   DeleteConversationModalId,
 } from "./delete.modal";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useHistory from "@store/history";
-import { TIME_FORMAT } from "@lib/conversation";
+import Navbar from "./navbar";
 
 export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
-  const conversationList = useLiveQuery(async () => await getConversationAll());
+  const conversationList = useLiveQuery(
+    async () => await getConversationList(),
+  );
 
   const navigation = useNavigate();
 
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2">
-          <Drawer />
-        </div>
-        <div className="flex-1">
-          <h1 className="btn btn-ghost text-xl">History</h1>
-        </div>
-      </div>
+      <Navbar />
       {/* items */}
-      {conversationList && conversationList.length <= 0 && (
-        <div className="px-7 py-4">No conversation history was found.</div>
-      )}
-      <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        {conversationList?.map((conversation) => (
-          <div key={conversation.id} className="card card-border bg-base-300">
-            <div className="card-body">
-              <h2 className="card-title line-clamp-1">
-                {conversation.chats[0].user}
-              </h2>
-              <p className="text-sm -mt-2 line-clamp-1">
-                {dayjs(conversation.createdAt).format(TIME_FORMAT)}
-              </p>
-              <div className="card-actions justify-end mt-2">
+      <div className="p-4 flex justify-center">
+        <ul className="list bg-base-200 rounded-box w-xl">
+          {conversationList && conversationList.length <= 0 && (
+            <li className="list-row flex text-center">
+              <p className="w-full">No conversation was found.</p>
+            </li>
+          )}
+          {conversationList?.map((conversation) => (
+            <li key={conversation.id} className="list-row flex">
+              <div className="flex-1">
+                <div
+                  className={`font-bold ${
+                    conversation.id === settingsStore.activeConversationId
+                      ? "text-primary"
+                      : ""
+                  }`}
+                >
+                  {conversation.chats?.[0].user ?? "n/a"}
+                </div>
+                <div className="text-xs opacity-60">
+                  {dayjs(conversation.createdAt).format(TIME_FORMAT)}
+                </div>
+              </div>
+              <div>
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-square btn-ghost"
                   onClick={() => {
                     settingsStore.setActiveConversation(conversation.id);
                     navigation("/conversation");
                   }}
                 >
-                  Open
+                  <IconExternalLink className="w-6 h-6" />
                 </button>
                 <button
                   type="button"
-                  className="btn btn-error"
+                  className="btn btn-square btn-ghost"
                   onClick={() => {
                     historyStore.setSelectedConversation(conversation.id);
                     toggleModal(DeleteConversationModalId, UiToggleState.OPEN);
                   }}
                 >
-                  Delete
+                  <IconTrash className="w-6 h-6 text-error" />
                 </button>
               </div>
-            </div>
-          </div>
-        ))}
+            </li>
+          ))}
+        </ul>
       </div>
       {/* modals */}
       <DeleteConversationModal />

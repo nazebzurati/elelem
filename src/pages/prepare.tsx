@@ -1,4 +1,4 @@
-import db from "@lib/database";
+import db from "../database/config";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading";

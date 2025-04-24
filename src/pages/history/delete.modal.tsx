@@ -1,10 +1,9 @@
-import { TIME_FORMAT } from "@lib/conversation";
-import db from "@lib/database";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useHistory from "@store/history";
-import useSettings from "@store/settings";
+import db from "@database/config";
+import useHistory from "@stores/history";
+import useSettings from "@stores/settings";
 import { IconX } from "@tabler/icons-react";
+import { TIME_FORMAT } from "@utils/conversation";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 

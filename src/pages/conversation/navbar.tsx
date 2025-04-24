@@ -1,69 +1,89 @@
-import db from "@lib/database";
-import { IconChevronDown } from "@tabler/icons-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useRef } from "react";
-import Drawer from "../../components/drawer";
-
-const MENU_CLOSING_DELAY_MS = 100;
+import useSettings from "@stores/settings";
+import {
+  IconChevronLeft,
+  IconCodeAsterix,
+  IconInfoCircle,
+  IconMessageCirclePlus,
+  IconMessages,
+  IconServer,
+} from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
+  const settingsStore = useSettings();
   return (
-    <div className="navbar bg-base-100 flex-none px-6 flex">
-      <div className="flex-none me-2">
-        <Drawer />
-      </div>
-      <div className="flex-1">
-        <h1 className="btn btn-ghost text-xl">Conversation</h1>
-      </div>
-      <ModelSelector />
-    </div>
-  );
-}
-
-function ModelSelector() {
-  const modelList = useLiveQuery(async () => await db.model.toArray());
-  const activeModel = modelList?.find((model) => model.isActive);
-
-  const menuRef = useRef<HTMLDetailsElement>(null);
-  const onSelect = async (modelId: string) => {
-    const activeModels = await db.model.where({ isActive: 1 }).toArray();
-    await db.model.bulkUpdate(
-      activeModels.map((model) => ({
-        key: model.id,
-        changes: { isActive: 0 },
-      }))
-    );
-    await db.model.update(modelId, { isActive: 1 });
-    setTimeout(() => {
-      menuRef.current?.click();
-    }, MENU_CLOSING_DELAY_MS);
-  };
-
-  return (
-    <div className="dropdown dropdown-end">
-      <button type="button" className="m-1 flex items-center">
-        <div className="flex flex-col font-bold me-3 line-clamp-1!">
-          {activeModel?.id ?? "No model selected"}
-        </div>
-        <IconChevronDown className="w-4 h-4" />
-      </button>
-      <div className="dropdown-content max-h-60 overflow-y-auto w-max">
-        <ul className="menu bg-base-200 rounded-box">
-          {modelList?.map((model) => (
-            <li key={model.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(model.id)}
-                className={`flex items-center ${
-                  model.isActive ? "text-primary font-bold" : ""
-                }`}
-              >
-                <div className="flex flex-col">{model.id}</div>
-              </button>
+    <>
+      {/* navbar */}
+      <div className="navbar bg-base-200">
+        <div className="navbar-start">
+          <ul className="p-0 menu menu-horizontal">
+            <li>
+              <Link to="/history">
+                <IconChevronLeft className="h-6 w-6" />
+                History
+              </Link>
             </li>
-          ))}
-        </ul>
+          </ul>
+        </div>
+        <div className="navbar-center">
+          <ul className="p-0 not-sm:hidden menu menu-horizontal">
+            <li>
+              <Link to="/conversation" className="text-primary">
+                <IconMessages className="h-6 w-6" />
+                Chats
+              </Link>
+            </li>
+            <li>
+              <Link to="/prompt">
+                <IconCodeAsterix className="h-6 w-6" />
+                Prompts
+              </Link>
+            </li>
+            <li>
+              <Link to="/provider">
+                <IconServer className="h-6 w-6" />
+                Providers
+              </Link>
+            </li>
+            <li>
+              <Link to="/about">
+                <IconInfoCircle className="h-6 w-6" />
+                About
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div className="navbar-end">
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={() => {
+              settingsStore.setActiveConversation();
+            }}
+          >
+            <IconMessageCirclePlus className="h-6 w-6" />
+          </button>
+        </div>
       </div>
-    </div>
+      {/* dock */}
+      <div className="sm:hidden dock border-t-0 bg-base-200">
+        <Link to="/conversation" className="text-primary">
+          <IconMessages className="h-6 w-6" />
+          <span className="dock-label">Chats</span>
+        </Link>
+        <Link to="/prompt">
+          <IconCodeAsterix className="h-6 w-6" />
+          <span className="dock-label">Prompts</span>
+        </Link>
+        <Link to="/provider">
+          <IconServer className="h-6 w-6" />
+          <span className="dock-label">Providers</span>
+        </Link>
+        <Link to="/about">
+          <IconInfoCircle className="h-6 w-6" />
+          <span className="dock-label">About</span>
+        </Link>
+      </div>
+    </>
   );
 }

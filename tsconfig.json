@@ -11,9 +11,10 @@
       "@assets/*": ["./src/assets/*"],
       "@components/*": ["./src/components/*"],
       "@hooks/*": ["./src/hooks/*"],
-      "@lib/*": ["./src/lib/*"],
+      "@database/*": ["./src/database/*"],
       "@pages/*": ["./src/pages/*"],
-      "@store/*": ["./src/store/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@utils/*": ["./src/utils/*"],
     },
 
     /* Bundler mode */

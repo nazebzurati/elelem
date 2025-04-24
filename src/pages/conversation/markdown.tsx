@@ -44,7 +44,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         li: ({ children, ...props }: any) => {
           return (
-            <li className="py-1" {...props}>
+            <li className="!my-1" {...props}>
               {children}
             </li>
           );
@@ -52,7 +52,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         ul: ({ children, ...props }: any) => {
           return (
-            <ul className="list-decimal list-outside ml-4" {...props}>
+            <ul className="list-disc list-outside !my-1" {...props}>
               {children}
             </ul>
           );
@@ -63,6 +63,14 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
             <span className="font-semibold" {...props}>
               {children}
             </span>
+          );
+        },
+        // deno-lint-ignore no-explicit-any
+        p: ({ children, ...props }: any) => {
+          return (
+            <p className="!my-2" {...props}>
+              {children}
+            </p>
           );
         },
         // deno-lint-ignore no-explicit-any
@@ -81,7 +89,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h1: ({ children, ...props }: any) => {
           return (
-            <h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
+            <h1 className="text-xl font-semibold !my-1" {...props}>
               {children}
             </h1>
           );
@@ -89,7 +97,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h2: ({ children, ...props }: any) => {
           return (
-            <h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
+            <h2 className="text-lg font-semibold !my-1" {...props}>
               {children}
             </h2>
           );
@@ -97,7 +105,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h3: ({ children, ...props }: any) => {
           return (
-            <h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
+            <h3 className="text-base font-semibold !my-1" {...props}>
               {children}
             </h3>
           );
@@ -105,7 +113,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h4: ({ children, ...props }: any) => {
           return (
-            <h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
+            <h4 className="text-base font-semibold !my-1" {...props}>
               {children}
             </h4>
           );
@@ -113,7 +121,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h5: ({ children, ...props }: any) => {
           return (
-            <h5 className="text-base font-semibold mt-6 mb-2" {...props}>
+            <h5 className="text-base font-semibold !my-1" {...props}>
               {children}
             </h5>
           );
@@ -121,7 +129,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h6: ({ children, ...props }: any) => {
           return (
-            <h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
+            <h6 className="text-base font-semibold !my-1" {...props}>
               {children}
             </h6>
           );
@@ -134,6 +142,22 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
                 {children}
               </table>
             </div>
+          );
+        },
+        // deno-lint-ignore no-explicit-any
+        td: ({ children, ...props }: any) => {
+          return (
+            <td className="!py-1" {...props}>
+              {children}
+            </td>
+          );
+        },
+        // deno-lint-ignore no-explicit-any
+        th: ({ children, ...props }: any) => {
+          return (
+            <th className="!py-1" {...props}>
+              {children}
+            </th>
           );
         },
       }}

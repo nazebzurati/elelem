@@ -1,9 +1,8 @@
 import SubmitButton from "@components/submit-button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import db from "@lib/database";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import usePrompt from "@store/prompt";
+import db from "@database/config";
+import { toggleModal, UiToggleState } from "@utils/toggle";
+import usePrompt from "@stores/prompt";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
@@ -22,12 +21,10 @@ export default function UpdatePromptModal() {
     [promptStore],
   );
 
-  const schema = yup
-    .object()
-    .shape({
-      title: yup.string().label("Title").required(),
-      prompt: yup.string().label("Prompt").required(),
-    });
+  const schema = yup.object().shape({
+    title: yup.string().label("Title").required(),
+    prompt: yup.string().label("Prompt").required(),
+  });
 
   const {
     reset,

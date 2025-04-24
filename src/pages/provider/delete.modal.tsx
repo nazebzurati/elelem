@@ -1,7 +1,6 @@
-import db from "@lib/database";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import useProvider from "@store/provider";
+import db from "@database/config";
+import { toggleModal, UiToggleState } from "@utils/toggle";
+import useProvider from "@stores/provider";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ export default function DeleteProviderModal() {
       providerStore.selectedProviderId
         ? await db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore.selectedProviderId]
+    [providerStore.selectedProviderId],
   );
 
   const navigation = useNavigate();

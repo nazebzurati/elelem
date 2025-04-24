@@ -1,75 +1,60 @@
-import Drawer from "@components/drawer";
-import db from "@lib/database";
-import { toggleModal } from "@lib/utils";
-import { UiToggleState } from "@lib/utils.types";
-import usePrompt from "@store/prompt";
-import { IconPlus } from "@tabler/icons-react";
+import { getPromptList } from "@database/prompt";
+import usePrompt from "@stores/prompt";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
-import AddPromptModal, { AddPromptModalId } from "./add.modal";
+import AddPromptModal from "./add.modal";
 import DeletePromptModal, { DeletePromptModalId } from "./delete.modal";
+import Navbar from "./navbar";
 import UpdatePromptModal, { UpdatePromptModalId } from "./update.modal";
 
 export default function Prompt() {
   const promptStore = usePrompt();
-  const promptList = useLiveQuery(async () => await db.prompt.toArray());
+  const promptList = useLiveQuery(async () => await getPromptList());
 
   return (
     <div>
       {/* navbar */}
-      <div className="navbar bg-base-100 flex-none px-6 flex sticky top-0 z-10">
-        <div className="flex-none me-2">
-          <Drawer />
-        </div>
-        <div className="flex-1">
-          <h1 className="btn btn-ghost text-xl">Prompt List</h1>
-        </div>
-        <div className="flex-none">
-          <div className="tooltip tooltip-bottom" data-tip="Add prompt">
-            <button
-              type="button"
-              className="btn btn-ghost btn-circle"
-              onClick={() => toggleModal(AddPromptModalId, UiToggleState.OPEN)}
-            >
-              <IconPlus className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <Navbar />
       {/* items */}
-      {promptList && promptList.length <= 0 && (
-        <div className="px-7 py-4">No prompt was found.</div>
-      )}
-      <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        {promptList?.map((prompt) => (
-          <div key={prompt.id} className="card card-border bg-base-300">
-            <div className="card-body">
-              <h2 className="card-title line-clamp-1">{prompt.title}</h2>
-              <p className="text-sm -mt-2 line-clamp-1">{prompt.prompt}</p>
-              <div className="card-actions justify-end mt-2">
+      <div className="p-4 flex justify-center">
+        <ul className="list bg-base-200 rounded-box w-xl">
+          {promptList && promptList.length <= 0 && (
+            <li className="list-row flex text-center">
+              <p className="w-full">No prompt was found.</p>
+            </li>
+          )}
+          {promptList?.map((prompt) => (
+            <li key={prompt.id} className="list-row flex">
+              <div className="flex-1">
+                <div className="font-bold">{prompt.title}</div>
+                <div className="text-xs opacity-60">{prompt.prompt}</div>
+              </div>
+              <div>
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-square btn-ghost"
                   onClick={() => {
                     promptStore.setSelectedPrompt(prompt.id);
                     toggleModal(UpdatePromptModalId, UiToggleState.OPEN);
                   }}
                 >
-                  Update
+                  <IconEdit className="w-6 h-6" />
                 </button>
                 <button
                   type="button"
-                  className="btn btn-error"
+                  className="btn btn-square btn-ghost"
                   onClick={() => {
                     promptStore.setSelectedPrompt(prompt.id);
                     toggleModal(DeletePromptModalId, UiToggleState.OPEN);
                   }}
                 >
-                  Delete
+                  <IconTrash className="w-6 h-6 text-error" />
                 </button>
               </div>
-            </div>
-          </div>
-        ))}
+            </li>
+          ))}
+        </ul>
       </div>
       {/* modal */}
       <AddPromptModal />
