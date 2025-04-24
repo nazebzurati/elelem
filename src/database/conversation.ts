@@ -11,7 +11,7 @@ export interface ConversationWithDetails extends Conversation {
 }
 
 export const getConversation = async (
-  conversationId: number
+  conversationId: number,
 ): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
@@ -24,10 +24,10 @@ export const getConversationList = async (): Promise<
   const conversationList = await db.conversation.reverse().sortBy("id");
   const conversationWithDetails: ConversationWithDetails[] = [];
   for (const conversation of conversationList) {
-    conversationWithDetails.push({
-      ...conversation,
-      chats: await getChats(conversation.id),
-    });
+    const chats = await getChats(conversation.id);
+    if (chats.length > 0) {
+      conversationWithDetails.push({ ...conversation, chats });
+    }
   }
   return conversationWithDetails;
 };

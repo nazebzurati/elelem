@@ -15,7 +15,7 @@ export default function DeletePromptModal() {
       promptStore.selectedPromptId
         ? await db.prompt.get(promptStore.selectedPromptId)
         : undefined,
-    [promptStore]
+    [promptStore],
   );
 
   const onDelete = async () => {

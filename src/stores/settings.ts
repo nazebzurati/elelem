@@ -38,9 +38,9 @@ const useSettings = create<SettingsState>()(
             activeConversationId: conversationId,
           })),
       }),
-      { name: "settings" }
-    )
-  )
+      { name: "settings" },
+    ),
+  ),
 );
 
 export default useSettings;

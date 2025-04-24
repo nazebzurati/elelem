@@ -18,9 +18,9 @@ const usePrompt = create<PromptState>()(
             selectedPromptId: id,
           })),
       }),
-      { name: "prompt" }
-    )
-  )
+      { name: "prompt" },
+    ),
+  ),
 );
 
 export default usePrompt;

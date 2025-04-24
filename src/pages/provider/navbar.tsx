@@ -1,3 +1,5 @@
+import db from "@database/config";
+import { ProviderWithCount } from "@database/provider";
 import {
   IconCodeAsterix,
   IconMessages,
@@ -5,9 +7,48 @@ import {
   IconRefresh,
   IconServer,
 } from "@tabler/icons-react";
+import { fetchModelList } from "@utils/conversation";
+import { toggleModal, UiToggleState } from "@utils/toggle";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { AddProviderModalId } from "./add.modal";
 
-export default function Navbar() {
+export default function Navbar({
+  providerList,
+}: {
+  providerList?: ProviderWithCount[];
+}) {
+  const [isRefresh, setIsRefresh] = useState(false);
+  const onRefreshModel = async () => {
+    if (!providerList || isRefresh) return;
+    setIsRefresh(true);
+
+    for (const provider of providerList) {
+      // get existing and new model list
+      const modelList = await fetchModelList(provider.baseURL, provider.apiKey);
+      const existingModelList = (
+        await db.model.where({ providerId: provider.id }).toArray()
+      ).map((model) => model.id);
+
+      // delete missing model
+      const modelIdListToDelete = existingModelList.filter(
+        (modelId) => !modelList.includes(modelId),
+      );
+      for (const modelId of modelIdListToDelete) {
+        await db.model.delete(modelId);
+      }
+
+      // add new model
+      const modelIdListToAdd = modelList.filter(
+        (modelId) => !existingModelList.includes(modelId),
+      );
+      for (const modelId of modelIdListToAdd) {
+        await db.model.add({ id: modelId, providerId: provider.id });
+      }
+    }
+    setIsRefresh(false);
+  };
+
   return (
     <>
       {/* navbar */}
@@ -38,10 +79,20 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="navbar-end">
-          <button className="btn btn-ghost btn-circle">
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={onRefreshModel}
+          >
             <IconRefresh className="h-6 w-6" />
           </button>
-          <button className="btn btn-ghost btn-circle">
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={() => {
+              toggleModal(AddProviderModalId, UiToggleState.OPEN);
+            }}
+          >
             <IconPlus className="h-6 w-6" />
           </button>
         </div>

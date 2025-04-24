@@ -14,7 +14,7 @@ export default function DeleteProviderModal() {
       providerStore.selectedProviderId
         ? await db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore.selectedProviderId]
+    [providerStore.selectedProviderId],
   );
 
   const navigation = useNavigate();

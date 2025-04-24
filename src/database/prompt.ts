@@ -7,7 +7,7 @@ export interface Prompt {
 }
 
 export const getPrompt = async (
-  promptId: number
+  promptId: number,
 ): Promise<Prompt | undefined> => {
   return await db.prompt.get(promptId);
 };

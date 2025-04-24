@@ -11,7 +11,7 @@ export interface ModelWithDetails extends Model {
 }
 
 export const getModel = async (
-  modelId: string
+  modelId: string,
 ): Promise<ModelWithDetails | undefined> => {
   const model = await db.model.get(modelId);
   if (!model) return undefined;
@@ -23,6 +23,6 @@ export const getModelList = async (): Promise<ModelWithDetails[]> => {
   return await Promise.all(
     modelList.map(async (model) => {
       return { ...model, provider: await db.provider.get(model.providerId) };
-    })
+    }),
   );
 };

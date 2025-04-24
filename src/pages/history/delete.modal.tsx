@@ -17,7 +17,7 @@ export default function DeleteConversationModal() {
       historyStore.selectedConversationId
         ? await db.conversation.get(historyStore.selectedConversationId)
         : undefined,
-    [historyStore.selectedConversationId]
+    [historyStore.selectedConversationId],
   );
 
   const onDelete = async () => {

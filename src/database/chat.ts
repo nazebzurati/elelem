@@ -19,7 +19,7 @@ export interface ChatWithDetails extends Chat {
 }
 
 export const getChat = async (
-  chatId?: number
+  chatId?: number,
 ): Promise<ChatWithDetails | undefined> => {
   if (!chatId) return undefined;
   const chat = await db.chat.get(chatId);
@@ -44,6 +44,6 @@ export const getChats = async (conversationId: number) => {
         model: await getModel(chat.modelId),
         prompt: chat.promptId ? await getPrompt(chat.promptId) : undefined,
       };
-    })
+    }),
   );
 };

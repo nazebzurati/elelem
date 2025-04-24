@@ -1,3 +1,4 @@
+import useSettings from "@stores/settings";
 import {
   IconChevronLeft,
   IconCodeAsterix,
@@ -8,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
+  const settingsStore = useSettings();
   return (
     <>
       {/* navbar */}
@@ -45,7 +47,13 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="navbar-end">
-          <button className="btn btn-ghost btn-circle">
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={() => {
+              settingsStore.setActiveConversation();
+            }}
+          >
             <IconMessageCirclePlus className="h-6 w-6" />
           </button>
         </div>

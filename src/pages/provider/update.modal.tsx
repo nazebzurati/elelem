@@ -20,7 +20,7 @@ export default function UpdateProviderModal() {
       providerStore.selectedProviderId
         ? await db.provider.get(providerStore.selectedProviderId)
         : undefined,
-    [providerStore]
+    [providerStore],
   );
 
   const schema = yup.object().shape({
@@ -87,7 +87,7 @@ export default function UpdateProviderModal() {
         if (isModelIdExisted) return;
 
         await db.model.add({ id: modelId, providerId });
-      })
+      }),
     );
 
     toggleModal(UpdateProviderModalId, UiToggleState.CLOSE);
@@ -120,15 +120,17 @@ export default function UpdateProviderModal() {
               placeholder="http://localhost:11434/v1"
               {...register("baseURL")}
             />
-            {errors.baseURL ? (
-              <p className="fieldset-label text-error">
-                {errors.baseURL.message}
-              </p>
-            ) : (
-              <p className="fieldset-label">
-                You can leave it blank if you're using OpenAI API key.
-              </p>
-            )}
+            {errors.baseURL
+              ? (
+                <p className="fieldset-label text-error">
+                  {errors.baseURL.message}
+                </p>
+              )
+              : (
+                <p className="fieldset-label">
+                  You can leave it blank if you're using OpenAI API key.
+                </p>
+              )}
           </fieldset>
           <fieldset className="fieldset">
             <div>
@@ -140,15 +142,17 @@ export default function UpdateProviderModal() {
               placeholder="sk-*****"
               {...register("apiKey")}
             />
-            {errors.apiKey ? (
-              <p className="fieldset-label text-error">
-                {errors.apiKey.message}
-              </p>
-            ) : (
-              <p className="fieldset-label">
-                You can leave it blank if you're using Ollama.
-              </p>
-            )}
+            {errors.apiKey
+              ? (
+                <p className="fieldset-label text-error">
+                  {errors.apiKey.message}
+                </p>
+              )
+              : (
+                <p className="fieldset-label">
+                  You can leave it blank if you're using Ollama.
+                </p>
+              )}
           </fieldset>
         </form>
         {error && (

@@ -28,14 +28,14 @@ export default function Chats() {
 
   const modelList = useLiveQuery(async () => await getModelList());
 
-  const activeModel: ModelWithDetails | undefined = useLiveQuery(async () => {
+  const activeModel: ModelWithDetails | undefined = useMemo(() => {
     return !modelList || !settingsStore.activeModelId
       ? undefined
       : modelList.find((p) => p.id === settingsStore.activeModelId);
   }, [modelList, settingsStore.activeModelId]);
 
   const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await db.prompt.toArray()
+    async () => await db.prompt.toArray(),
   );
 
   const activePrompt: Prompt | undefined = useMemo(() => {
@@ -49,7 +49,7 @@ export default function Chats() {
       settingsStore.activeConversationId
         ? await getConversation(settingsStore.activeConversationId)
         : undefined,
-    [settingsStore.activeConversationId]
+    [settingsStore.activeConversationId],
   );
 
   const {
@@ -72,7 +72,6 @@ export default function Chats() {
 
   const onSubmit = useCallback(
     async (data: { input: string }) => {
-      console.log(activeModel);
       if (!activeModel?.provider) return;
 
       // create chat
@@ -80,9 +79,9 @@ export default function Chats() {
       const conversationId = activeConversation
         ? activeConversation.id
         : await db.conversation.add({
-            title: data.input,
-            createdAt: Date.now(),
-          });
+          title: data.input,
+          createdAt: Date.now(),
+        });
       const chatId = await db.chat.add({
         conversationId,
         user: data.input,
@@ -131,7 +130,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore]
+    [activeModel, activeConversation, settingsStore],
   );
 
   useEffect(() => {
@@ -150,7 +149,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput"
+        "chatInput",
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }
@@ -159,47 +158,50 @@ export default function Chats() {
   return (
     <>
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
-        {activeConversation ? (
-          <>
-            <ChatBubbles chats={activeConversation.chats} />
-            {isSubmitting && messages.length <= 0 && (
-              <div className="chat chat-end space-y-1">
-                <div className="chat-bubble">
-                  <span className="loading loading-dots loading-sm" />
+        {activeConversation
+          ? (
+            <>
+              <ChatBubbles chats={activeConversation.chats} />
+              {isSubmitting && messages.length <= 0 && (
+                <div className="chat chat-start space-y-1">
+                  <div className="chat-bubble">
+                    <span className="loading loading-dots loading-sm" />
+                  </div>
                 </div>
-              </div>
-            )}
-            {isThinking && (
-              <div className="chat chat-end space-y-1">
-                <div className="chat-bubble italic">
-                  <span className="loading loading-ring loading-xs" />{" "}
-                  Thinking...
+              )}
+              {isThinking && (
+                <div className="chat chat-start space-y-1">
+                  <div className="chat-bubble italic">
+                    <span className="mb-1 loading loading-ring loading-xs" />
+                    {" "}
+                    Thinking...
+                  </div>
                 </div>
-              </div>
-            )}
-            {!isThinking && messages.length > 0 && (
-              <div className="chat chat-end space-y-1">
-                <div className="chat-bubble markdown">
-                  <MarkdownRenderer>
-                    {parseThinkingReply(messages.join(""))}
-                  </MarkdownRenderer>
+              )}
+              {!isThinking && messages.length > 0 && (
+                <div className="chat chat-start space-y-1">
+                  <div className="chat-bubble markdown">
+                    <MarkdownRenderer>
+                      {parseThinkingReply(messages.join(""))}
+                    </MarkdownRenderer>
+                  </div>
                 </div>
+              )}
+            </>
+          )
+          : (
+            <div className="h-full flex justify-center items-center">
+              <div className="space-y-4">
+                <img
+                  width={150}
+                  height={150}
+                  alt="onboarding"
+                  src={andyNote}
+                  className="mx-auto"
+                />
               </div>
-            )}
-          </>
-        ) : (
-          <div className="h-full flex justify-center items-center">
-            <div className="space-y-4">
-              <img
-                width={150}
-                height={150}
-                alt="onboarding"
-                src={andyNote}
-                className="mx-auto"
-              />
             </div>
-          </div>
-        )}
+          )}
       </div>
       <form className="m-2 flex-none" onSubmit={handleSubmit(onSubmit)}>
         <div className="card bg-base-200">
@@ -224,7 +226,7 @@ export default function Chats() {
                 />
               </div>
               <div>
-                <button className="btn btn-ghost btn-circle">
+                <button type="button" className="btn btn-ghost btn-circle">
                   <IconSend2 className="h-6 w-6" />
                 </button>
               </div>
@@ -298,14 +300,16 @@ function PromptSelector({
       <div className="dropdown-content max-h-60 overflow-y-auto w-max rounded-md mb-2">
         <ul className="menu bg-base-300">
           <li className={!activePrompt ? "text-primary" : ""}>
-            <button onClick={() => onSelectPrompt()}>No prompt</button>
+            <button type="button" onClick={() => onSelectPrompt()}>
+              No prompt
+            </button>
           </li>
           {promptList?.map((prompt) => (
             <li
               className={activePrompt?.id === prompt.id ? "text-primary" : ""}
               key={prompt.id}
             >
-              <button onClick={() => onSelectPrompt(prompt.id)}>
+              <button type="button" onClick={() => onSelectPrompt(prompt.id)}>
                 {prompt.title}
               </button>
             </li>
@@ -356,7 +360,7 @@ function ModelSelector({
               className={activeModel?.id === model.id ? "text-primary" : ""}
               key={model.id}
             >
-              <button onClick={() => onSelectModel(model.id)}>
+              <button type="button" onClick={() => onSelectModel(model.id)}>
                 {model.id}
               </button>
             </li>

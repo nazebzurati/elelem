@@ -4,7 +4,9 @@ import {
   IconPlus,
   IconServer,
 } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { Link } from "react-router-dom";
+import { AddPromptModalId } from "./add.modal";
 
 export default function Navbar() {
   return (
@@ -37,7 +39,13 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="navbar-end">
-          <button className="btn btn-ghost btn-circle">
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={() => {
+              toggleModal(AddPromptModalId, UiToggleState.OPEN);
+            }}
+          >
             <IconPlus className="h-6 w-6" />
           </button>
         </div>
