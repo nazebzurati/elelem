@@ -1,6 +1,6 @@
 [package]
 name = "elelem"
-version = "0.3.0-rc.1"
+version = "0.3.0-rc2"
 description = "A simple cross-platform LLM client"
 authors = ["Nazeb Zurati"]
 edition = "2021"

@@ -226,7 +226,7 @@ export default function Chats() {
                 />
               </div>
               <div>
-                <button type="button" className="btn btn-ghost btn-circle">
+                <button type="submit" className="btn btn-ghost btn-circle">
                   <IconSend2 className="h-6 w-6" />
                 </button>
               </div>
