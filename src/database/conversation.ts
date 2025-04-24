@@ -1,4 +1,4 @@
-import { ChatWithDetails, getChats } from "./chat";
+import { ChatWithDetails, getChatList } from "./chat";
 import db from "./config";
 
 export interface Conversation {
@@ -15,7 +15,7 @@ export const getConversation = async (
 ): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
-  return { ...conversation, chats: await getChats(conversation.id) };
+  return { ...conversation, chats: await getChatList(conversation.id) };
 };
 
 export const getConversationList = async (): Promise<
@@ -24,7 +24,7 @@ export const getConversationList = async (): Promise<
   const conversationList = await db.conversation.reverse().sortBy("id");
   const conversationWithDetails: ConversationWithDetails[] = [];
   for (const conversation of conversationList) {
-    const chats = await getChats(conversation.id);
+    const chats = await getChatList(conversation.id);
     if (chats.length > 0) {
       conversationWithDetails.push({ ...conversation, chats });
     }

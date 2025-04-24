@@ -1,4 +1,4 @@
-import db from "@database/config";
+import { getPromptList } from "@database/prompt";
 import usePrompt from "@stores/prompt";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
@@ -10,7 +10,7 @@ import UpdatePromptModal, { UpdatePromptModalId } from "./update.modal";
 
 export default function Prompt() {
   const promptStore = usePrompt();
-  const promptList = useLiveQuery(async () => await db.prompt.toArray());
+  const promptList = useLiveQuery(async () => await getPromptList());
 
   return (
     <div>

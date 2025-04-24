@@ -11,10 +11,3 @@ export const toggleModal = (modalId: string, view: UiToggleState) => {
       : modalElement.close();
   }
 };
-
-export const toggleDrawer = (modalId: string, view: UiToggleState) => {
-  const drawerElement = document.getElementById(modalId) as HTMLInputElement;
-  if (drawerElement) {
-    drawerElement.checked = view === UiToggleState.OPEN;
-  }
-};

@@ -2,20 +2,31 @@ import {
   IconCodeAsterix,
   IconInfoCircle,
   IconMessages,
-  IconPlus,
   IconServer,
 } from "@tabler/icons-react";
-import { toggleModal, UiToggleState } from "@utils/toggle";
+import { getName, getVersion } from "@tauri-apps/api/app";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AddPromptModalId } from "./add.modal";
 
 export default function Navbar() {
+  const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });
+  useEffect(() => {
+    (async () => {
+      setAppInfo({
+        name: await getName(),
+        version: await getVersion(),
+      });
+    })();
+  }, []);
+
   return (
     <>
       {/* navbar */}
       <div className="navbar bg-base-200">
         <div className="navbar-start">
-          <div className="ms-4 font-bold sm:hidden">Prompts</div>
+          <div className="ms-4 font-bold sm:hidden">
+            {appInfo.name} v{appInfo.version}
+          </div>
         </div>
         <div className="navbar-center">
           <ul className="p-0 not-sm:hidden menu menu-horizontal">
@@ -26,7 +37,7 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <Link to="/prompt" className="text-primary">
+              <Link to="/prompt">
                 <IconCodeAsterix className="h-6 w-6" />
                 Prompts
               </Link>
@@ -38,24 +49,14 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <Link to="/about">
+              <Link to="/about" className="text-primary">
                 <IconInfoCircle className="h-6 w-6" />
                 About
               </Link>
             </li>
           </ul>
         </div>
-        <div className="navbar-end">
-          <button
-            type="button"
-            className="btn btn-ghost btn-circle"
-            onClick={() => {
-              toggleModal(AddPromptModalId, UiToggleState.OPEN);
-            }}
-          >
-            <IconPlus className="h-6 w-6" />
-          </button>
-        </div>
+        <div className="navbar-end"></div>
       </div>
       {/* dock */}
       <div className="sm:hidden dock border-t-0 bg-base-200">
@@ -63,7 +64,7 @@ export default function Navbar() {
           <IconMessages className="h-6 w-6" />
           <span className="dock-label">Chats</span>
         </Link>
-        <Link to="/prompt" className="text-primary">
+        <Link to="/prompt">
           <IconCodeAsterix className="h-6 w-6" />
           <span className="dock-label">Prompts</span>
         </Link>
@@ -71,7 +72,7 @@ export default function Navbar() {
           <IconServer className="h-6 w-6" />
           <span className="dock-label">Providers</span>
         </Link>
-        <Link to="/about">
+        <Link to="/about" className="text-primary">
           <IconInfoCircle className="h-6 w-6" />
           <span className="dock-label">About</span>
         </Link>

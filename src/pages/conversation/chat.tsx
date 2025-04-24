@@ -1,25 +1,25 @@
 import andyNote from "@assets/andy-note.png";
+import { ChatWithDetails } from "@database/chat";
+import db from "@database/config";
 import {
   ConversationWithDetails,
   getConversation,
 } from "@database/conversation";
 import { getModelList, Model, ModelWithDetails } from "@database/model";
-import { Prompt } from "@database/prompt";
+import { getPromptList, Prompt } from "@database/prompt";
 import useChat from "@hooks/use-chat";
-import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
-import dayjs from "dayjs";
-import { useLiveQuery } from "dexie-react-hooks";
-import OpenAI from "openai";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import db from "@database/config";
 import useSettings from "@stores/settings";
+import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
 import {
   parseThinkingReply,
   prepareMessages,
   TIME_FORMAT,
 } from "@utils/conversation";
+import dayjs from "dayjs";
+import { useLiveQuery } from "dexie-react-hooks";
+import OpenAI from "openai";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
-import { ChatWithDetails } from "@database/chat";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -35,7 +35,7 @@ export default function Chats() {
   }, [modelList, settingsStore.activeModelId]);
 
   const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await db.prompt.toArray(),
+    async () => await getPromptList(),
   );
 
   const activePrompt: Prompt | undefined = useMemo(() => {

@@ -1,6 +1,7 @@
 import {
   IconChevronLeft,
   IconCodeAsterix,
+  IconInfoCircle,
   IconMessages,
   IconServer,
 } from "@tabler/icons-react";
@@ -41,6 +42,12 @@ export default function Navbar() {
                 Providers
               </Link>
             </li>
+            <li>
+              <Link to="/about">
+                <IconInfoCircle className="h-6 w-6" />
+                About
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="navbar-end"></div>
@@ -58,6 +65,10 @@ export default function Navbar() {
         <Link to="/provider">
           <IconServer className="h-6 w-6" />
           <span className="dock-label">Providers</span>
+        </Link>
+        <Link to="/about">
+          <IconInfoCircle className="h-6 w-6" />
+          <span className="dock-label">About</span>
         </Link>
       </div>
     </>

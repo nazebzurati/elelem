@@ -2,6 +2,7 @@ import useSettings from "@stores/settings";
 import {
   IconChevronLeft,
   IconCodeAsterix,
+  IconInfoCircle,
   IconMessageCirclePlus,
   IconMessages,
   IconServer,
@@ -44,6 +45,12 @@ export default function Navbar() {
                 Providers
               </Link>
             </li>
+            <li>
+              <Link to="/about">
+                <IconInfoCircle className="h-6 w-6" />
+                About
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="navbar-end">
@@ -71,6 +78,10 @@ export default function Navbar() {
         <Link to="/provider">
           <IconServer className="h-6 w-6" />
           <span className="dock-label">Providers</span>
+        </Link>
+        <Link to="/about">
+          <IconInfoCircle className="h-6 w-6" />
+          <span className="dock-label">About</span>
         </Link>
       </div>
     </>
