@@ -12,6 +12,7 @@ import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AddProviderModalId } from "./add.modal";
+import useAlert, { AlertTypeEnum } from "@stores/alert";
 
 export default function Navbar({
   providerList,
@@ -19,6 +20,9 @@ export default function Navbar({
   providerList?: ProviderWithCount[];
 }) {
   const [isRefresh, setIsRefresh] = useState(false);
+
+  const alertStore = useAlert();
+
   const onRefreshModel = async () => {
     if (!providerList || isRefresh) return;
     setIsRefresh(true);
@@ -46,6 +50,11 @@ export default function Navbar({
         await db.model.add({ id: modelId, providerId: provider.id });
       }
     }
+
+    alertStore.add({
+      type: AlertTypeEnum.SUCCESS,
+      message: "Model list refreshed!",
+    });
     setIsRefresh(false);
   };
 

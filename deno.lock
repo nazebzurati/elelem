@@ -18,6 +18,7 @@
     "npm:dexie-react-hooks@^1.1.7": "1.1.7_@types+react@19.1.0_dexie@4.0.11_react@19.1.0",
     "npm:dexie@^4.0.11": "4.0.11",
     "npm:katex@~0.16.22": "0.16.22",
+    "npm:nanoid@^5.1.5": "5.1.5",
     "npm:openai@^4.96.0": "4.96.0",
     "npm:radash@^12.1.0": "12.1.0",
     "npm:react-dom@^19.1.0": "19.1.0_react@19.1.0",
@@ -1677,6 +1678,9 @@
     "nanoid@3.3.11": {
       "integrity": "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w=="
     },
+    "nanoid@5.1.5": {
+      "integrity": "sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw=="
+    },
     "node-domexception@1.0.0": {
       "integrity": "sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ=="
     },
@@ -1739,7 +1743,7 @@
     "postcss@8.5.3": {
       "integrity": "sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==",
       "dependencies": [
-        "nanoid",
+        "nanoid@3.3.11",
         "picocolors",
         "source-map-js"
       ]
@@ -2191,6 +2195,7 @@
         "npm:dexie-react-hooks@^1.1.7",
         "npm:dexie@^4.0.11",
         "npm:katex@~0.16.22",
+        "npm:nanoid@^5.1.5",
         "npm:openai@^4.96.0",
         "npm:radash@^12.1.0",
         "npm:react-dom@^19.1.0",
