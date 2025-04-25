@@ -16,8 +16,8 @@ modules:
     buildsystem: simple
     sources:
       - type: file
-        url: # TODO: add URL for Github release .deb
-        sha256: # TODO: provide SHA256 for .deb release
+        url: # TODO
+        sha256: # TODO
         only-arches: [x86_64]
     build-commands:
       - ar -x *.deb
