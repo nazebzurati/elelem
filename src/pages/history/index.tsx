@@ -16,7 +16,7 @@ export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
   const conversationList = useLiveQuery(
-    async () => await getConversationList(),
+    async () => await getConversationList()
   );
 
   const navigation = useNavigate();
@@ -37,7 +37,7 @@ export default function History() {
             <li key={conversation.id} className="list-row flex">
               <div className="flex-1">
                 <div
-                  className={`font-bold ${
+                  className={`font-bold line-clamp-1 ${
                     conversation.id === settingsStore.activeConversationId
                       ? "text-primary"
                       : ""

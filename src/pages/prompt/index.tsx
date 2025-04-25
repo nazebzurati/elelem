@@ -28,7 +28,9 @@ export default function Prompt() {
             <li key={prompt.id} className="list-row flex">
               <div className="flex-1">
                 <div className="font-bold">{prompt.title}</div>
-                <div className="text-xs opacity-60">{prompt.prompt}</div>
+                <div className="text-xs line-clamp-1 opacity-60">
+                  {prompt.prompt}
+                </div>
               </div>
               <div>
                 <button
