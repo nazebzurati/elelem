@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* fix pinch zoom on mobile */
+:root {
+  touch-action: pan-x pan-y;
+  height: 100%;
+}
+
 /* fix wierd scroll in unnecessary place */
 html {
   scrollbar-gutter: auto !important;

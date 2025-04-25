@@ -6,21 +6,22 @@
   <name>Elelem</name>
   <summary>A friendly assistant with LLM</summary>
   <description>
-    <p>Elelem is a user-friendly LLM client supporting both Ollama and OpenAI APIs. Create
-      personalized assistants with pre-configured prompts or interact without predefined prompts.
-      Elelem enhances productivity with its intuitive interface and robust functionality.</p>
+    <p>Elelem is a versatile LLM client that connects seamlessly with OpenAI API compatible
+      services. Effortlessly create and switch between multiple custom prompts to match your needs.
+      Open source and cross platform, Elelem puts control in your hands with your own API key;
+      without it you can't use the app.</p>
   </description>
   <keywords>
     <keyword>elelem</keyword>
     <keyword>fionix</keyword>
     <keyword>llm</keyword>
+    <keyword>mobile</keyword>
     <keyword>desktop</keyword>
     <keyword>client</keyword>
-    <keyword>openai</keyword>
-    <keyword>api</keyword>
-    <keyword>key</keyword>
+    <keyword>localhost</keyword>
+    <keyword>api-key</keyword>
     <keyword>tauri</keyword>
-    <keyword>multiplatform</keyword>
+    <keyword>cross-platform</keyword>
   </keywords>
   <screenshots>
     <screenshot type="default">
@@ -30,12 +31,17 @@
     </screenshot>
     <screenshot>
       <image type="source">
-        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/2_switch_assistant.png</image>
+        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/2_chat.png</image>
       <caption>Assistant Switching</caption>
     </screenshot>
     <screenshot>
       <image type="source">
-        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/3_texting.png</image>
+        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/3_provider.png</image>
+      <caption>Texting</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">
+        https://raw.githubusercontent.com/nazebzurati/elelem/main/misc/4_prompt.png</image>
       <caption>Texting</caption>
     </screenshot>
   </screenshots>
@@ -44,27 +50,12 @@
   <url type="donation">https://ko-fi.com/nazebzurati</url>
   <content_rating type="oars-1.0" />
   <releases>
-    <release version="0.2.1" date="2025-03-06">
+    <release version="0.3.0" date="2025-04-26">
       <description>
-        <p>Fix failed windows build.</p>
-      </description>
-    </release>
-    <release version="0.2.0" date="2025-03-05">
-      <description>
-        <p>Migrate to tauri.</p>
-      </description>
-    </release>
-    <release version="0.1.1" date="2025-02-04">
-      <description>
-        <p>Feature improvements and icon fix.</p>
-      </description>
-    </release>
-    <release version="0.1.0" date="2025-02-04">
-      <description>
-        <p>The first release.</p>
+        <p>Interface overhaul for better user experience.</p>
       </description>
     </release>
   </releases>
   <developer_name>Nazeb Zurati</developer_name>
-  <update_contact>nazeb04@gmail.com</update_contact>
+  <update_contact>nazeb.zurati@fionix.net</update_contact>
 </component>

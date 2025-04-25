@@ -17,14 +17,14 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
           const match = /language-(\w+)/.exec(className || "");
           if (!inline && match) {
             return (
-              <Prism language={match[1]} className="text-sm! rounded-md!">
+              <Prism language={match[1]} className="text-xs! rounded-md!">
                 {children}
               </Prism>
             );
           } else {
             return (
               <code
-                className={`${className} text-sm bg-zinc-200 dark:bg-zinc-600 py-0.5 px-1 rounded-md`}
+                className={`${className} text-xs bg-zinc-200 dark:bg-zinc-600 py-0.5 px-1 rounded-md`}
                 {...props}
               >
                 {children}
@@ -36,7 +36,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         ol: ({ children, ...props }: any) => {
           return (
-            <ol className="list-decimal list-outside ml-4" {...props}>
+            <ol className="text-sm list-decimal list-outside ml-4" {...props}>
               {children}
             </ol>
           );
@@ -44,7 +44,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         li: ({ children, ...props }: any) => {
           return (
-            <li className="!my-1" {...props}>
+            <li className="text-sm my-1!" {...props}>
               {children}
             </li>
           );
@@ -52,7 +52,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         ul: ({ children, ...props }: any) => {
           return (
-            <ul className="list-disc list-outside !my-1" {...props}>
+            <ul className="text-sm list-disc list-outside my-1!" {...props}>
               {children}
             </ul>
           );
@@ -60,7 +60,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         strong: ({ children, ...props }: any) => {
           return (
-            <span className="font-semibold" {...props}>
+            <span className="text-sm font-semibold" {...props}>
               {children}
             </span>
           );
@@ -68,7 +68,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         p: ({ children, ...props }: any) => {
           return (
-            <p className="!my-2" {...props}>
+            <p className="text-sm my-2!" {...props}>
               {children}
             </p>
           );
@@ -77,7 +77,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         a: ({ children, ...props }: any) => {
           return (
             <a
-              className="text-blue-500 hover:underline"
+              className="text-sm text-blue-500 hover:underline"
               target="_blank"
               rel="noreferrer"
               {...props}
@@ -89,7 +89,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h1: ({ children, ...props }: any) => {
           return (
-            <h1 className="text-xl font-semibold !my-1" {...props}>
+            <h1 className="text-xl font-semibold my-1!" {...props}>
               {children}
             </h1>
           );
@@ -97,7 +97,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h2: ({ children, ...props }: any) => {
           return (
-            <h2 className="text-lg font-semibold !my-1" {...props}>
+            <h2 className="text-lg font-semibold my-1!" {...props}>
               {children}
             </h2>
           );
@@ -105,7 +105,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h3: ({ children, ...props }: any) => {
           return (
-            <h3 className="text-base font-semibold !my-1" {...props}>
+            <h3 className="text-base font-semibold my-1!" {...props}>
               {children}
             </h3>
           );
@@ -113,7 +113,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h4: ({ children, ...props }: any) => {
           return (
-            <h4 className="text-base font-semibold !my-1" {...props}>
+            <h4 className="text-base font-semibold my-1!" {...props}>
               {children}
             </h4>
           );
@@ -121,7 +121,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h5: ({ children, ...props }: any) => {
           return (
-            <h5 className="text-base font-semibold !my-1" {...props}>
+            <h5 className="text-base font-semibold my-1!" {...props}>
               {children}
             </h5>
           );
@@ -129,7 +129,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         h6: ({ children, ...props }: any) => {
           return (
-            <h6 className="text-base font-semibold !my-1" {...props}>
+            <h6 className="text-base font-semibold my-1!" {...props}>
               {children}
             </h6>
           );
@@ -147,7 +147,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         td: ({ children, ...props }: any) => {
           return (
-            <td className="!py-1" {...props}>
+            <td className="py-1!" {...props}>
               {children}
             </td>
           );
@@ -155,7 +155,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         // deno-lint-ignore no-explicit-any
         th: ({ children, ...props }: any) => {
           return (
-            <th className="!py-1" {...props}>
+            <th className="py-1!" {...props}>
               {children}
             </th>
           );

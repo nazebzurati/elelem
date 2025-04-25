@@ -328,7 +328,7 @@ function Step3({
             </div>
             <textarea
               rows={3}
-              className="textarea w-full !min-h-10"
+              className="textarea w-full min-h-10!"
               placeholder="e.g. Rephrase the given sentences, shorten it and make sure the fix any grammar mistake. Don't use em dashes, en dashes, and hyphens in the sentences."
               {...register("prompt")}
             />
