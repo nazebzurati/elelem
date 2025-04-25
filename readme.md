@@ -8,16 +8,24 @@ If you encounter any issues, please report them promptly [here](https://github.c
 
 ## Known Issue
 
-### WebKitGTK's DMA-BUF Issue with NVIDIA Graphics Cards on Linux
+1. WebKitGTK's DMA-BUF Issue with NVIDIA Graphics Cards on Linux
 
-On Linux, users with NVIDIA graphics card may not able to start the application due to an issue related to DMA-BUF. To resolve this, modify Elelem desktop entry file (`/usr/share/applications/Elelem.desktop`) by updating as follows:
+    On Linux, users with NVIDIA graphics card may not able to start the application due to an issue related to DMA-BUF. The following suggestion disables the DMA-BUF renderer for WebKit.
+    
+    - For flatpak, set the environment variable when running the app:
 
-```bash
-Exec=elelem # Original line
-Exec=env WEBKIT_DISABLE_DMABUF_RENDERER=1 elelem # Updated line
-```
+      ```bash
+      flatpak run --env="WEBKIT_DISABLE_DMABUF_RENDERER=1" net.fionix.elelem
+      ```
+    
+    - Else, modify Elelem desktop entry file (`/usr/share/applications/Elelem.desktop`):
+      
+      ```bash
+      Exec=elelem # Original line
+      Exec=env WEBKIT_DISABLE_DMABUF_RENDERER=1 elelem # Updated line
+      ```
 
-This change disables the DMA-BUF renderer for WebKit.
+    
 
 ## Installation
 
