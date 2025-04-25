@@ -20,6 +20,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
+import useAlert, { AlertTypeEnum } from "@stores/alert";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -70,9 +71,16 @@ export default function Chats() {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, []);
 
+  const alertStore = useAlert();
   const onSubmit = useCallback(
     async (data: { input: string }) => {
-      if (!activeModel?.provider) return;
+      if (!activeModel?.provider) {
+        alertStore.add({
+          type: AlertTypeEnum.ERROR,
+          message: "Please select a model to proceed.",
+        });
+        return;
+      }
 
       // create chat
       const isNewConversation = !!activeConversation;

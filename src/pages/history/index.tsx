@@ -16,7 +16,7 @@ export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
   const conversationList = useLiveQuery(
-    async () => await getConversationList()
+    async () => await getConversationList(),
   );
 
   const navigation = useNavigate();

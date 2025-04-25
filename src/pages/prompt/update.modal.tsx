@@ -18,7 +18,7 @@ export default function UpdatePromptModal() {
       promptStore.selectedPromptId
         ? await db.prompt.get(promptStore.selectedPromptId)
         : undefined,
-    [promptStore]
+    [promptStore],
   );
 
   const schema = yup.object().shape({
