@@ -43,8 +43,18 @@ export default function About() {
             rel="noreferrer"
             href="https://github.com/nazebzurati/elelem/blob/main/license.md"
           >
-            GNU General Public License version 3 or later.
+            GNU General Public License version 3 or later
           </a>
+          . Review the{" "}
+          <a
+            className="link"
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/nazebzurati/elelem/blob/main/privacy-policy.md"
+          >
+            privacy policy
+          </a>{" "}
+          to understand how we protect your privacy.
         </p>
         <p className="pt-4 text-sm">© 2025 Nazeb Zurati</p>
       </div>
