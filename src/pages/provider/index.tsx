@@ -41,10 +41,10 @@ export default function Provider() {
           {providerList?.map((provider) => (
             <li key={provider.id} className="list-row flex">
               <div className="flex-1">
-                <div className="font-bold">
+                <div className="text-base font-bold">
                   {provider.baseURL ? new URL(provider.baseURL).hostname : "?"}
                 </div>
-                <div className="text-xs opacity-60">
+                <div className="text-sm opacity-60">
                   {provider.modelCount} model(s) found
                 </div>
               </div>

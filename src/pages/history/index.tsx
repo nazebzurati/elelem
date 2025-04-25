@@ -37,7 +37,7 @@ export default function History() {
             <li key={conversation.id} className="list-row flex">
               <div className="flex-1">
                 <div
-                  className={`font-bold line-clamp-1 ${
+                  className={`text-base font-bold line-clamp-1 ${
                     conversation.id === settingsStore.activeConversationId
                       ? "text-primary"
                       : ""
@@ -45,7 +45,7 @@ export default function History() {
                 >
                   {conversation.chats?.[0].user ?? "n/a"}
                 </div>
-                <div className="text-xs opacity-60">
+                <div className="text-sm opacity-60">
                   {dayjs(conversation.createdAt).format(TIME_FORMAT)}
                 </div>
               </div>
