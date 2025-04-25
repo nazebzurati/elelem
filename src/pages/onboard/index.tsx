@@ -84,7 +84,7 @@ function Step2({
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }>) {
   const existingProvider = useLiveQuery(
-    async () => await db.provider.toArray(),
+    async () => await db.provider.toArray()
   );
 
   const schema = yup.object().shape({
@@ -150,7 +150,7 @@ function Step2({
         if (isModelIdExisted) return;
 
         await db.model.add({ id: modelId, providerId });
-      }),
+      })
     );
 
     setStep(3);
@@ -191,17 +191,15 @@ function Step2({
               placeholder="http://localhost:11434/v1"
               {...register("baseURL")}
             />
-            {errors.baseURL
-              ? (
-                <p className="fieldset-label text-error">
-                  {errors.baseURL.message}
-                </p>
-              )
-              : (
-                <p className="fieldset-label">
-                  You can leave it blank if you're using OpenAI API key.
-                </p>
-              )}
+            {errors.baseURL ? (
+              <p className="fieldset-label text-error">
+                {errors.baseURL.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                You can leave it blank if you're using OpenAI API key.
+              </p>
+            )}
           </fieldset>
           <fieldset className="fieldset">
             <div>
@@ -213,17 +211,15 @@ function Step2({
               placeholder="sk-*****"
               {...register("apiKey")}
             />
-            {errors.apiKey
-              ? (
-                <p className="fieldset-label text-error">
-                  {errors.apiKey.message}
-                </p>
-              )
-              : (
-                <p className="fieldset-label">
-                  You can leave it blank if you're using Ollama.
-                </p>
-              )}
+            {errors.apiKey ? (
+              <p className="fieldset-label text-error">
+                {errors.apiKey.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                You can leave it blank if you're using Ollama.
+              </p>
+            )}
           </fieldset>
         </form>
         {error && (
@@ -328,7 +324,7 @@ function Step3({
             </div>
             <textarea
               rows={3}
-              className="textarea w-full !min-h-10"
+              className="textarea w-full min-h-10!"
               placeholder="e.g. Rephrase the given sentences, shorten it and make sure the fix any grammar mistake. Don't use em dashes, en dashes, and hyphens in the sentences."
               {...register("prompt")}
             />
@@ -349,23 +345,21 @@ function Step3({
         >
           Previous
         </button>
-        {isDirty
-          ? (
-            <SubmitButton
-              formId="onboardStep3Form"
-              text="Next"
-              isLoading={isLoading || isSubmitting}
-            />
-          )
-          : (
-            <button
-              type="button"
-              className="btn btn-primary btn-outline"
-              onClick={() => setStep(4)}
-            >
-              Skip
-            </button>
-          )}
+        {isDirty ? (
+          <SubmitButton
+            formId="onboardStep3Form"
+            text="Next"
+            isLoading={isLoading || isSubmitting}
+          />
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary btn-outline"
+            onClick={() => setStep(4)}
+          >
+            Skip
+          </button>
+        )}
       </div>
     </>
   );
