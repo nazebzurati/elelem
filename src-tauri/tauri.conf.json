@@ -39,6 +39,9 @@
           "/usr/share/net.fionix.elelem.metainfo.xml": "../misc/metainfo.xml"
         }
       }
+    },
+    "android": {
+      "versionCode": 2
     }
   }
 }

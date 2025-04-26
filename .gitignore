@@ -9,3 +9,4 @@ sonar.sh
 .flatpak-builder
 .repo
 *.flatpak
+keystore.properties
