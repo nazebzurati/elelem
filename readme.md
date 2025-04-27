@@ -2,7 +2,10 @@
 
 A simple cross-platform LLM client.
 
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/nazebzurati/elelem?utm_source=oss&utm_medium=github&utm_campaign=nazebzurati%2Felelem&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+![CodeRabbit](https://img.shields.io/coderabbit/prs/github/nazebzurati/elelem?utm_source=oss&utm_medium=github&utm_campaign=nazebzurati%2Felelem&labelColor=171717&color=6a3de8&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+![Google Play](https://img.shields.io/badge/Google_Play-soon-6a3de8?style=flat&logo=googleplay&labelColor=171717)
+![Flathub](https://img.shields.io/badge/Flathub-soon-6a3de8?style=flat&logo=flathub&labelColor=171717)
+
 
 If you encounter any issues, please report them promptly [here](https://github.com/nazebzurati/elelem/issues). Additionally, feel free to request any necessary features [here](https://github.com/nazebzurati/elelem/issues).
 
