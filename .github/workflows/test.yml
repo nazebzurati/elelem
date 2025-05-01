@@ -1,0 +1,87 @@
+name: "Build Test"
+
+on: workflow_dispatch
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "macos-latest"
+            args: "--target aarch64-apple-darwin"
+          - platform: "macos-latest"
+            args: "--target x86_64-apple-darwin"
+          - platform: "ubuntu-24.04"
+            args: ""
+          - platform: "ubuntu-24.04-arm"
+            args: "--bundles deb,rpm"
+          - platform: "windows-latest"
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-24.04' || matrix.platform == 'ubuntu-24.04-arm'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: update cargo dependencies
+        run: cargo update
+        working-directory: src-tauri
+
+      - name: install frontend dependencies
+        run: deno install
+
+      - uses: tauri-apps/tauri-action@v0
+        id: tauri
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__-test
+          releaseName: "Elelem __VERSION__ (test)"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: true
+          args: ${{ matrix.args }}
+
+      - name: build flatpak
+        if: matrix.platform == 'ubuntu-24.04' || matrix.platform == 'ubuntu-24.04-arm'
+        run: deno run build:flatpak
+
+      - name: add x86_64.flatpak
+        if: matrix.platform == 'ubuntu-24.04'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.tauri.outputs.releaseUploadUrl }}
+          asset_path: ./elelem.flatpak
+          asset_name: Elelem_${{ steps.tauri.outputs.appVersion }}_x86_64.flatpak
+          asset_content_type: application/vnd.flatpak
+
+      - name: add aarch64.flatpak
+        if: matrix.platform == 'ubuntu-24.04-arm'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.tauri.outputs.releaseUploadUrl }}
+          asset_path: ./elelem.flatpak
+          asset_name: Elelem_${{ steps.tauri.outputs.appVersion }}_aarch64.flatpak
+          asset_content_type: application/vnd.flatpak
