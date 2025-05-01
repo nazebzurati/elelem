@@ -1,7 +1,7 @@
 id: net.fionix.elelem
 
 runtime: org.gnome.Platform
-runtime-version: "46"
+runtime-version: "48"
 sdk: org.gnome.Sdk
 
 command: elelem
@@ -13,19 +13,18 @@ finish-args:
   - --share=network
 
 modules:
-  - name: binary
+  - name: elelem
     buildsystem: simple
     sources:
       - type: file
         url: # TODO
         sha256: # TODO
-        only-arches: [x86_64]
     build-commands:
       - ar -x *.deb
       - tar -xf data.tar.gz
       - install -Dm755 usr/bin/elelem /app/bin/elelem
       - install -Dm644 usr/share/applications/Elelem.desktop /app/share/applications/net.fionix.elelem.desktop
-      - sed -i 's/^Icon=elelem$/Icon=net.fionix.elelem/' /app/share/applications/net.fionix.elelem.desktop
+      - desktop-file-edit /app/share/applications/net.fionix.elelem.desktop --set-key=Icon --set-value=net.fionix.elelem --remove-key=X-Desktop-File-Install-Version
       - install -Dm644 usr/share/icons/hicolor/128x128/apps/elelem.png /app/share/icons/hicolor/128x128/apps/net.fionix.elelem.png
       - install -Dm644 usr/share/icons/hicolor/32x32/apps/elelem.png /app/share/icons/hicolor/32x32/apps/net.fionix.elelem.png
       - install -Dm644 usr/share/icons/hicolor/256x256@2/apps/elelem.png /app/share/icons/hicolor/256x256@2/apps/net.fionix.elelem.png

@@ -14,8 +14,10 @@ jobs:
             args: '--target aarch64-apple-darwin'
           - platform: 'macos-latest'
             args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
+          - platform: 'ubuntu-24.04'
             args: ''
+          - platform: 'ubuntu-24.04-arm'
+            args: '--bundles deb,rpm'
           - platform: 'windows-latest'
             args: ''
 
@@ -34,7 +36,7 @@ jobs:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04' || matrix.platform == 'ubuntu-24.04-arm'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
@@ -59,11 +61,11 @@ jobs:
           args: ${{ matrix.args }}
 
       - name: build flatpak
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04' || matrix.platform == 'ubuntu-24.04-arm'
         run: deno run build:flatpak
 
-      - name: upload flatpak to release
-        if: matrix.platform == 'ubuntu-22.04'
+      - name: add x86_64.flatpak
+        if: matrix.platform == 'ubuntu-24.04'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,4 +73,15 @@ jobs:
           upload_url: ${{ steps.tauri.outputs.releaseUploadUrl }}
           asset_path: ./elelem.flatpak
           asset_name: Elelem_${{ steps.tauri.outputs.appVersion }}_x86_64.flatpak
+          asset_content_type: application/vnd.flatpak
+
+      - name: add aarch64.flatpak
+        if: matrix.platform == 'ubuntu-24.04-arm'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.tauri.outputs.releaseUploadUrl }}
+          asset_path: ./elelem.flatpak
+          asset_name: Elelem_${{ steps.tauri.outputs.appVersion }}_aarch64.flatpak
           asset_content_type: application/vnd.flatpak
