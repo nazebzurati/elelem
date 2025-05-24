@@ -7,7 +7,7 @@ interface ProviderState {
   setSelectedProvider: (id?: number) => void;
 }
 
-const useProvider = create<ProviderState>()(
+const useProviderStore = create<ProviderState>()(
   devtools(
     persist(
       (set) => ({
@@ -23,4 +23,4 @@ const useProvider = create<ProviderState>()(
   ),
 );
 
-export default useProvider;
+export default useProviderStore;

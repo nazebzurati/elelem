@@ -1,12 +1,12 @@
 import db from "@database/config";
-import useSettings from "@stores/settings";
+import useSettingsStore from "@stores/settings";
 import { IconX } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
 
 export const ClearConversationModalId = "clearConversationModal";
 
 export default function ClearConversationModal() {
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
 
   const onClear = async () => {
     try {

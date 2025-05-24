@@ -1,12 +1,12 @@
 import { getLatestConversation } from "@database/conversation";
-import useSettings from "@stores/settings";
+import useSettingsStore from "@stores/settings";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
 import Chats from "./chat";
 import Navbar from "./navbar";
 
 function Conversation() {
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
 
   const latestConversation = useLiveQuery(
     async () => await getLatestConversation(),

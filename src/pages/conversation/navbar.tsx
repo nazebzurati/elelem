@@ -1,4 +1,4 @@
-import useSettings from "@stores/settings";
+import useSettingsStore from "@stores/settings";
 import {
   IconChevronLeft,
   IconCodeAsterix,
@@ -10,7 +10,7 @@ import {
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
   return (
     <>
       {/* navbar */}

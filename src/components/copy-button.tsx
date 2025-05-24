@@ -29,8 +29,13 @@ export default function CopyButton({
   }, [isCopied]);
 
   return isCopied ? (
-    <IconClipboardCheck className={`w-4 h-4 text-primary ${className}`} />
+    <IconClipboardCheck
+      className={`w-4 h-4 cursor-pointer text-primary ${className}`}
+    />
   ) : (
-    <IconClipboard className={`w-4 h-4 ${className}`} onClick={onCopy} />
+    <IconClipboard
+      className={`w-4 h-4 cursor-pointer ${className}`}
+      onClick={onCopy}
+    />
   );
 }

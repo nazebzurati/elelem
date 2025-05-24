@@ -9,9 +9,16 @@ import {
 import { getModelList, Model, ModelWithDetails } from "@database/model";
 import { getPromptList, Prompt } from "@database/prompt";
 import useChat from "@hooks/use-chat";
-import useAlert, { AlertTypeEnum } from "@stores/alert";
-import useSettings from "@stores/settings";
-import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
+import useAlertStore, { AlertTypeEnum } from "@stores/alert";
+import useChatStore from "@stores/chat";
+import useSettingsStore from "@stores/settings";
+import {
+  IconCheck,
+  IconChevronUp,
+  IconEdit,
+  IconSend2,
+  IconX,
+} from "@tabler/icons-react";
 import {
   parseThinkingReply,
   prepareMessages,
@@ -26,7 +33,7 @@ import { MarkdownRenderer } from "./markdown";
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
 
   const modelList = useLiveQuery(async () => await getModelList());
 
@@ -72,7 +79,7 @@ export default function Chats() {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, []);
 
-  const alertStore = useAlert();
+  const alertStore = useAlertStore();
   const onSubmit = useCallback(
     async (data: { input: string }) => {
       if (!activeModel?.provider) {
@@ -245,6 +252,21 @@ export default function Chats() {
 }
 
 function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
+  const chatStore = useChatStore();
+
+  const onEditChat = (chatId: number) => {
+    chatStore.setSelectedChat(chatId);
+  };
+
+  const onEditChatCancel = () => {
+    chatStore.setSelectedChat();
+  };
+
+  useEffect(() => {
+    // always reset selected chat to edit
+    chatStore.setSelectedChat();
+  }, []);
+
   return chats.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-end space-y-2">
@@ -255,10 +277,46 @@ function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
             {dayjs(chat.sendAt).format(TIME_FORMAT)}
           </time>
         </div>
-        <div className="chat-bubble markdown">
-          <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+        <div
+          className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+        >
+          {chatStore.selectedChatId === chat.id ? (
+            <form onSubmit={() => {}}>
+              <textarea
+                className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+                value={chat.user}
+              />
+              <div className="text-xs label whitespace-normal break-words">
+                Updating this chat will create a new branch of conversation from
+                here.
+              </div>
+            </form>
+          ) : (
+            <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+          )}
         </div>
-        <div className="chat-footer">
+        <div className="chat-footer space-x-2">
+          {chatStore.selectedChatId !== chat.id ? (
+            <button
+              className="cursor-pointer"
+              onClick={() => onEditChat(chat.id)}
+            >
+              <IconEdit className="text-xs w-4 h-4" />
+            </button>
+          ) : (
+            <>
+              <button
+                className="cursor-pointer"
+                onClick={() => onEditChat(chat.id)}
+              >
+                <IconCheck className="text-xs w-4 h-4 text-success" />
+              </button>
+              <button className="cursor-pointer" onClick={onEditChatCancel}>
+                <IconX className="text-xs w-4 h-4 text-error" />
+              </button>
+            </>
+          )}
+
           <CopyButton text={chat.user} />
         </div>
       </div>
@@ -291,7 +349,7 @@ function PromptSelector({
 }) {
   const dropdownRef = useRef<HTMLDetailsElement>(null);
 
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
   const onSelectPrompt = (promptId?: number) => {
     settingsStore.setActivePrompt(promptId);
     dropdownRef.current?.removeAttribute("open");
@@ -347,7 +405,7 @@ function ModelSelector({
 }) {
   const dropdownRef = useRef<HTMLDetailsElement>(null);
 
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
   const onSelectModel = (modelId?: string) => {
     settingsStore.setActiveModel(modelId);
     dropdownRef.current?.removeAttribute("open");

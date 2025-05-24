@@ -1,5 +1,5 @@
 import db from "@database/config";
-import useProvider from "@stores/provider";
+import useProviderStore from "@stores/provider";
 import { IconX } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 export const DeleteProviderModalId = "deleteProviderModal";
 
 export default function DeleteProviderModal() {
-  const providerStore = useProvider();
+  const providerStore = useProviderStore();
   const selectedProvider = useLiveQuery(
     async () =>
       providerStore.selectedProviderId

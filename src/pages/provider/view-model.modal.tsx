@@ -1,12 +1,12 @@
 import db from "@database/config";
-import useProvider from "@stores/provider";
+import useProviderStore from "@stores/provider";
 import { IconX } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 
 export const ViewProviderModelModalId = "viewProviderModelModal";
 
 export default function ViewProviderModelModal() {
-  const providerStore = useProvider();
+  const providerStore = useProviderStore();
   const modelList = useLiveQuery(
     async () =>
       providerStore.selectedProviderId

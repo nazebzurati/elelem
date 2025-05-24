@@ -1,4 +1,4 @@
-import useSettings from "@stores/settings";
+import useSettingsStore from "@stores/settings";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import db from "../database/config";
@@ -6,7 +6,7 @@ import Loading from "./loading";
 
 export default function Prepare() {
   const navigation = useNavigate();
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
 
   useEffect(() => {
     db.model.count().then((count) => {

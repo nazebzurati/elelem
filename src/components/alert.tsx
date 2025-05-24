@@ -1,4 +1,4 @@
-import useAlert, { AlertType, AlertTypeEnum } from "@stores/alert";
+import useAlertStore, { AlertType, AlertTypeEnum } from "@stores/alert";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useEffect } from "react";
@@ -6,7 +6,7 @@ import { useEffect } from "react";
 const ALERT_POLLING_INTERVAL_IN_MS = 1000;
 
 export default function Alerts() {
-  const alertStore = useAlert();
+  const alertStore = useAlertStore();
 
   // poll to dismiss alerts
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function Alerts() {
 }
 
 function Alert({ alert }: { alert: AlertType }) {
-  const alertStore = useAlert();
+  const alertStore = useAlertStore();
 
   const onDismiss = () => {
     alertStore.dismiss(alert.id);

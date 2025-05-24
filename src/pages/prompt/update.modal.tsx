@@ -1,7 +1,7 @@
 import SubmitButton from "@components/submit-button";
 import db from "@database/config";
 import { yupResolver } from "@hookform/resolvers/yup";
-import usePrompt from "@stores/prompt";
+import usePromptStore from "@stores/prompt";
 import { IconX } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -12,7 +12,7 @@ import * as yup from "yup";
 export const UpdatePromptModalId = "updatePromptModal";
 
 export default function UpdatePromptModal() {
-  const promptStore = usePrompt();
+  const promptStore = usePromptStore();
   const selectedPrompt = useLiveQuery(
     async () =>
       promptStore.selectedPromptId

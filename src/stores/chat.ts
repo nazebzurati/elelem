@@ -2,25 +2,25 @@ import type {} from "@redux-devtools/extension"; // required for devtools typing
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-interface PromptState {
-  selectedPromptId?: number;
-  setSelectedPrompt: (id?: number) => void;
+interface ChatState {
+  selectedChatId?: number;
+  setSelectedChat: (id?: number) => void;
 }
 
-const usePromptStore = create<PromptState>()(
+const useChatStore = create<ChatState>()(
   devtools(
     persist(
       (set) => ({
-        selectedPromptId: undefined,
-        setSelectedPrompt: (id) =>
+        selectedChatId: undefined,
+        setSelectedChat: (id) =>
           set((state) => ({
             ...state,
-            selectedPromptId: id,
+            selectedChatId: id,
           })),
       }),
-      { name: "prompt" },
+      { name: "chat" },
     ),
   ),
 );
 
-export default usePromptStore;
+export default useChatStore;

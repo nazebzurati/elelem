@@ -1,6 +1,6 @@
 import db from "@database/config";
-import useHistory from "@stores/history";
-import useSettings from "@stores/settings";
+import useHistoryStore from "@stores/history";
+import useSettingsStore from "@stores/settings";
 import { IconX } from "@tabler/icons-react";
 import { TIME_FORMAT } from "@utils/conversation";
 import { toggleModal, UiToggleState } from "@utils/toggle";
@@ -10,8 +10,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 export const DeleteConversationModalId = "deleteConversationModal";
 
 export default function DeleteConversationModal() {
-  const historyStore = useHistory();
-  const settingsStore = useSettings();
+  const historyStore = useHistoryStore();
+  const settingsStore = useSettingsStore();
   const selectedConversation = useLiveQuery(
     async () =>
       historyStore.selectedConversationId
