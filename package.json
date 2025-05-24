@@ -16,6 +16,7 @@
     "@redux-devtools/extension": "^3.3.0",
     "@tabler/icons-react": "^3.33.0",
     "@tailwindcss/vite": "^4.1.7",
+    "@tauri-apps/plugin-clipboard-manager": "^2.2.2",
     "@types/react-dom": "^19.1.5",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",

@@ -1,4 +1,5 @@
 import andyNote from "@assets/andy-note.png";
+import CopyButton from "@components/copy-button";
 import { ChatWithDetails } from "@database/chat";
 import db from "@database/config";
 import {
@@ -246,22 +247,34 @@ export default function Chats() {
 function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
-      <div className="chat chat-end space-y-1">
-        <div className="chat-bubble chat-bubble-primary markdown">
+      <div className="chat chat-end space-y-2">
+        <div className="chat-header">
+          You
+          <br />
+          <time className="text-xs opacity-50">
+            {dayjs(chat.sendAt).format(TIME_FORMAT)}
+          </time>
+        </div>
+        <div className="chat-bubble markdown">
           <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
-        <div className="chat-footer opacity-50">
-          {dayjs(chat.sendAt).format(TIME_FORMAT)} (
-          {chat.prompt?.title ?? "No prompt"})
+        <div className="chat-footer">
+          <CopyButton text={chat.user} />
         </div>
       </div>
       {chat.assistant && (
-        <div className="chat chat-start space-y-1">
+        <div className="chat chat-start space-y-2">
+          <div className="chat-header">
+            {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
+            <time className="text-xs opacity-50">
+              {dayjs(chat.receivedAt).format(TIME_FORMAT)}
+            </time>
+          </div>
           <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
-          <div className="chat-footer opacity-50">
-            {dayjs(chat.receivedAt).format(TIME_FORMAT)} ({chat.modelId})
+          <div className="chat-footer">
+            <CopyButton text={chat.assistant} />
           </div>
         </div>
       )}
