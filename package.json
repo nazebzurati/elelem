@@ -16,7 +16,9 @@
     "@redux-devtools/extension": "^3.3.0",
     "@tabler/icons-react": "^3.33.0",
     "@tailwindcss/vite": "^4.1.7",
+    "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-clipboard-manager": "^2.2.2",
+    "@tauri-apps/plugin-opener": "^2",
     "@types/react-dom": "^19.1.5",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
@@ -27,8 +29,6 @@
     "radash": "^12.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
     "react-hook-form": "^7.56.4",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.0",
@@ -41,13 +41,18 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
-    "@types/react-syntax-highlighter": "^15.5.13",
-    "daisyui": "^5.0.37",
+    "@tauri-apps/cli": "^2.5.0",
     "@types/react": "^19.1.5",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^4.5.0",
+    "daisyui": "^5.0.37",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
-    "@tauri-apps/cli": "^2.5.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "react-syntax-highlighter": {
+      "prismjs": "1.30.0"
+    }
   }
 }
