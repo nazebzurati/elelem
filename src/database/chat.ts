@@ -10,6 +10,7 @@ export interface Chat {
   user: string;
   assistant?: string;
   sendAt: number;
+  branchId: number;
   receivedAt?: number;
 }
 
