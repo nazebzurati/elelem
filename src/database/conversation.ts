@@ -11,11 +11,25 @@ export interface ConversationWithDetails extends Conversation {
 }
 
 export const getConversation = async (
-  conversationId: number,
+  conversationId: number
 ): Promise<ConversationWithDetails | undefined> => {
   const conversation = await db.conversation.get(conversationId);
   if (!conversation) return undefined;
   return { ...conversation, chats: await getChatList(conversation.id) };
+};
+
+export const getLatestConversation = async (): Promise<
+  ConversationWithDetails | undefined
+> => {
+  const latestConversation = await db.conversation
+    .orderBy("id")
+    .reverse()
+    .first();
+  if (!latestConversation) return undefined;
+  return {
+    ...latestConversation,
+    chats: await getChatList(latestConversation.id),
+  };
 };
 
 export const getConversationList = async (): Promise<
