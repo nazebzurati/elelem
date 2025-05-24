@@ -4,8 +4,11 @@ import {
   IconInfoCircle,
   IconMessages,
   IconServer,
+  IconTrashX,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import { ClearConversationModalId } from "./clear.modal";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 
 export default function Navbar() {
   return (
@@ -50,7 +53,17 @@ export default function Navbar() {
             </li>
           </ul>
         </div>
-        <div className="navbar-end"></div>
+        <div className="navbar-end">
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={() => {
+              toggleModal(ClearConversationModalId, UiToggleState.OPEN);
+            }}
+          >
+            <IconTrashX className="h-6 w-6 text-error" />
+          </button>
+        </div>
       </div>
       {/* dock */}
       <div className="sm:hidden dock border-t-0 bg-base-200">

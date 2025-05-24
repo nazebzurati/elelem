@@ -2,13 +2,20 @@ import db from "../database/config";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading";
+import useSettings from "@stores/settings";
 
 export default function Prepare() {
   const navigation = useNavigate();
+  const settingsStore = useSettings();
 
   useEffect(() => {
     db.model.count().then((count) => {
-      count > 0 ? navigation("/conversation") : navigation("/onboard");
+      if (count <= 0) {
+        navigation("/onboard");
+      } else {
+        settingsStore.setActiveConversation();
+        navigation("/conversation");
+      }
     });
   }, []);
 

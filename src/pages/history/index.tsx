@@ -11,12 +11,13 @@ import DeleteConversationModal, {
   DeleteConversationModalId,
 } from "./delete.modal";
 import Navbar from "./navbar";
+import ClearConversationModal from "./clear.modal";
 
 export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
   const conversationList = useLiveQuery(
-    async () => await getConversationList(),
+    async () => await getConversationList()
   );
 
   const navigation = useNavigate();
@@ -46,7 +47,7 @@ export default function History() {
                   {conversation.chats?.[0].user ?? "n/a"}
                 </div>
                 <div className="text-sm opacity-60">
-                  {dayjs(conversation.createdAt).format(TIME_FORMAT)}
+                  Created at {dayjs(conversation.createdAt).format(TIME_FORMAT)}
                 </div>
               </div>
               <div>
@@ -77,6 +78,7 @@ export default function History() {
       </div>
       {/* modals */}
       <DeleteConversationModal />
+      <ClearConversationModal />
     </div>
   );
 }

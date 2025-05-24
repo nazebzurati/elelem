@@ -1,4 +1,5 @@
 import andyNote from "@assets/andy-note.png";
+import CopyButton from "@components/copy-button";
 import { ChatWithDetails } from "@database/chat";
 import db from "@database/config";
 import {
@@ -8,6 +9,7 @@ import {
 import { getModelList, Model, ModelWithDetails } from "@database/model";
 import { getPromptList, Prompt } from "@database/prompt";
 import useChat from "@hooks/use-chat";
+import useAlert, { AlertTypeEnum } from "@stores/alert";
 import useSettings from "@stores/settings";
 import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
 import {
@@ -20,7 +22,6 @@ import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
-import useAlert, { AlertTypeEnum } from "@stores/alert";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
@@ -36,7 +37,7 @@ export default function Chats() {
   }, [modelList, settingsStore.activeModelId]);
 
   const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await getPromptList(),
+    async () => await getPromptList()
   );
 
   const activePrompt: Prompt | undefined = useMemo(() => {
@@ -50,7 +51,7 @@ export default function Chats() {
       settingsStore.activeConversationId
         ? await getConversation(settingsStore.activeConversationId)
         : undefined,
-    [settingsStore.activeConversationId],
+    [settingsStore.activeConversationId]
   );
 
   const {
@@ -87,9 +88,9 @@ export default function Chats() {
       const conversationId = activeConversation
         ? activeConversation.id
         : await db.conversation.add({
-          title: data.input,
-          createdAt: Date.now(),
-        });
+            title: data.input,
+            createdAt: Date.now(),
+          });
       const chatId = await db.chat.add({
         conversationId,
         user: data.input,
@@ -126,7 +127,7 @@ export default function Chats() {
       } catch (_error) {
         await db.chat.delete(chatId);
         if (isNewConversation) await db.conversation.delete(conversationId);
-        settingsStore.setActiveConversation(undefined);
+        settingsStore.setActiveConversation();
       }
 
       // update chat when stream finish
@@ -138,7 +139,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore],
+    [activeModel, activeConversation, settingsStore]
   );
 
   useEffect(() => {
@@ -157,7 +158,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput",
+        "chatInput"
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }
@@ -166,50 +167,46 @@ export default function Chats() {
   return (
     <>
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
-        {activeConversation
-          ? (
-            <>
-              <ChatBubbles chats={activeConversation.chats} />
-              {isSubmitting && messages.length <= 0 && (
-                <div className="chat chat-start space-y-1">
-                  <div className="chat-bubble py-4">
-                    <span className="loading loading-dots loading-sm" />
-                  </div>
+        {activeConversation ? (
+          <>
+            <ChatBubbles chats={activeConversation.chats} />
+            {isSubmitting && messages.length <= 0 && (
+              <div className="chat chat-start space-y-1">
+                <div className="chat-bubble py-4">
+                  <span className="loading loading-dots loading-sm" />
                 </div>
-              )}
-              {isThinking && (
-                <div className="chat chat-start space-y-1">
-                  <div className="chat-bubble italic py-4">
-                    <span className="mb-1 loading loading-ring loading-xs" />
-                    {" "}
-                    Thinking...
-                  </div>
-                </div>
-              )}
-              {!isThinking && messages.length > 0 && (
-                <div className="chat chat-start space-y-1">
-                  <div className="chat-bubble markdown py-4">
-                    <MarkdownRenderer>
-                      {parseThinkingReply(messages.join(""))}
-                    </MarkdownRenderer>
-                  </div>
-                </div>
-              )}
-            </>
-          )
-          : (
-            <div className="h-full flex justify-center items-center">
-              <div className="space-y-4">
-                <img
-                  width={150}
-                  height={150}
-                  alt="onboarding"
-                  src={andyNote}
-                  className="mx-auto"
-                />
               </div>
+            )}
+            {isThinking && (
+              <div className="chat chat-start space-y-1">
+                <div className="chat-bubble italic py-4">
+                  <span className="animate-pulse">Thinking...</span>
+                </div>
+              </div>
+            )}
+            {!isThinking && messages.length > 0 && (
+              <div className="chat chat-start space-y-1">
+                <div className="chat-bubble markdown py-4">
+                  <MarkdownRenderer>
+                    {parseThinkingReply(messages.join(""))}
+                  </MarkdownRenderer>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="h-full flex justify-center items-center">
+            <div className="space-y-4">
+              <img
+                width={150}
+                height={150}
+                alt="onboarding"
+                src={andyNote}
+                className="mx-auto"
+              />
             </div>
-          )}
+          </div>
+        )}
       </div>
       <form className="m-2 flex-none" onSubmit={handleSubmit(onSubmit)}>
         <div className="card bg-base-200">
@@ -220,7 +217,8 @@ export default function Chats() {
               disabled={isSubmitting || isLoading}
               className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
               placeholder="Write here"
-              {...register("input")}
+              value={isSubmitting || isLoading ? "" : undefined}
+              {...(isSubmitting || isLoading ? {} : register("input"))}
             />
             <div className="flex justify-between items-center w-full">
               <div>
@@ -249,22 +247,34 @@ export default function Chats() {
 function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
   return chats.map((chat) => (
     <div key={chat.id}>
-      <div className="chat chat-end space-y-1">
-        <div className="chat-bubble chat-bubble-primary markdown">
+      <div className="chat chat-end space-y-2">
+        <div className="chat-header">
+          You
+          <br />
+          <time className="text-xs opacity-50">
+            {dayjs(chat.sendAt).format(TIME_FORMAT)}
+          </time>
+        </div>
+        <div className="chat-bubble markdown">
           <MarkdownRenderer>{chat.user}</MarkdownRenderer>
         </div>
-        <div className="chat-footer opacity-50">
-          {dayjs(chat.sendAt).format(TIME_FORMAT)} (
-          {chat.prompt?.title ?? "No prompt"})
+        <div className="chat-footer">
+          <CopyButton text={chat.user} />
         </div>
       </div>
       {chat.assistant && (
-        <div className="chat chat-start space-y-1">
+        <div className="chat chat-start space-y-2">
+          <div className="chat-header">
+            {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
+            <time className="text-xs opacity-50">
+              {dayjs(chat.receivedAt).format(TIME_FORMAT)}
+            </time>
+          </div>
           <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
-          <div className="chat-footer opacity-50">
-            {dayjs(chat.receivedAt).format(TIME_FORMAT)} ({chat.modelId})
+          <div className="chat-footer">
+            <CopyButton text={chat.assistant} />
           </div>
         </div>
       )}
