@@ -9,9 +9,13 @@ export default function ClearConversationModal() {
   const settingsStore = useSettings();
 
   const onClear = async () => {
-    await db.conversation.clear();
-    settingsStore.setActiveConversation();
+    try {
+      await db.conversation.clear();
+    } catch (error) {
+      console.error(error);
+    }
 
+    settingsStore.setActiveConversation();
     toggleModal(ClearConversationModalId, UiToggleState.CLOSE);
   };
 

@@ -6,10 +6,18 @@ export default function About() {
   const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });
   useEffect(() => {
     (async () => {
-      setAppInfo({
-        name: await getName(),
-        version: await getVersion(),
-      });
+      try {
+        setAppInfo({
+          name: await getName(),
+          version: await getVersion(),
+        });
+      } catch (error) {
+        console.error(error);
+        setAppInfo({
+          name: "Elelem",
+          version: "0.0.0",
+        });
+      }
     })();
   }, []);
 

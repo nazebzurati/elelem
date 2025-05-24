@@ -12,7 +12,7 @@ export default function CopyButton({
   className?: string;
 }) {
   const [isCopied, setIsCopied] = useState(false);
-  const onCopy = (text: string) => {
+  const onCopy = () => {
     if (isCopied) return;
     writeText(text);
     setIsCopied(true);
@@ -31,9 +31,6 @@ export default function CopyButton({
   return isCopied ? (
     <IconClipboardCheck className={`w-4 h-4 text-primary ${className}`} />
   ) : (
-    <IconClipboard
-      className={`w-4 h-4 ${className}`}
-      onClick={() => onCopy(text)}
-    />
+    <IconClipboard className={`w-4 h-4 ${className}`} onClick={onCopy} />
   );
 }

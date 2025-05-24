@@ -17,7 +17,7 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
         code: ({ inline, className, children, ...props }: any) => {
           const match = /language-(\w+)/.exec(className || "");
           if (!inline && match) {
-            return <CodeBlock language={match[1]} children={children} />;
+            return <CodeBlock language={match[1]} code={children} />;
           } else {
             return (
               <code
@@ -101,25 +101,19 @@ export function MarkdownRenderer({ children }: Readonly<{ children: string }>) {
   );
 }
 
-const CodeBlock = ({
-  language,
-  children,
-}: {
-  language: string;
-  children: any;
-}) => {
+const CodeBlock = ({ language, code }: { language: string; code: string }) => {
   return (
     <div className="p-2! bg-base-100! rounded-md! mb-4!">
       <div className="flex justify-between items-center px-2 mt-1">
         <span className="text-xs!">{language}</span>
-        <CopyButton text={children} />
+        <CopyButton text={code} />
       </div>
       <Prism
         style={a11yDark}
         language={language}
         className="text-sm! mt-3! p-4! pb-6! rounded-md!"
       >
-        {children}
+        {code}
       </Prism>
     </div>
   );

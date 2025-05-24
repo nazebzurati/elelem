@@ -10,9 +10,12 @@ export default function Prepare() {
 
   useEffect(() => {
     db.model.count().then((count) => {
-      if (count <= 0) navigation("/onboard");
-      settingsStore.setActiveConversation();
-      navigation("/conversation");
+      if (count <= 0) {
+        navigation("/onboard");
+      } else {
+        settingsStore.setActiveConversation();
+        navigation("/conversation");
+      }
     });
   }, []);
 
