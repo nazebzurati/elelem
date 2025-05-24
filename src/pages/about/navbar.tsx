@@ -4,28 +4,22 @@ import {
   IconMessages,
   IconServer,
 } from "@tabler/icons-react";
-import { getName, getVersion } from "@tauri-apps/api/app";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function Navbar() {
-  const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });
-  useEffect(() => {
-    (async () => {
-      setAppInfo({
-        name: await getName(),
-        version: await getVersion(),
-      });
-    })();
-  }, []);
-
+export default function Navbar({
+  name,
+  version,
+}: {
+  name: string;
+  version: string;
+}) {
   return (
     <>
       {/* navbar */}
       <div className="navbar bg-base-200">
         <div className="navbar-start">
           <div className="ms-4 font-bold sm:hidden">
-            {appInfo.name} v{appInfo.version}
+            {name} v{version}
           </div>
         </div>
         <div className="navbar-center">

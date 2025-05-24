@@ -17,7 +17,7 @@ export default function DeleteConversationModal() {
       historyStore.selectedConversationId
         ? await db.conversation.get(historyStore.selectedConversationId)
         : undefined,
-    [historyStore.selectedConversationId],
+    [historyStore.selectedConversationId]
   );
 
   const onDelete = async () => {
@@ -25,7 +25,7 @@ export default function DeleteConversationModal() {
     await db.conversation.delete(selectedConversation.id);
 
     if (settingsStore.activeConversationId === selectedConversation.id) {
-      settingsStore.setActiveConversation(undefined);
+      settingsStore.setActiveConversation();
     }
 
     toggleModal(DeleteConversationModalId, UiToggleState.CLOSE);
