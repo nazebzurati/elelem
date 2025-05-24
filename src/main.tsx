@@ -1,5 +1,6 @@
 import "./main.css";
 
+import Alerts from "@components/alert";
 import About from "@pages/about";
 import History from "@pages/history";
 import Prompt from "@pages/prompt";
@@ -10,7 +11,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Conversation from "./pages/conversation";
 import Onboard from "./pages/onboard";
 import Prepare from "./pages/prepare";
-import Alerts from "@components/alert";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <div>
@@ -28,5 +28,5 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       </BrowserRouter>
     </React.StrictMode>
     <Alerts />
-  </div>
+  </div>,
 );

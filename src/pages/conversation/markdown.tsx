@@ -1,6 +1,5 @@
 import CopyButton from "@components/copy-button";
 import "katex/dist/katex.min.css";
-
 import Markdown from "react-markdown";
 import { Prism } from "react-syntax-highlighter";
 import { a11yDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -111,7 +110,7 @@ const CodeBlock = ({ language, code }: { language: string; code: string }) => {
       <Prism
         style={a11yDark}
         language={language}
-        className="text-sm! mt-3! p-4! pb-6! rounded-md!"
+        className="text-sm! mx-2! mt-3! p-4! pb-6! rounded-md!"
       >
         {code}
       </Prism>

@@ -1,8 +1,8 @@
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
 import usePrompt from "@stores/prompt";
 import useSettings from "@stores/settings";
 import { IconX } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
 
 export const DeletePromptModalId = "deletePromptModal";

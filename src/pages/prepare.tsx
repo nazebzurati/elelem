@@ -1,8 +1,8 @@
-import db from "../database/config";
+import useSettings from "@stores/settings";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import db from "../database/config";
 import Loading from "./loading";
-import useSettings from "@stores/settings";
 
 export default function Prepare() {
   const navigation = useNavigate();

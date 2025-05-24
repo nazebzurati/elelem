@@ -1,5 +1,6 @@
 import db from "@database/config";
 import { ProviderWithCount } from "@database/provider";
+import useAlert, { AlertTypeEnum } from "@stores/alert";
 import {
   IconCodeAsterix,
   IconInfoCircle,
@@ -13,7 +14,6 @@ import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AddProviderModalId } from "./add.modal";
-import useAlert, { AlertTypeEnum } from "@stores/alert";
 
 export default function Navbar({
   providerList,

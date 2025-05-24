@@ -1,8 +1,8 @@
 import SubmitButton from "@components/submit-button";
-import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { IconX } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 

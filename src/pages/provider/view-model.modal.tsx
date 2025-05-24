@@ -11,8 +11,8 @@ export default function ViewProviderModelModal() {
     async () =>
       providerStore.selectedProviderId
         ? await db.model
-          .where({ providerId: providerStore.selectedProviderId })
-          .toArray()
+            .where({ providerId: providerStore.selectedProviderId })
+            .toArray()
         : undefined,
     [providerStore.selectedProviderId],
   );

@@ -37,7 +37,7 @@ export default function Chats() {
   }, [modelList, settingsStore.activeModelId]);
 
   const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await getPromptList()
+    async () => await getPromptList(),
   );
 
   const activePrompt: Prompt | undefined = useMemo(() => {
@@ -51,7 +51,7 @@ export default function Chats() {
       settingsStore.activeConversationId
         ? await getConversation(settingsStore.activeConversationId)
         : undefined,
-    [settingsStore.activeConversationId]
+    [settingsStore.activeConversationId],
   );
 
   const {
@@ -139,7 +139,7 @@ export default function Chats() {
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore]
+    [activeModel, activeConversation, settingsStore],
   );
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function Chats() {
   useEffect(() => {
     if (isSubmitting) {
       const textarea = document.getElementById(
-        "chatInput"
+        "chatInput",
       ) as HTMLTextAreaElement | null;
       textarea?.setAttribute("style", "");
     }

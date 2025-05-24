@@ -1,6 +1,6 @@
+import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 import Navbar from "./navbar";
-import { getName, getVersion } from "@tauri-apps/api/app";
 
 export default function About() {
   const [appInfo, setAppInfo] = useState({ name: "n/a", version: "n/a" });

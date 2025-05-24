@@ -1,7 +1,7 @@
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
 import useProvider from "@stores/provider";
 import { IconX } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 

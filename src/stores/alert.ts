@@ -44,4 +44,4 @@ const useAlert = create<AlertState>()((set) => ({
 }));
 
 export default useAlert;
-export { type AlertType, AlertTypeEnum };
+export { AlertTypeEnum, type AlertType };

@@ -1,15 +1,15 @@
 import SubmitButton from "@components/submit-button";
-import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
+import { yupResolver } from "@hookform/resolvers/yup";
 import useProvider from "@stores/provider";
 import { IconCircleX, IconX } from "@tabler/icons-react";
+import { fetchModelList } from "@utils/conversation";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
 import { isEmpty } from "radash";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { fetchModelList } from "@utils/conversation";
 
 export const UpdateProviderModalId = "updateProviderModal";
 
@@ -120,17 +120,15 @@ export default function UpdateProviderModal() {
               placeholder="http://localhost:11434/v1"
               {...register("baseURL")}
             />
-            {errors.baseURL
-              ? (
-                <p className="fieldset-label text-error">
-                  {errors.baseURL.message}
-                </p>
-              )
-              : (
-                <p className="fieldset-label">
-                  You can leave it blank if you're using OpenAI API key.
-                </p>
-              )}
+            {errors.baseURL ? (
+              <p className="fieldset-label text-error">
+                {errors.baseURL.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                You can leave it blank if you're using OpenAI API key.
+              </p>
+            )}
           </fieldset>
           <fieldset className="fieldset">
             <div>
@@ -142,17 +140,15 @@ export default function UpdateProviderModal() {
               placeholder="sk-*****"
               {...register("apiKey")}
             />
-            {errors.apiKey
-              ? (
-                <p className="fieldset-label text-error">
-                  {errors.apiKey.message}
-                </p>
-              )
-              : (
-                <p className="fieldset-label">
-                  You can leave it blank if you're using Ollama.
-                </p>
-              )}
+            {errors.apiKey ? (
+              <p className="fieldset-label text-error">
+                {errors.apiKey.message}
+              </p>
+            ) : (
+              <p className="fieldset-label">
+                You can leave it blank if you're using Ollama.
+              </p>
+            )}
           </fieldset>
         </form>
         {error && (

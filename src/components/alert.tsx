@@ -1,5 +1,3 @@
-"use client";
-
 import useAlert, { AlertType, AlertTypeEnum } from "@stores/alert";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import dayjs from "dayjs";

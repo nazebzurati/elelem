@@ -6,9 +6,9 @@ import {
   IconServer,
   IconTrashX,
 } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { Link } from "react-router-dom";
 import { ClearConversationModalId } from "./clear.modal";
-import { toggleModal, UiToggleState } from "@utils/toggle";
 
 export default function Navbar() {
   return (

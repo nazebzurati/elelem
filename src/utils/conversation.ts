@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import { Chat } from "../database/chat";
 import { ChatCompletionMessageParam } from "openai/resources.mjs";
+import { Chat } from "../database/chat";
 
 export const TIME_FORMAT = "DD MMM YYYY, hh:mm:ss a";
 

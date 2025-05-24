@@ -1,9 +1,9 @@
 import SubmitButton from "@components/submit-button";
-import { yupResolver } from "@hookform/resolvers/yup";
 import db from "@database/config";
-import { toggleModal, UiToggleState } from "@utils/toggle";
+import { yupResolver } from "@hookform/resolvers/yup";
 import usePrompt from "@stores/prompt";
 import { IconX } from "@tabler/icons-react";
+import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";

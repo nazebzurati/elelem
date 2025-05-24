@@ -7,17 +7,17 @@ import { toggleModal, UiToggleState } from "@utils/toggle";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
+import ClearConversationModal from "./clear.modal";
 import DeleteConversationModal, {
   DeleteConversationModalId,
 } from "./delete.modal";
 import Navbar from "./navbar";
-import ClearConversationModal from "./clear.modal";
 
 export default function History() {
   const historyStore = useHistory();
   const settingsStore = useSettings();
   const conversationList = useLiveQuery(
-    async () => await getConversationList()
+    async () => await getConversationList(),
   );
 
   const navigation = useNavigate();

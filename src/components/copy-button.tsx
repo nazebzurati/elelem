@@ -1,6 +1,6 @@
 import { IconClipboard, IconClipboardCheck } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { useEffect, useState } from "react";
 
 const TEXT_COPY_COOLDOWN_DELAY_MS = 3000;
 
@@ -22,7 +22,7 @@ export default function CopyButton({
     if (isCopied) {
       const timer = setTimeout(
         () => setIsCopied(false),
-        TEXT_COPY_COOLDOWN_DELAY_MS
+        TEXT_COPY_COOLDOWN_DELAY_MS,
       );
       return () => clearTimeout(timer);
     }

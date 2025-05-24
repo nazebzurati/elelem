@@ -1,15 +1,15 @@
+import { getLatestConversation } from "@database/conversation";
 import useSettings from "@stores/settings";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect } from "react";
 import Chats from "./chat";
 import Navbar from "./navbar";
-import { useEffect } from "react";
-import { getLatestConversation } from "@database/conversation";
-import { useLiveQuery } from "dexie-react-hooks";
 
 function Conversation() {
   const settingsStore = useSettings();
 
   const latestConversation = useLiveQuery(
-    async () => await getLatestConversation()
+    async () => await getLatestConversation(),
   );
 
   // shortcut controller
