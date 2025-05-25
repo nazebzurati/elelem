@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "format": "prettier src/. --check",
     "knip": "knip",
+    "test": "vitest --run",
     "clean": "rm -rf dist/ .flatpak-builder/ build/",
     "tauri": "tauri",
     "build:flatpak": "./script/build-flatpak.sh"
@@ -53,7 +54,8 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.1.4"
   },
   "overrides": {
     "react-syntax-highlighter": {

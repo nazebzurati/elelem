@@ -176,7 +176,11 @@ export default function Chats() {
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
         {activeConversation ? (
           <>
-            <ChatBubbles chats={activeConversation.chats} />
+            <ChatBubbles
+              activeModel={activeModel}
+              activePrompt={activePrompt}
+              chats={activeConversation.chats}
+            />
             {isSubmitting && messages.length <= 0 && (
               <div className="chat chat-start space-y-1">
                 <div className="chat-bubble py-4">
@@ -251,8 +255,103 @@ export default function Chats() {
   );
 }
 
-function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
+function ChatBubbles({
+  activeModel,
+  activePrompt,
+  chats,
+}: Readonly<{
+  activeModel?: ModelWithDetails;
+  activePrompt?: Prompt;
+  chats: ChatWithDetails[];
+}>) {
   const chatStore = useChatStore();
+  const alertStore = useAlertStore();
+  const settingsStore = useSettingsStore();
+
+  const {
+    form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
+    isThinking,
+    messages,
+    setMessages,
+  } = useChat();
+
+  const onEditChatSubmit = useCallback(
+    async (data: { input: string }) => {
+      if (!activeModel?.provider) {
+        alertStore.add({
+          type: AlertTypeEnum.ERROR,
+          message: "Please select a model to proceed.",
+        });
+        return;
+      }
+
+      // get editing chat
+      const selectedChat = chats.find(
+        (chat) => chat.id === chatStore.selectedChatId,
+      );
+      if (!selectedChat) {
+        alertStore.add({
+          type: AlertTypeEnum.ERROR,
+          message: "Invalid chat.",
+        });
+        return;
+      }
+
+      // create chat
+      const chatId = await db.chat.add({
+        conversationId: selectedChat?.conversationId,
+        user: data.input,
+        sendAt: Date.now(),
+        modelId: activeModel.id,
+        promptId: activePrompt?.id,
+      });
+
+      // get new history
+      await db.chat.update(selectedChat.id, {
+        altChatIds: [...(selectedChat.altChatIds ?? []), chatId],
+      });
+
+      // send chat request
+      let fullText = "";
+      try {
+        const client = new OpenAI({
+          dangerouslyAllowBrowser: true,
+          baseURL: activeModel.provider.baseURL,
+          apiKey: activeModel.provider.apiKey,
+        });
+        const stream = await client.chat.completions.create({
+          stream: true,
+          model: activeModel.id,
+          messages: prepareMessages({
+            chats: activeConversation?.chats ?? [],
+            system: activePrompt?.prompt ?? "",
+            input: data.input,
+          }),
+        });
+
+        // stream chat
+        for await (const chunk of stream) {
+          const text = chunk.choices[0]?.delta?.content ?? "";
+          setMessages((prev) => [...prev, text]);
+          fullText += text;
+        }
+      } catch (_error) {
+        await db.chat.delete(chatId);
+        if (isNewConversation) await db.conversation.delete(conversationId);
+        settingsStore.setActiveConversation();
+      }
+
+      // update chat when stream finish
+      await db.chat.update(chatId, {
+        assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+        receivedAt: Date.now(),
+      });
+      setTimeout(() => {
+        setFocus("input");
+      }, INPUT_REFOCUS_DELAY_MS);
+    },
+    [activeModel, activeConversation, settingsStore],
+  );
 
   const onEditChat = (chatId: number) => {
     chatStore.setSelectedChat(chatId);
@@ -281,7 +380,10 @@ function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
           className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
         >
           {chatStore.selectedChatId === chat.id ? (
-            <form onSubmit={() => {}}>
+            <form
+              id={`chatUpdateForm_${chat.id}`}
+              onSubmit={handleSubmit(onEditChatSubmit)}
+            >
               <textarea
                 className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
                 value={chat.user}
@@ -307,7 +409,7 @@ function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
             <>
               <button
                 className="cursor-pointer"
-                onClick={() => onEditChat(chat.id)}
+                form={`chatUpdateForm_${chat.id}`}
               >
                 <IconCheck className="text-xs w-4 h-4 text-success" />
               </button>
