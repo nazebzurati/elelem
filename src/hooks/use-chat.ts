@@ -12,6 +12,7 @@ const useChat = () => {
     register,
     handleSubmit,
     setFocus,
+    setValue,
     formState: { isLoading, isSubmitting, isSubmitSuccessful },
   } = useForm({
     resolver: yupResolver(
@@ -48,6 +49,7 @@ const useChat = () => {
       isLoading,
       isSubmitting,
       setFocus,
+      setValue,
     },
     isThinking,
     messages,

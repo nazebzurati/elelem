@@ -10,6 +10,7 @@ export default function ClearConversationModal() {
 
   const onClear = async () => {
     try {
+      await db.chat.clear();
       await db.conversation.clear();
     } catch (error) {
       console.error(error);

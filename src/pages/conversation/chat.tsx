@@ -1,6 +1,11 @@
 import andyNote from "@assets/andy-note.png";
 import CopyButton from "@components/copy-button";
-import { ChatWithDetails } from "@database/chat";
+import {
+  Chat,
+  ChatWithDetails,
+  getChat,
+  getPreviousChatList,
+} from "@database/chat";
 import db from "@database/config";
 import {
   ConversationWithDetails,
@@ -33,6 +38,7 @@ import { MarkdownRenderer } from "./markdown";
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
+  const chatStore = useChatStore();
   const settingsStore = useSettingsStore();
 
   const modelList = useLiveQuery(async () => await getModelList());
@@ -56,17 +62,21 @@ export default function Chats() {
   const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
     async () =>
       settingsStore.activeConversationId
-        ? await getConversation(settingsStore.activeConversationId)
+        ? await getConversation(
+            settingsStore.activeConversationId,
+            chatStore.chatRefId,
+          )
         : undefined,
-    [settingsStore.activeConversationId],
+    [settingsStore.activeConversationId, chatStore.chatRefId],
   );
 
+  const useChatRef = useChat();
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
     isThinking,
     messages,
     setMessages,
-  } = useChat();
+  } = useChatRef;
 
   // autoscroll
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,6 +113,7 @@ export default function Chats() {
         user: data.input,
         sendAt: Date.now(),
         modelId: activeModel.id,
+        parentId: activeConversation?.chats.sort((a, b) => b.id - a.id)[0].id,
         promptId: activePrompt?.id,
       });
       settingsStore.setActiveConversation(conversationId);
@@ -171,12 +182,18 @@ export default function Chats() {
     }
   }, [isSubmitting]);
 
+  useEffect(() => {
+    // always reset selected chat ref for branching
+    chatStore.setSelectedChatRefId();
+  }, []);
+
   return (
     <>
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
         {activeConversation ? (
           <>
             <ChatBubbles
+              useChatRef={useChatRef}
               activeModel={activeModel}
               activePrompt={activePrompt}
               chats={activeConversation.chats}
@@ -258,22 +275,29 @@ export default function Chats() {
 function ChatBubbles({
   activeModel,
   activePrompt,
+  useChatRef,
   chats,
 }: Readonly<{
   activeModel?: ModelWithDetails;
   activePrompt?: Prompt;
+  useChatRef: any;
   chats: ChatWithDetails[];
 }>) {
   const chatStore = useChatStore();
   const alertStore = useAlertStore();
-  const settingsStore = useSettingsStore();
 
   const {
-    form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
-    isThinking,
-    messages,
+    form: { register, handleSubmit, setFocus, setValue },
     setMessages,
-  } = useChat();
+  } = useChatRef;
+
+  const activeChat: ChatWithDetails | undefined = useLiveQuery(
+    async () =>
+      chatStore.selectedChatId
+        ? await getChat(chatStore.selectedChatId)
+        : undefined,
+    [chatStore.selectedChatId],
+  );
 
   const onEditChatSubmit = useCallback(
     async (data: { input: string }) => {
@@ -285,31 +309,42 @@ function ChatBubbles({
         return;
       }
 
-      // get editing chat
-      const selectedChat = chats.find(
-        (chat) => chat.id === chatStore.selectedChatId,
-      );
+      if (!chatStore.selectedChatId) {
+        alertStore.add({
+          type: AlertTypeEnum.ERROR,
+          message: "Chat is invalid.",
+        });
+        return;
+      }
+
+      // get current selected chat
+      const selectedChat = await db.chat.get(chatStore.selectedChatId);
       if (!selectedChat) {
         alertStore.add({
           type: AlertTypeEnum.ERROR,
-          message: "Invalid chat.",
+          message: "Chat is not found.",
         });
         return;
       }
 
       // create chat
       const chatId = await db.chat.add({
-        conversationId: selectedChat?.conversationId,
+        conversationId: selectedChat.conversationId,
         user: data.input,
         sendAt: Date.now(),
         modelId: activeModel.id,
+        parentId: selectedChat?.parentId,
         promptId: activePrompt?.id,
       });
+      chatStore.setSelectedChatRefId(chatId);
+      chatStore.setSelectedChat();
 
-      // get new history
-      await db.chat.update(selectedChat.id, {
-        altChatIds: [...(selectedChat.altChatIds ?? []), chatId],
-      });
+      // get history
+      const chats: Chat[] = await getPreviousChatList(
+        selectedChat.conversationId,
+        selectedChat.parentId,
+      );
+      console.log(chats);
 
       // send chat request
       let fullText = "";
@@ -323,7 +358,7 @@ function ChatBubbles({
           stream: true,
           model: activeModel.id,
           messages: prepareMessages({
-            chats: activeConversation?.chats ?? [],
+            chats,
             system: activePrompt?.prompt ?? "",
             input: data.input,
           }),
@@ -332,13 +367,11 @@ function ChatBubbles({
         // stream chat
         for await (const chunk of stream) {
           const text = chunk.choices[0]?.delta?.content ?? "";
-          setMessages((prev) => [...prev, text]);
+          setMessages((prev: string[]) => [...prev, text]);
           fullText += text;
         }
       } catch (_error) {
         await db.chat.delete(chatId);
-        if (isNewConversation) await db.conversation.delete(conversationId);
-        settingsStore.setActiveConversation();
       }
 
       // update chat when stream finish
@@ -350,11 +383,12 @@ function ChatBubbles({
         setFocus("input");
       }, INPUT_REFOCUS_DELAY_MS);
     },
-    [activeModel, activeConversation, settingsStore],
+    [activeModel, activeChat, chatStore],
   );
 
-  const onEditChat = (chatId: number) => {
-    chatStore.setSelectedChat(chatId);
+  const onEditChat = (chat: Chat) => {
+    setValue("input", chat.user);
+    chatStore.setSelectedChat(chat.id);
   };
 
   const onEditChatCancel = () => {
@@ -386,7 +420,7 @@ function ChatBubbles({
             >
               <textarea
                 className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
-                value={chat.user}
+                {...register("input")}
               />
               <div className="text-xs label whitespace-normal break-words">
                 Updating this chat will create a new branch of conversation from
@@ -399,10 +433,7 @@ function ChatBubbles({
         </div>
         <div className="chat-footer space-x-2">
           {chatStore.selectedChatId !== chat.id ? (
-            <button
-              className="cursor-pointer"
-              onClick={() => onEditChat(chat.id)}
-            >
+            <button className="cursor-pointer" onClick={() => onEditChat(chat)}>
               <IconEdit className="text-xs w-4 h-4" />
             </button>
           ) : (
