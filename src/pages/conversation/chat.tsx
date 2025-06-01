@@ -3,15 +3,11 @@ import CopyButton from "@components/copy-button";
 import {
   Chat,
   ChatWithDetails,
-  getChat,
+  getChatListByRefId,
   getPreviousChatList,
 } from "@database/chat";
 import db from "@database/config";
-import {
-  ConversationWithDetails,
-  getConversation,
-} from "@database/conversation";
-import { getModelList, Model, ModelWithDetails } from "@database/model";
+import { getModelList, Model } from "@database/model";
 import { getPromptList, Prompt } from "@database/prompt";
 import useChat from "@hooks/use-chat";
 import useAlertStore, { AlertTypeEnum } from "@stores/alert";
@@ -19,6 +15,8 @@ import useChatStore from "@stores/chat";
 import useSettingsStore from "@stores/settings";
 import {
   IconCheck,
+  IconChevronLeft,
+  IconChevronRight,
   IconChevronUp,
   IconEdit,
   IconSend2,
@@ -38,58 +36,25 @@ import { MarkdownRenderer } from "./markdown";
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
-  const chatStore = useChatStore();
+  const alertStore = useAlertStore();
   const settingsStore = useSettingsStore();
 
   const modelList = useLiveQuery(async () => await getModelList());
+  const promptList = useLiveQuery(async () => await getPromptList());
 
-  const activeModel: ModelWithDetails | undefined = useMemo(() => {
-    return !modelList || !settingsStore.activeModelId
-      ? undefined
-      : modelList.find((p) => p.id === settingsStore.activeModelId);
-  }, [modelList, settingsStore.activeModelId]);
+  const useChatRef = useChat({
+    modelList: modelList ?? [],
+    promptList: promptList ?? [],
+  });
 
-  const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await getPromptList(),
-  );
-
-  const activePrompt: Prompt | undefined = useMemo(() => {
-    return !promptList || !settingsStore.activePromptId
-      ? undefined
-      : promptList.find((p) => p.id === settingsStore.activePromptId);
-  }, [promptList, settingsStore.activePromptId]);
-
-  const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activeConversationId
-        ? await getConversation(
-            settingsStore.activeConversationId,
-            chatStore.chatRefId,
-          )
-        : undefined,
-    [settingsStore.activeConversationId, chatStore.chatRefId],
-  );
-
-  const useChatRef = useChat();
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
+    chat: { activeModel, activePrompt, activeConversation },
     isThinking,
     messages,
     setMessages,
   } = useChatRef;
 
-  // autoscroll
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [isSubmitting, messages, activeConversation?.chats]);
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, []);
-
-  const alertStore = useAlertStore();
   const onSubmit = useCallback(
     async (data: { input: string }) => {
       if (!activeModel?.provider) {
@@ -160,6 +125,18 @@ export default function Chats() {
     [activeModel, activeConversation, settingsStore],
   );
 
+  // autoscroll
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [isSubmitting, messages, activeConversation?.chats]);
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, []);
+
+  // shortcut listener
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.shiftKey) {
@@ -173,20 +150,6 @@ export default function Chats() {
     };
   }, [isSubmitting, handleSubmit, onSubmit]);
 
-  useEffect(() => {
-    if (isSubmitting) {
-      const textarea = document.getElementById(
-        "chatInput",
-      ) as HTMLTextAreaElement | null;
-      textarea?.setAttribute("style", "");
-    }
-  }, [isSubmitting]);
-
-  useEffect(() => {
-    // always reset selected chat ref for branching
-    chatStore.setSelectedChatRefId();
-  }, []);
-
   return (
     <>
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
@@ -194,8 +157,6 @@ export default function Chats() {
           <>
             <ChatBubbles
               useChatRef={useChatRef}
-              activeModel={activeModel}
-              activePrompt={activePrompt}
               chats={activeConversation.chats}
             />
             {isSubmitting && messages.length <= 0 && (
@@ -273,13 +234,9 @@ export default function Chats() {
 }
 
 function ChatBubbles({
-  activeModel,
-  activePrompt,
   useChatRef,
   chats,
 }: Readonly<{
-  activeModel?: ModelWithDetails;
-  activePrompt?: Prompt;
   useChatRef: any;
   chats: ChatWithDetails[];
 }>) {
@@ -288,16 +245,24 @@ function ChatBubbles({
 
   const {
     form: { register, handleSubmit, setFocus, setValue },
+    chat: { activeModel, activePrompt, activeChat },
     setMessages,
   } = useChatRef;
 
-  const activeChat: ChatWithDetails | undefined = useLiveQuery(
-    async () =>
-      chatStore.selectedChatId
-        ? await getChat(chatStore.selectedChatId)
-        : undefined,
-    [chatStore.selectedChatId],
-  );
+  const chatsWithAlt: (ChatWithDetails & { alt: number[] })[] = useMemo(() => {
+    return getChatListByRefId(chats, chatStore.chatRefId).map((chat) => {
+      const alt = chats
+        .filter((c) => c.parentId === chat.parentId)
+        .map((c) => c.id)
+        .sort((a, b) => a - b);
+      return { ...chat, alt: alt.length > 1 ? alt : [] };
+    });
+  }, [chats, chatStore.chatRefId]);
+
+  const onEditChat = (chat: Chat) => {
+    setValue("input", chat.user);
+    chatStore.setSelectedChat(chat.id);
+  };
 
   const onEditChatSubmit = useCallback(
     async (data: { input: string }) => {
@@ -344,7 +309,6 @@ function ChatBubbles({
         selectedChat.conversationId,
         selectedChat.parentId,
       );
-      console.log(chats);
 
       // send chat request
       let fullText = "";
@@ -386,77 +350,82 @@ function ChatBubbles({
     [activeModel, activeChat, chatStore],
   );
 
-  const onEditChat = (chat: Chat) => {
-    setValue("input", chat.user);
-    chatStore.setSelectedChat(chat.id);
-  };
-
   const onEditChatCancel = () => {
     chatStore.setSelectedChat();
   };
 
-  useEffect(() => {
-    // always reset selected chat to edit
-    chatStore.setSelectedChat();
-  }, []);
-
-  return chats.map((chat) => (
+  return chatsWithAlt.map((chat) => (
     <div key={chat.id}>
-      <div className="chat chat-end space-y-2">
-        <div className="chat-header">
-          You
-          <br />
-          <time className="text-xs opacity-50">
-            {dayjs(chat.sendAt).format(TIME_FORMAT)}
-          </time>
-        </div>
-        <div
-          className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
-        >
-          {chatStore.selectedChatId === chat.id ? (
-            <form
-              id={`chatUpdateForm_${chat.id}`}
-              onSubmit={handleSubmit(onEditChatSubmit)}
-            >
-              <textarea
-                className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
-                {...register("input")}
-              />
-              <div className="text-xs label whitespace-normal break-words">
-                Updating this chat will create a new branch of conversation from
-                here.
-              </div>
-            </form>
-          ) : (
-            <MarkdownRenderer>{chat.user}</MarkdownRenderer>
-          )}
-        </div>
-        <div className="chat-footer space-x-2">
-          {chatStore.selectedChatId !== chat.id ? (
-            <button className="cursor-pointer" onClick={() => onEditChat(chat)}>
-              <IconEdit className="text-xs w-4 h-4" />
-            </button>
-          ) : (
-            <>
-              <button
-                className="cursor-pointer"
-                form={`chatUpdateForm_${chat.id}`}
+      <div className="chat chat-end">
+        <div className="inline-block space-y-2">
+          <div className="chat-header flex justify-between items-center">
+            <time className="text-xs opacity-50">
+              {dayjs(chat.sendAt).format(TIME_FORMAT)}
+            </time>
+            <div>You</div>
+          </div>
+          <div
+            className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+          >
+            {chatStore.selectedChatId === chat.id ? (
+              <form
+                id={`chatUpdateForm_${chat.id}`}
+                onSubmit={handleSubmit(onEditChatSubmit)}
               >
-                <IconCheck className="text-xs w-4 h-4 text-success" />
-              </button>
-              <button className="cursor-pointer" onClick={onEditChatCancel}>
-                <IconX className="text-xs w-4 h-4 text-error" />
-              </button>
-            </>
-          )}
-
-          <CopyButton text={chat.user} />
+                <textarea
+                  className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+                  {...register("input")}
+                />
+                <div className="text-xs label whitespace-normal break-words">
+                  Updating this chat will create a new branch of conversation
+                  from here.
+                </div>
+              </form>
+            ) : (
+              <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+            )}
+          </div>
+          <div className="chat-footer space-x-2 flex justify-between items-center">
+            <div className="flex space-x-1">
+              {chatStore.selectedChatId !== chat.id && chat.alt.length > 0 && (
+                <AlternateChatSelector
+                  chatId={chat.id}
+                  chatAlternateIds={chat.alt}
+                />
+              )}
+            </div>
+            <div className="flex space-x-2">
+              {chatStore.selectedChatId !== chat.id ? (
+                <button
+                  className="cursor-pointer"
+                  onClick={() => onEditChat(chat)}
+                >
+                  <IconEdit className="text-xs w-4 h-4" />
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="cursor-pointer"
+                    form={`chatUpdateForm_${chat.id}`}
+                  >
+                    <IconCheck className="text-xs w-4 h-4 text-success" />
+                  </button>
+                  <button className="cursor-pointer" onClick={onEditChatCancel}>
+                    <IconX className="text-xs w-4 h-4 text-error" />
+                  </button>
+                </>
+              )}
+              <CopyButton text={chat.user} />
+            </div>
+          </div>
         </div>
       </div>
       {chat.assistant && (
-        <div className="chat chat-start space-y-2">
-          <div className="chat-header">
-            {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
+        <div className="chat chat-start inline-block space-y-2">
+          <div className="chat-header flex justify-between items-center">
+            <div>
+              {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
+            </div>
             <time className="text-xs opacity-50">
               {dayjs(chat.receivedAt).format(TIME_FORMAT)}
             </time>
@@ -464,13 +433,68 @@ function ChatBubbles({
           <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
-          <div className="chat-footer">
-            <CopyButton text={chat.assistant} />
+          <div className="chat-footer flex justify-between items-center">
+            <div className="flex space-x-2">
+              <CopyButton text={chat.assistant} />
+            </div>
+            <div className="flex space-x-1">
+              {chat.alt.length > 0 && (
+                <AlternateChatSelector
+                  chatId={chat.id}
+                  chatAlternateIds={chat.alt}
+                />
+              )}
+            </div>
           </div>
         </div>
       )}
     </div>
   ));
+}
+
+function AlternateChatSelector({
+  chatId,
+  chatAlternateIds,
+}: {
+  chatId: number;
+  chatAlternateIds: number[];
+}) {
+  const chatStore = useChatStore();
+
+  const currentIndex = useMemo(() => {
+    console.log(chatAlternateIds, chatId, chatAlternateIds.indexOf(chatId));
+    return chatAlternateIds.indexOf(chatId);
+  }, [chatAlternateIds, chatStore.chatRefId]);
+
+  const onPrevious = () => {
+    console.log(currentIndex);
+    chatStore.setSelectedChatRefId(chatAlternateIds[currentIndex - 1]);
+  };
+
+  const onNext = () => {
+    console.log(currentIndex);
+    chatStore.setSelectedChatRefId(chatAlternateIds[currentIndex + 1]);
+  };
+
+  return (
+    <>
+      <button
+        className="cursor-pointer"
+        // disabled={!isPreviousAvailable}
+        onClick={onPrevious}
+      >
+        <IconChevronLeft className="text-xs w-4 h-4" />
+      </button>
+      <span>{currentIndex + 1}</span>
+      <button
+        className="cursor-pointer"
+        // disabled={!isNextAvailable}
+        onClick={onNext}
+      >
+        <IconChevronRight className="text-xs w-4 h-4" />
+      </button>
+    </>
+  );
 }
 
 function PromptSelector({

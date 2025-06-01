@@ -18,7 +18,7 @@ const useChatStore = create<ChatState>()(
         setSelectedChatRefId: (id) =>
           set((state) => ({
             ...state,
-            selectedChatId: id,
+            chatRefId: id,
           })),
 
         selectedChatId: undefined,
