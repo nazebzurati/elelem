@@ -36,6 +36,7 @@ import { MarkdownRenderer } from "./markdown";
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
+  const chatStore = useChatStore();
   const alertStore = useAlertStore();
   const settingsStore = useSettingsStore();
 
@@ -55,7 +56,7 @@ export default function Chats() {
     setMessages,
   } = useChatRef;
 
-  const onSubmit = useCallback(
+  const onInputSubmit = useCallback(
     async (data: { input: string }) => {
       if (!activeModel?.provider) {
         alertStore.add({
@@ -139,16 +140,20 @@ export default function Chats() {
   // shortcut listener
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.shiftKey) {
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        !chatStore.selectedChatId
+      ) {
         event.preventDefault();
-        if (!isSubmitting) handleSubmit(onSubmit)();
+        if (!isSubmitting) handleSubmit(onInputSubmit)();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isSubmitting, handleSubmit, onSubmit]);
+  }, [isSubmitting, handleSubmit, onInputSubmit, chatStore.selectedChatId]);
 
   return (
     <>
@@ -161,21 +166,21 @@ export default function Chats() {
             />
             {isSubmitting && messages.length <= 0 && (
               <div className="chat chat-start space-y-1">
-                <div className="chat-bubble py-4">
+                <div className="chat-bubble">
                   <span className="loading loading-dots loading-sm" />
                 </div>
               </div>
             )}
             {isThinking && (
               <div className="chat chat-start space-y-1">
-                <div className="chat-bubble italic py-4">
+                <div className="chat-bubble italic">
                   <span className="animate-pulse">Thinking...</span>
                 </div>
               </div>
             )}
             {!isThinking && messages.length > 0 && (
               <div className="chat chat-start space-y-1">
-                <div className="chat-bubble markdown py-4">
+                <div className="chat-bubble markdown">
                   <MarkdownRenderer>
                     {parseThinkingReply(messages.join(""))}
                   </MarkdownRenderer>
@@ -197,18 +202,33 @@ export default function Chats() {
           </div>
         )}
       </div>
-      <form className="m-2 flex-none" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="m-2 flex-none"
+        onSubmit={
+          !chatStore.selectedChatId ? handleSubmit(onInputSubmit) : undefined
+        }
+      >
         <div className="card bg-base-200">
           <div className="card-body p-2">
-            <textarea
-              autoFocus
-              id="chatInput"
-              disabled={isSubmitting || isLoading}
-              className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
-              placeholder="Write here"
-              value={isSubmitting || isLoading ? "" : undefined}
-              {...(isSubmitting || isLoading ? {} : register("input"))}
-            />
+            {chatStore.selectedChatId ? (
+              <textarea
+                disabled
+                className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
+                placeholder="Chat is disabled while editing a message"
+                value=""
+              />
+            ) : (
+              <textarea
+                autoFocus
+                id="chatInput"
+                disabled={isSubmitting || isLoading}
+                className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
+                placeholder="Write here"
+                value={isSubmitting || isLoading ? "" : undefined}
+                {...(isSubmitting || isLoading ? {} : register("input"))}
+              />
+            )}
+
             <div className="flex justify-between items-center w-full">
               <div>
                 <ModelSelector
@@ -221,7 +241,11 @@ export default function Chats() {
                 />
               </div>
               <div>
-                <button type="submit" className="btn btn-ghost btn-circle">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || isLoading}
+                  className="btn btn-ghost btn-circle"
+                >
                   <IconSend2 className="h-6 w-6" />
                 </button>
               </div>
@@ -351,92 +375,101 @@ function ChatBubbles({
   );
 
   const onEditChatCancel = () => {
+    setValue("input", "");
     chatStore.setSelectedChat();
   };
 
+  // shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        chatStore.selectedChatId
+      ) {
+        event.preventDefault();
+        handleSubmit(onEditChatSubmit)();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleSubmit, onEditChatSubmit, chatStore.selectedChatId]);
+
   return chatsWithAlt.map((chat) => (
     <div key={chat.id}>
-      <div className="chat chat-end">
-        <div className="inline-block space-y-2">
-          <div className="chat-header flex justify-between items-center">
-            <time className="text-xs opacity-50">
+      <div className="chat chat-end space-y-2">
+        <div className="chat-header">
+          <div className="flex justify-between items-center">
+            <time className="text-xs opacity-50 me-2">
               {dayjs(chat.sendAt).format(TIME_FORMAT)}
             </time>
-            <div>You</div>
+            You
           </div>
-          <div
-            className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
-          >
-            {chatStore.selectedChatId === chat.id ? (
-              <form
-                id={`chatUpdateForm_${chat.id}`}
-                onSubmit={handleSubmit(onEditChatSubmit)}
+        </div>
+        <div
+          className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+        >
+          {chatStore.selectedChatId === chat.id ? (
+            <form
+              id={`chatUpdateForm_${chat.id}`}
+              onSubmit={handleSubmit(onEditChatSubmit)}
+            >
+              <textarea
+                className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+                {...register("input")}
+              />
+              <div className="text-xs label whitespace-normal break-words">
+                Updating this chat will create a new branch of conversation from
+                here.
+              </div>
+            </form>
+          ) : (
+            <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+          )}
+        </div>
+        <div className="chat-footer justify-end space-x-2">
+          {chatStore.selectedChatId !== chat.id ? (
+            <button className="cursor-pointer" onClick={() => onEditChat(chat)}>
+              <IconEdit className="text-xs w-4 h-4" />
+            </button>
+          ) : (
+            <>
+              <button
+                className="cursor-pointer"
+                form={`chatUpdateForm_${chat.id}`}
               >
-                <textarea
-                  className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
-                  {...register("input")}
-                />
-                <div className="text-xs label whitespace-normal break-words">
-                  Updating this chat will create a new branch of conversation
-                  from here.
-                </div>
-              </form>
-            ) : (
-              <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+                <IconCheck className="text-xs w-4 h-4 text-success" />
+              </button>
+              <button className="cursor-pointer" onClick={onEditChatCancel}>
+                <IconX className="text-xs w-4 h-4 text-error" />
+              </button>
+            </>
+          )}
+          <CopyButton text={chat.user} />{" "}
+          <div className="flex space-x-1">
+            {chatStore.selectedChatId !== chat.id && chat.alt.length > 0 && (
+              <AlternateChatSelector
+                chatId={chat.id}
+                chatAlternateIds={chat.alt}
+              />
             )}
-          </div>
-          <div className="chat-footer space-x-2 flex justify-between items-center">
-            <div className="flex space-x-1">
-              {chatStore.selectedChatId !== chat.id && chat.alt.length > 0 && (
-                <AlternateChatSelector
-                  chatId={chat.id}
-                  chatAlternateIds={chat.alt}
-                />
-              )}
-            </div>
-            <div className="flex space-x-2">
-              {chatStore.selectedChatId !== chat.id ? (
-                <button
-                  className="cursor-pointer"
-                  onClick={() => onEditChat(chat)}
-                >
-                  <IconEdit className="text-xs w-4 h-4" />
-                </button>
-              ) : (
-                <>
-                  <button
-                    className="cursor-pointer"
-                    form={`chatUpdateForm_${chat.id}`}
-                  >
-                    <IconCheck className="text-xs w-4 h-4 text-success" />
-                  </button>
-                  <button className="cursor-pointer" onClick={onEditChatCancel}>
-                    <IconX className="text-xs w-4 h-4 text-error" />
-                  </button>
-                </>
-              )}
-              <CopyButton text={chat.user} />
-            </div>
           </div>
         </div>
       </div>
       {chat.assistant && (
-        <div className="chat chat-start inline-block space-y-2">
-          <div className="chat-header flex justify-between items-center">
-            <div>
-              {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
-            </div>
-            <time className="text-xs opacity-50">
+        <div className="chat chat-start space-y-2">
+          <div className="chat-header">
+            {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
+            <time className="ms-2 text-xs opacity-50">
               {dayjs(chat.receivedAt).format(TIME_FORMAT)}
             </time>
           </div>
           <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
-          <div className="chat-footer flex justify-between items-center">
-            <div className="flex space-x-2">
-              <CopyButton text={chat.assistant} />
-            </div>
+          <div className="chat-footer space-x-2">
             <div className="flex space-x-1">
               {chat.alt.length > 0 && (
                 <AlternateChatSelector
@@ -445,6 +478,7 @@ function ChatBubbles({
                 />
               )}
             </div>
+            <CopyButton text={chat.assistant} />
           </div>
         </div>
       )}
@@ -462,33 +496,37 @@ function AlternateChatSelector({
   const chatStore = useChatStore();
 
   const currentIndex = useMemo(() => {
-    console.log(chatAlternateIds, chatId, chatAlternateIds.indexOf(chatId));
     return chatAlternateIds.indexOf(chatId);
   }, [chatAlternateIds, chatStore.chatRefId]);
 
+  const isPreviousAvailable = currentIndex > 0;
+  const isNextAvailable = currentIndex < chatAlternateIds.length - 1;
+
   const onPrevious = () => {
-    console.log(currentIndex);
+    if (!isPreviousAvailable) return;
     chatStore.setSelectedChatRefId(chatAlternateIds[currentIndex - 1]);
   };
 
   const onNext = () => {
-    console.log(currentIndex);
+    if (!isNextAvailable) return;
     chatStore.setSelectedChatRefId(chatAlternateIds[currentIndex + 1]);
   };
 
   return (
     <>
       <button
-        className="cursor-pointer"
-        // disabled={!isPreviousAvailable}
+        className="cursor-pointer disabled:text-gray-600"
+        disabled={!isPreviousAvailable}
         onClick={onPrevious}
       >
         <IconChevronLeft className="text-xs w-4 h-4" />
       </button>
-      <span>{currentIndex + 1}</span>
+      <span>
+        {currentIndex + 1} / {chatAlternateIds.length}
+      </span>
       <button
-        className="cursor-pointer"
-        // disabled={!isNextAvailable}
+        className="cursor-pointer disabled:text-gray-600"
+        disabled={!isNextAvailable}
         onClick={onNext}
       >
         <IconChevronRight className="text-xs w-4 h-4" />
