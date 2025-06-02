@@ -2,6 +2,7 @@ import andyNote from "@assets/andy-note.png";
 import CopyButton from "@components/copy-button";
 import {
   Chat,
+  ChatReplyTypeEnum,
   ChatWithDetails,
   getChatListByRefId,
   getPreviousChatList,
@@ -23,8 +24,8 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import {
-  parseThinkingReply,
   prepareMessages,
+  removeThoughtFromReply,
   TIME_FORMAT,
 } from "@utils/conversation";
 import dayjs from "dayjs";
@@ -52,6 +53,7 @@ export default function Chats() {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
     chat: { activeModel, activePrompt, activeConversation },
     isThinking,
+    thoughts,
     messages,
     setMessages,
   } = useChatRef;
@@ -80,6 +82,7 @@ export default function Chats() {
         sendAt: Date.now(),
         modelId: activeModel.id,
         parentId: activeConversation?.chats.sort((a, b) => b.id - a.id)[0].id,
+        replyType: ChatReplyTypeEnum.NEW,
         promptId: activePrompt?.id,
       });
       settingsStore.setActiveConversation(conversationId);
@@ -165,24 +168,27 @@ export default function Chats() {
               chats={activeConversation.chats}
             />
             {isSubmitting && messages.length <= 0 && (
-              <div className="chat chat-start space-y-1">
+              <div className="chat chat-start space-y-2">
+                <div className="chat-header">Sending...</div>
                 <div className="chat-bubble">
                   <span className="loading loading-dots loading-sm" />
                 </div>
               </div>
             )}
             {isThinking && (
-              <div className="chat chat-start space-y-1">
-                <div className="chat-bubble italic">
-                  <span className="animate-pulse">Thinking...</span>
+              <div className="chat chat-start space-y-2">
+                <div className="chat-header">Thinking...</div>
+                <div className="chat-bubble markdown">
+                  <MarkdownRenderer>{thoughts.join("")}</MarkdownRenderer>
                 </div>
               </div>
             )}
             {!isThinking && messages.length > 0 && (
-              <div className="chat chat-start space-y-1">
+              <div className="chat chat-start space-y-2">
+                <div className="chat-header">Replying...</div>
                 <div className="chat-bubble markdown">
                   <MarkdownRenderer>
-                    {parseThinkingReply(messages.join(""))}
+                    {removeThoughtFromReply(messages.join(""))}
                   </MarkdownRenderer>
                 </div>
               </div>
@@ -273,12 +279,13 @@ function ChatBubbles({
     setMessages,
   } = useChatRef;
 
-  const chatsWithAlt: (ChatWithDetails & { alt: number[] })[] = useMemo(() => {
+  const chatsWithAlt: (ChatWithDetails & {
+    alt: ChatWithDetails[];
+  })[] = useMemo(() => {
     return getChatListByRefId(chats, chatStore.chatRefId).map((chat) => {
       const alt = chats
         .filter((c) => c.parentId === chat.parentId)
-        .map((c) => c.id)
-        .sort((a, b) => a - b);
+        .sort((a, b) => a.id - b.id);
       return { ...chat, alt: alt.length > 1 ? alt : [] };
     });
   }, [chats, chatStore.chatRefId]);
@@ -323,6 +330,7 @@ function ChatBubbles({
         sendAt: Date.now(),
         modelId: activeModel.id,
         parentId: selectedChat?.parentId,
+        replyType: ChatReplyTypeEnum.EDIT_CHAT,
         promptId: activePrompt?.id,
       });
       chatStore.setSelectedChatRefId(chatId);
@@ -449,10 +457,11 @@ function ChatBubbles({
           )}
           <CopyButton text={chat.user} />{" "}
           <div className="flex space-x-1">
-            {chatStore.selectedChatId !== chat.id && chat.alt.length > 0 && (
+            {chatStore.selectedChatId !== chat.id && (
               <AlternateChatSelector
-                chatId={chat.id}
-                chatAlternateIds={chat.alt}
+                id={chat.id}
+                replyType={ChatReplyTypeEnum.EDIT_CHAT}
+                alternates={chat.alt}
               />
             )}
           </div>
@@ -471,12 +480,11 @@ function ChatBubbles({
           </div>
           <div className="chat-footer space-x-2">
             <div className="flex space-x-1">
-              {chat.alt.length > 0 && (
-                <AlternateChatSelector
-                  chatId={chat.id}
-                  chatAlternateIds={chat.alt}
-                />
-              )}
+              <AlternateChatSelector
+                id={chat.id}
+                alternates={chat.alt}
+                replyType={ChatReplyTypeEnum.EDIT_CHAT_RETRY}
+              />
             </div>
             <CopyButton text={chat.assistant} />
           </div>
@@ -487,51 +495,59 @@ function ChatBubbles({
 }
 
 function AlternateChatSelector({
-  chatId,
-  chatAlternateIds,
+  id,
+  replyType,
+  alternates,
 }: {
-  chatId: number;
-  chatAlternateIds: number[];
+  id: number;
+  replyType: ChatReplyTypeEnum;
+  alternates: ChatWithDetails[];
 }) {
   const chatStore = useChatStore();
 
+  const alts = alternates.filter((c) =>
+    [replyType, ChatReplyTypeEnum.NEW].includes(c.replyType),
+  );
+
   const currentIndex = useMemo(() => {
-    return chatAlternateIds.indexOf(chatId);
-  }, [chatAlternateIds, chatStore.chatRefId]);
+    return alts.map((c) => c.id).indexOf(id);
+  }, [alts, chatStore.chatRefId]);
 
   const isPreviousAvailable = currentIndex > 0;
-  const isNextAvailable = currentIndex < chatAlternateIds.length - 1;
+  const isNextAvailable = currentIndex < alts.length - 1;
 
   const onPrevious = () => {
     if (!isPreviousAvailable) return;
-    chatStore.setSelectedChatRefId(chatAlternateIds[currentIndex - 1]);
+    chatStore.setSelectedChatRefId(alts.map((c) => c.id)[currentIndex - 1]);
   };
 
   const onNext = () => {
     if (!isNextAvailable) return;
-    chatStore.setSelectedChatRefId(chatAlternateIds[currentIndex + 1]);
+    chatStore.setSelectedChatRefId(alts.map((c) => c.id)[currentIndex + 1]);
   };
 
   return (
-    <>
-      <button
-        className="cursor-pointer disabled:text-gray-600"
-        disabled={!isPreviousAvailable}
-        onClick={onPrevious}
-      >
-        <IconChevronLeft className="text-xs w-4 h-4" />
-      </button>
-      <span>
-        {currentIndex + 1} / {chatAlternateIds.length}
-      </span>
-      <button
-        className="cursor-pointer disabled:text-gray-600"
-        disabled={!isNextAvailable}
-        onClick={onNext}
-      >
-        <IconChevronRight className="text-xs w-4 h-4" />
-      </button>
-    </>
+    alts.length > 1 && (
+      <>
+        <button
+          className="cursor-pointer disabled:text-gray-600"
+          disabled={!isPreviousAvailable}
+          onClick={onPrevious}
+        >
+          <IconChevronLeft className="text-xs w-4 h-4" />
+        </button>
+        <span>
+          {currentIndex + 1} / {alts.length}
+        </span>
+        <button
+          className="cursor-pointer disabled:text-gray-600"
+          disabled={!isNextAvailable}
+          onClick={onNext}
+        >
+          <IconChevronRight className="text-xs w-4 h-4" />
+        </button>
+      </>
+    )
   );
 }
 

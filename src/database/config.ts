@@ -18,7 +18,7 @@ db.version(3).stores({
   model: "id, providerId",
   prompt: "++id, title, prompt",
   conversation: "++id, title, createdAt",
-  chat: "++id, conversationId, promptId, modelId, user, assistant, sendAt, parentId, receivedAt",
+  chat: "++id, conversationId, promptId, modelId, user, assistant, sendAt, parentId, replyType, receivedAt",
 });
 
 export default db;

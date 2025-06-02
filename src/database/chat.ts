@@ -2,6 +2,12 @@ import db from "./config";
 import { getModel, ModelWithDetails } from "./model";
 import { getPrompt, Prompt } from "./prompt";
 
+export enum ChatReplyTypeEnum {
+  NEW,
+  EDIT_CHAT,
+  EDIT_CHAT_RETRY,
+}
+
 export interface Chat {
   id: number;
   conversationId: number;
@@ -11,6 +17,7 @@ export interface Chat {
   assistant?: string;
   sendAt: number;
   parentId?: number;
+  replyType: ChatReplyTypeEnum;
   receivedAt?: number;
 }
 

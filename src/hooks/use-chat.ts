@@ -37,7 +37,9 @@ const useChat = ({
 
   const chatStore = useChatStore();
   const settingsStore = useSettingsStore();
+  const [isThinking, setIsThinking] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
+  const [thoughts, setThoughts] = useState<string[]>([]);
 
   // reset input and clear text stream after complete
   useEffect(() => {
@@ -52,14 +54,23 @@ const useChat = ({
   }, []);
 
   // check if model is thinking
-  const [isThinking, setIsThinking] = useState(false);
   useEffect(() => {
     if (messages[messages.length] === "</think>") {
       setMessages([]);
       setIsThinking(false);
       return;
     }
-    setIsThinking(messages[0] === "<think>" && !messages.includes("</think>"));
+
+    // set isThinking
+    const isThinking =
+      messages[0] === "<think>" && !messages.includes("</think>");
+    setIsThinking(isThinking);
+
+    // set thought
+    if (isThinking) {
+      const endIndex = messages.indexOf("</think>");
+      setThoughts(messages.slice(1, endIndex));
+    }
   }, [messages]);
 
   // get active model
@@ -111,6 +122,7 @@ const useChat = ({
       activeChat,
     },
     isThinking,
+    thoughts,
     messages,
     setMessages,
   };
