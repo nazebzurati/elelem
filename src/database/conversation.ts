@@ -6,7 +6,8 @@ export interface Conversation {
   title?: string;
   createdAt: number;
 }
-export interface ConversationWithDetails extends Conversation {
+
+interface ConversationWithDetails extends Conversation {
   chats: ChatWithDetails[];
 }
 

@@ -20,6 +20,7 @@ import {
   IconChevronRight,
   IconChevronUp,
   IconEdit,
+  IconReload,
   IconSend2,
   IconX,
 } from "@tabler/icons-react";
@@ -275,7 +276,7 @@ function ChatBubbles({
 
   const {
     form: { register, handleSubmit, setFocus, setValue },
-    chat: { activeModel, activePrompt, activeChat },
+    chat: { activeModel, activePrompt },
     setMessages,
   } = useChatRef;
 
@@ -290,97 +291,189 @@ function ChatBubbles({
     });
   }, [chats, chatStore.chatRefId]);
 
+  useEffect(() => {
+    if (chatStore.selectedChatType !== ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+      handleSubmit(onRetrySubmit)();
+    }
+  }, [chatStore]);
+
+  const onRetry = (chat: Chat) => {
+    setValue("input", chat.user);
+    chatStore.setSelectedChat(chat.id, ChatReplyTypeEnum.EDIT_CHAT_RETRY);
+  };
+
+  const onRetrySubmit = async () => {
+    if (chatStore.selectedChatType !== ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+      return;
+    }
+
+    if (!chatStore.selectedChatId) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is invalid.",
+      });
+      return;
+    }
+
+    // get current selected chat
+    const selectedChat = await db.chat.get(chatStore.selectedChatId);
+    if (!selectedChat) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is not found.",
+      });
+      return;
+    }
+
+    // create chat
+    const chatId = await db.chat.add({
+      conversationId: selectedChat.conversationId,
+      user: selectedChat.user,
+      sendAt: Date.now(),
+      modelId: activeModel?.id ?? selectedChat.modelId,
+      parentId: selectedChat?.parentId,
+      replyType: ChatReplyTypeEnum.EDIT_CHAT_RETRY,
+      promptId: activePrompt?.id,
+    });
+    chatStore.setSelectedChatRefId(chatId);
+    chatStore.setSelectedChat();
+
+    // get history
+    const chats: Chat[] = await getPreviousChatList(
+      selectedChat.conversationId,
+      selectedChat.parentId,
+    );
+
+    // send chat request
+    let fullText = "";
+    try {
+      const client = new OpenAI({
+        dangerouslyAllowBrowser: true,
+        baseURL: activeModel.provider.baseURL,
+        apiKey: activeModel.provider.apiKey,
+      });
+      const stream = await client.chat.completions.create({
+        stream: true,
+        model: activeModel.id,
+        messages: prepareMessages({
+          chats,
+          system: activePrompt?.prompt ?? "",
+          input: selectedChat.user,
+        }),
+      });
+
+      // stream chat
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
+      }
+    } catch (_error) {
+      await db.chat.delete(chatId);
+    }
+
+    // update chat when stream finish
+    await db.chat.update(chatId, {
+      assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+      receivedAt: Date.now(),
+    });
+    setTimeout(() => {
+      setFocus("input");
+    }, INPUT_REFOCUS_DELAY_MS);
+  };
+
   const onEditChat = (chat: Chat) => {
     setValue("input", chat.user);
     chatStore.setSelectedChat(chat.id);
   };
 
-  const onEditChatSubmit = useCallback(
-    async (data: { input: string }) => {
-      if (!activeModel?.provider) {
-        alertStore.add({
-          type: AlertTypeEnum.ERROR,
-          message: "Please select a model to proceed.",
-        });
-        return;
-      }
+  const onEditChatSubmit = async (data: { input: string }) => {
+    if (chatStore.selectedChatType !== ChatReplyTypeEnum.EDIT_CHAT) {
+      return;
+    }
 
-      if (!chatStore.selectedChatId) {
-        alertStore.add({
-          type: AlertTypeEnum.ERROR,
-          message: "Chat is invalid.",
-        });
-        return;
-      }
-
-      // get current selected chat
-      const selectedChat = await db.chat.get(chatStore.selectedChatId);
-      if (!selectedChat) {
-        alertStore.add({
-          type: AlertTypeEnum.ERROR,
-          message: "Chat is not found.",
-        });
-        return;
-      }
-
-      // create chat
-      const chatId = await db.chat.add({
-        conversationId: selectedChat.conversationId,
-        user: data.input,
-        sendAt: Date.now(),
-        modelId: activeModel.id,
-        parentId: selectedChat?.parentId,
-        replyType: ChatReplyTypeEnum.EDIT_CHAT,
-        promptId: activePrompt?.id,
+    if (!activeModel?.provider) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Please select a model to proceed.",
       });
-      chatStore.setSelectedChatRefId(chatId);
-      chatStore.setSelectedChat();
+      return;
+    }
 
-      // get history
-      const chats: Chat[] = await getPreviousChatList(
-        selectedChat.conversationId,
-        selectedChat.parentId,
-      );
-
-      // send chat request
-      let fullText = "";
-      try {
-        const client = new OpenAI({
-          dangerouslyAllowBrowser: true,
-          baseURL: activeModel.provider.baseURL,
-          apiKey: activeModel.provider.apiKey,
-        });
-        const stream = await client.chat.completions.create({
-          stream: true,
-          model: activeModel.id,
-          messages: prepareMessages({
-            chats,
-            system: activePrompt?.prompt ?? "",
-            input: data.input,
-          }),
-        });
-
-        // stream chat
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content ?? "";
-          setMessages((prev: string[]) => [...prev, text]);
-          fullText += text;
-        }
-      } catch (_error) {
-        await db.chat.delete(chatId);
-      }
-
-      // update chat when stream finish
-      await db.chat.update(chatId, {
-        assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
-        receivedAt: Date.now(),
+    if (!chatStore.selectedChatId) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is invalid.",
       });
-      setTimeout(() => {
-        setFocus("input");
-      }, INPUT_REFOCUS_DELAY_MS);
-    },
-    [activeModel, activeChat, chatStore],
-  );
+      return;
+    }
+
+    // get current selected chat
+    const selectedChat = await db.chat.get(chatStore.selectedChatId);
+    if (!selectedChat) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is not found.",
+      });
+      return;
+    }
+
+    // create chat
+    const chatId = await db.chat.add({
+      conversationId: selectedChat.conversationId,
+      user: data.input,
+      sendAt: Date.now(),
+      modelId: activeModel.id,
+      parentId: selectedChat?.parentId,
+      replyType: ChatReplyTypeEnum.EDIT_CHAT,
+      promptId: activePrompt?.id,
+    });
+    chatStore.setSelectedChatRefId(chatId);
+    chatStore.setSelectedChat();
+
+    // get history
+    const chats: Chat[] = await getPreviousChatList(
+      selectedChat.conversationId,
+      selectedChat.parentId,
+    );
+
+    // send chat request
+    let fullText = "";
+    try {
+      const client = new OpenAI({
+        dangerouslyAllowBrowser: true,
+        baseURL: activeModel.provider.baseURL,
+        apiKey: activeModel.provider.apiKey,
+      });
+      const stream = await client.chat.completions.create({
+        stream: true,
+        model: activeModel.id,
+        messages: prepareMessages({
+          chats,
+          system: activePrompt?.prompt ?? "",
+          input: data.input,
+        }),
+      });
+
+      // stream chat
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
+      }
+    } catch (_error) {
+      await db.chat.delete(chatId);
+    }
+
+    // update chat when stream finish
+    await db.chat.update(chatId, {
+      assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+      receivedAt: Date.now(),
+    });
+    setTimeout(() => {
+      setFocus("input");
+    }, INPUT_REFOCUS_DELAY_MS);
+  };
 
   const onEditChatCancel = () => {
     setValue("input", "");
@@ -405,6 +498,10 @@ function ChatBubbles({
     };
   }, [handleSubmit, onEditChatSubmit, chatStore.selectedChatId]);
 
+  const isEditing = (chatId: number) =>
+    chatStore.selectedChatId === chatId &&
+    chatStore.selectedChatType === ChatReplyTypeEnum.EDIT_CHAT;
+
   return chatsWithAlt.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-end space-y-2">
@@ -417,15 +514,15 @@ function ChatBubbles({
           </div>
         </div>
         <div
-          className={`chat-bubble markdown ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+          className={`chat-bubble markdown ${isEditing(chat.id) ? "w-full" : ""}`}
         >
-          {chatStore.selectedChatId === chat.id ? (
+          {isEditing(chat.id) ? (
             <form
               id={`chatUpdateForm_${chat.id}`}
               onSubmit={handleSubmit(onEditChatSubmit)}
             >
               <textarea
-                className={`textarea max-h-none ${chatStore.selectedChatId === chat.id ? "w-full" : ""}`}
+                className={`textarea max-h-none ${isEditing(chat.id) ? "w-full" : ""}`}
                 {...register("input")}
               />
               <div className="text-xs label whitespace-normal break-words">
@@ -438,11 +535,7 @@ function ChatBubbles({
           )}
         </div>
         <div className="chat-footer justify-end space-x-2">
-          {chatStore.selectedChatId !== chat.id ? (
-            <button className="cursor-pointer" onClick={() => onEditChat(chat)}>
-              <IconEdit className="text-xs w-4 h-4" />
-            </button>
-          ) : (
+          {isEditing(chat.id) ? (
             <>
               <button
                 className="cursor-pointer"
@@ -454,10 +547,14 @@ function ChatBubbles({
                 <IconX className="text-xs w-4 h-4 text-error" />
               </button>
             </>
+          ) : (
+            <button className="cursor-pointer" onClick={() => onEditChat(chat)}>
+              <IconEdit className="text-xs w-4 h-4" />
+            </button>
           )}
           <CopyButton text={chat.user} />{" "}
           <div className="flex space-x-1">
-            {chatStore.selectedChatId !== chat.id && (
+            {!isEditing(chat.id) && (
               <AlternateChatSelector
                 id={chat.id}
                 replyType={ChatReplyTypeEnum.EDIT_CHAT}
@@ -487,6 +584,9 @@ function ChatBubbles({
               />
             </div>
             <CopyButton text={chat.assistant} />
+            <button className="cursor-pointer" onClick={() => onRetry(chat)}>
+              <IconReload className="text-xs w-4 h-4" />
+            </button>
           </div>
         </div>
       )}

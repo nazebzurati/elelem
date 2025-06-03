@@ -1,3 +1,4 @@
+import { ChatReplyTypeEnum } from "@database/chat";
 import type {} from "@redux-devtools/extension"; // required for devtools typing
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
@@ -7,7 +8,8 @@ interface ChatState {
   setSelectedChatRefId: (id?: number) => void;
 
   selectedChatId?: number;
-  setSelectedChat: (id?: number) => void;
+  selectedChatType: ChatReplyTypeEnum;
+  setSelectedChat: (id?: number, type?: ChatReplyTypeEnum) => void;
 }
 
 const useChatStore = create<ChatState>()(
@@ -22,10 +24,12 @@ const useChatStore = create<ChatState>()(
           })),
 
         selectedChatId: undefined,
-        setSelectedChat: (id) =>
+        selectedChatType: ChatReplyTypeEnum.EDIT_CHAT,
+        setSelectedChat: (id, type = ChatReplyTypeEnum.EDIT_CHAT) =>
           set((state) => ({
             ...state,
             selectedChatId: id,
+            selectedChatType: type,
           })),
       }),
       { name: "chat" },
