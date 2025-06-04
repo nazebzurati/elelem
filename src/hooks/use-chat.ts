@@ -45,6 +45,7 @@ const useChat = ({
   useEffect(() => {
     reset();
     setMessages([]);
+    setThoughts([]);
   }, [isSubmitSuccessful]);
 
   // always reset selected chat to edit

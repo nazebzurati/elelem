@@ -292,7 +292,8 @@ function ChatBubbles({
   }, [chats, chatStore.chatRefId]);
 
   useEffect(() => {
-    if (chatStore.selectedChatType !== ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+    if (!chatStore.selectedChatId) return;
+    if (chatStore.selectedChatType === ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
       handleSubmit(onRetrySubmit)();
     }
   }, [chatStore]);
