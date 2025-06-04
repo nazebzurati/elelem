@@ -32,7 +32,7 @@ import {
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
@@ -52,83 +52,80 @@ export default function Chats() {
 
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
-    chat: { activeModel, activePrompt, activeConversation },
+    chat: { activeModel, activePrompt, activeConversation, activeChat },
     isThinking,
     thoughts,
     messages,
     setMessages,
   } = useChatRef;
 
-  const onInputSubmit = useCallback(
-    async (data: { input: string }) => {
-      if (!activeModel?.provider) {
-        alertStore.add({
-          type: AlertTypeEnum.ERROR,
-          message: "Please select a model to proceed.",
-        });
-        return;
-      }
-
-      // create chat
-      const isNewConversation = !!activeConversation;
-      const conversationId = activeConversation
-        ? activeConversation.id
-        : await db.conversation.add({
-            title: data.input,
-            createdAt: Date.now(),
-          });
-      const chatId = await db.chat.add({
-        conversationId,
-        user: data.input,
-        sendAt: Date.now(),
-        modelId: activeModel.id,
-        parentId: activeConversation?.chats.sort((a, b) => b.id - a.id)[0].id,
-        replyType: ChatReplyTypeEnum.NEW,
-        promptId: activePrompt?.id,
+  const onInputSubmit = async (data: { input: string }) => {
+    if (!activeModel?.provider) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Please select a model to proceed.",
       });
-      settingsStore.setActiveConversation(conversationId);
+      return;
+    }
 
-      // send chat request
-      let fullText = "";
-      try {
-        const client = new OpenAI({
-          dangerouslyAllowBrowser: true,
-          baseURL: activeModel.provider.baseURL,
-          apiKey: activeModel.provider.apiKey,
+    // create chat
+    const isNewConversation = !!activeConversation;
+    const conversationId = activeConversation
+      ? activeConversation.id
+      : await db.conversation.add({
+          title: data.input,
+          createdAt: Date.now(),
         });
-        const stream = await client.chat.completions.create({
-          stream: true,
-          model: activeModel.id,
-          messages: prepareMessages({
-            chats: activeConversation?.chats ?? [],
-            system: activePrompt?.prompt ?? "",
-            input: data.input,
-          }),
-        });
+    const chatId = await db.chat.add({
+      conversationId,
+      user: data.input,
+      sendAt: Date.now(),
+      modelId: activeModel.id,
+      parentId: activeChat?.id,
+      replyType: ChatReplyTypeEnum.NEW,
+      promptId: activePrompt?.id,
+    });
+    settingsStore.setActiveConversation(conversationId);
 
-        // stream chat
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content ?? "";
-          setMessages((prev) => [...prev, text]);
-          fullText += text;
-        }
-      } catch (_error) {
-        await db.chat.delete(chatId);
-        if (isNewConversation) await db.conversation.delete(conversationId);
-        settingsStore.setActiveConversation();
-      }
-
-      // update chat when stream finish
-      await db.chat.update(chatId, {
-        assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
-        receivedAt: Date.now(),
+    // send chat request
+    let fullText = "";
+    try {
+      const client = new OpenAI({
+        dangerouslyAllowBrowser: true,
+        baseURL: activeModel.provider.baseURL,
+        apiKey: activeModel.provider.apiKey,
       });
-      setTimeout(() => {
-        setFocus("input");
-      }, INPUT_REFOCUS_DELAY_MS);
-    },
-    [activeModel, activeConversation, settingsStore],
-  );
+      const stream = await client.chat.completions.create({
+        stream: true,
+        model: activeModel.id,
+        messages: prepareMessages({
+          chats: activeConversation?.chats ?? [],
+          system: activePrompt?.prompt ?? "",
+          input: data.input,
+        }),
+      });
+
+      // stream chat
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        setMessages((prev) => [...prev, text]);
+        fullText += text;
+      }
+    } catch (_error) {
+      await db.chat.delete(chatId);
+      if (isNewConversation) await db.conversation.delete(conversationId);
+      settingsStore.setActiveConversation();
+    }
+
+    // update chat when stream finish
+    await db.chat.update(chatId, {
+      assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+      receivedAt: Date.now(),
+    });
+    setTimeout(() => {
+      setFocus("input");
+    }, INPUT_REFOCUS_DELAY_MS);
+  };
 
   // autoscroll
   const scrollRef = useRef<HTMLDivElement>(null);

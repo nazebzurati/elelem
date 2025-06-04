@@ -1,4 +1,4 @@
-import { getChat } from "@database/chat";
+import { getChatListByRefId } from "@database/chat";
 import { getConversation } from "@database/conversation";
 import { ModelWithDetails } from "@database/model";
 import { Prompt } from "@database/prompt";
@@ -97,14 +97,12 @@ const useChat = ({
     [settingsStore.activeConversationId],
   );
 
-  // get active chat
-  const activeChat = useLiveQuery(
-    async () =>
-      chatStore.selectedChatId
-        ? await getChat(chatStore.selectedChatId)
-        : undefined,
-    [chatStore.selectedChatId],
-  );
+  // get active chat (last chat with ref)
+  const activeChat = useLiveQuery(async () => {
+    return activeConversation?.chats
+      ? getChatListByRefId(activeConversation.chats, chatStore.chatRefId).at(-1)
+      : undefined;
+  }, [chatStore.chatRefId, activeConversation]);
 
   return {
     form: {
