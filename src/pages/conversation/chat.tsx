@@ -329,8 +329,9 @@ function ChatBubbles({
       user: selectedChat.user,
       sendAt: Date.now(),
       modelId: activeModel?.id ?? selectedChat.modelId,
-      parentId: selectedChat?.parentId,
+      parentId: selectedChat.parentId,
       replyType: ChatReplyTypeEnum.EDIT_CHAT_RETRY,
+      retryForId: selectedChat.id,
       promptId: activePrompt?.id,
     });
     chatStore.setSelectedChatRefId(chatId);
@@ -422,7 +423,7 @@ function ChatBubbles({
       user: data.input,
       sendAt: Date.now(),
       modelId: activeModel.id,
-      parentId: selectedChat?.parentId,
+      parentId: selectedChat.parentId,
       replyType: ChatReplyTypeEnum.EDIT_CHAT,
       promptId: activePrompt?.id,
     });
@@ -625,6 +626,7 @@ function AlternateChatSelector({
   };
 
   return (
+    currentIndex != -1 &&
     alts.length > 1 && (
       <>
         <button

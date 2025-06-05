@@ -18,6 +18,7 @@ export interface Chat {
   sendAt: number;
   parentId?: number;
   replyType: ChatReplyTypeEnum;
+  retryForId?: number;
   receivedAt?: number;
 }
 
