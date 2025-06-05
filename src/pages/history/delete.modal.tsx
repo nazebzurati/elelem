@@ -22,6 +22,11 @@ export default function DeleteConversationModal() {
 
   const onDelete = async () => {
     if (!selectedConversation) return;
+    const chatList = await db.chat
+      .where("conversationId")
+      .equals(selectedConversation.id)
+      .toArray();
+    await db.chat.bulkDelete(chatList.map((c) => c.id));
     await db.conversation.delete(selectedConversation.id);
 
     if (settingsStore.activeConversationId === selectedConversation.id) {

@@ -293,7 +293,7 @@ function ChatBubbles({
     if (chatStore.selectedChatType === ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
       handleSubmit(onRetrySubmit)();
     }
-  }, [chatStore]);
+  }, [chatStore.selectedChatId, chatStore.selectedChatType]);
 
   const onRetry = (chat: Chat) => {
     setValue("input", chat.user);
@@ -555,7 +555,7 @@ function ChatBubbles({
           <div className="flex space-x-1">
             {!isEditing(chat.id) && (
               <AlternateChatSelector
-                id={chat.id}
+                chat={chat}
                 replyType={ChatReplyTypeEnum.EDIT_CHAT}
                 alternates={chat.alt}
               />
@@ -577,7 +577,7 @@ function ChatBubbles({
           <div className="chat-footer space-x-2">
             <div className="flex space-x-1">
               <AlternateChatSelector
-                id={chat.id}
+                chat={chat}
                 alternates={chat.alt}
                 replyType={ChatReplyTypeEnum.EDIT_CHAT_RETRY}
               />
@@ -594,39 +594,53 @@ function ChatBubbles({
 }
 
 function AlternateChatSelector({
-  id,
+  chat,
   replyType,
   alternates,
 }: {
-  id: number;
+  chat: ChatWithDetails;
   replyType: ChatReplyTypeEnum;
   alternates: ChatWithDetails[];
 }) {
   const chatStore = useChatStore();
 
-  const alts = alternates.filter((c) =>
-    [replyType, ChatReplyTypeEnum.NEW].includes(c.replyType),
-  );
+  // filter by type or relevant chat by retryForId
+  let alts: ChatWithDetails[] = [];
+  if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
+    const allowedTypes = [ChatReplyTypeEnum.EDIT_CHAT, ChatReplyTypeEnum.NEW];
+    alts = alternates.filter((c) => allowedTypes.includes(c.replyType));
+  } else if (replyType === ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+    const altIds: number[] = [chat.id];
+    alternates.forEach((a) => {
+      if (a.retryForId === chat.id) altIds.push(a.id);
+      if (a.id === chat.retryForId) altIds.push(chat.retryForId);
+    });
+    alts = alternates
+      .filter((c) => altIds.includes(c.id))
+      .sort((a, b) => a.id - b.id);
+  }
 
-  const currentIndex = useMemo(() => {
-    return alts.map((c) => c.id).indexOf(id);
-  }, [alts, chatStore.chatRefId]);
+  // find current index from searched chat id
+  const findChat =
+    alts.find((c) => c.id === chat.id) ??
+    alts.find((c) => c.id === chat.retryForId);
+  const currentId: number = findChat?.id ?? -1;
+  const currentIndex = alts.findIndex((c) => c.id === currentId);
 
   const isPreviousAvailable = currentIndex > 0;
   const isNextAvailable = currentIndex < alts.length - 1;
 
   const onPrevious = () => {
     if (!isPreviousAvailable) return;
-    chatStore.setSelectedChatRefId(alts.map((c) => c.id)[currentIndex - 1]);
+    chatStore.setSelectedChatRefId(alts.map((c) => c.id).at(currentIndex - 1));
   };
 
   const onNext = () => {
     if (!isNextAvailable) return;
-    chatStore.setSelectedChatRefId(alts.map((c) => c.id)[currentIndex + 1]);
+    chatStore.setSelectedChatRefId(alts.map((c) => c.id).at(currentIndex + 1));
   };
 
   return (
-    currentIndex != -1 &&
     alts.length > 1 && (
       <>
         <button
