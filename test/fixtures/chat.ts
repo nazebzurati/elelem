@@ -1,4 +1,4 @@
-import { Chat } from "../../src/database/chat";
+import { Chat, ChatReplyTypeEnum } from "../../src/database/chat";
 
 // 1 -> 6 -> 7
 // 1 -> 2 -> 3 -> 4 -> 5
@@ -10,6 +10,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -18,6 +19,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -26,6 +28,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -34,6 +37,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -42,6 +46,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -50,6 +55,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -58,6 +64,7 @@ export const tree1: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
 ];
@@ -73,6 +80,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -81,6 +89,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -89,6 +98,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -97,6 +107,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -105,6 +116,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -113,6 +125,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -121,6 +134,7 @@ export const tree2: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
 ];
@@ -137,6 +151,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -145,6 +160,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -153,6 +169,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -161,6 +178,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -169,6 +187,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -177,6 +196,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -185,6 +205,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -193,6 +214,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -201,6 +223,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -209,6 +232,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -217,6 +241,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.NEW,
     sendAt: 0,
   },
   {
@@ -225,6 +250,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -233,6 +259,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
   {
@@ -241,6 +268,7 @@ export const tree3: Chat[] = [
     modelId: "0",
     conversationId: 1,
     user: "",
+    replyType: ChatReplyTypeEnum.EDIT_CHAT,
     sendAt: 0,
   },
 ];
