@@ -114,6 +114,8 @@ export default function Chats() {
     } catch (_error) {
       await db.chat.delete(chatId);
       if (isNewConversation) await db.conversation.delete(conversationId);
+      chatStore.setSelectedChat();
+      chatStore.setSelectedChatRefId();
       settingsStore.setActiveConversation();
     }
 

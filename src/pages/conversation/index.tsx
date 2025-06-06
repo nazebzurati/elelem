@@ -1,4 +1,5 @@
 import { getLatestConversation } from "@database/conversation";
+import useChatStore from "@stores/chat";
 import useSettingsStore from "@stores/settings";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
@@ -6,6 +7,7 @@ import Chats from "./chat";
 import Navbar from "./navbar";
 
 function Conversation() {
+  const chatStore = useChatStore();
   const settingsStore = useSettingsStore();
 
   const latestConversation = useLiveQuery(
@@ -18,6 +20,8 @@ function Conversation() {
       if (e.ctrlKey && e.key === "n") {
         // start new conversation
         e.preventDefault();
+        chatStore.setSelectedChat();
+        chatStore.setSelectedChatRefId();
         settingsStore.setActiveConversation();
       } else if (e.ctrlKey && e.key === "l") {
         // load latest conversation

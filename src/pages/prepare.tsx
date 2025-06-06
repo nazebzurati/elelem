@@ -1,3 +1,4 @@
+import useChatStore from "@stores/chat";
 import useSettingsStore from "@stores/settings";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,7 @@ import Loading from "./loading";
 
 export default function Prepare() {
   const navigation = useNavigate();
+  const chatStore = useChatStore();
   const settingsStore = useSettingsStore();
 
   useEffect(() => {
@@ -13,6 +15,8 @@ export default function Prepare() {
       if (count <= 0) {
         navigation("/onboard");
       } else {
+        chatStore.setSelectedChat();
+        chatStore.setSelectedChatRefId();
         settingsStore.setActiveConversation();
         navigation("/conversation");
       }
