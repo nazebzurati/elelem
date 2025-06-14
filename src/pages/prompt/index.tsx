@@ -1,5 +1,5 @@
 import { getPromptList } from "@database/prompt";
-import usePrompt from "@stores/prompt";
+import usePromptStore from "@stores/prompt";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -9,7 +9,7 @@ import Navbar from "./navbar";
 import UpdatePromptModal, { UpdatePromptModalId } from "./update.modal";
 
 export default function Prompt() {
-  const promptStore = usePrompt();
+  const promptStore = usePromptStore();
   const promptList = useLiveQuery(async () => await getPromptList());
 
   return (

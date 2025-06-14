@@ -1,4 +1,5 @@
-import useSettings from "@stores/settings";
+import useChatStore from "@stores/chat";
+import useSettingsStore from "@stores/settings";
 import {
   IconChevronLeft,
   IconCodeAsterix,
@@ -10,7 +11,8 @@ import {
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
-  const settingsStore = useSettings();
+  const chatStore = useChatStore();
+  const settingsStore = useSettingsStore();
   return (
     <>
       {/* navbar */}
@@ -58,6 +60,8 @@ export default function Navbar() {
             type="button"
             className="btn btn-ghost btn-circle"
             onClick={() => {
+              chatStore.setSelectedChat();
+              chatStore.setSelectedChatRefId();
               settingsStore.setActiveConversation();
             }}
           >

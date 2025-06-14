@@ -1,6 +1,6 @@
 import db from "@database/config";
 import { ProviderWithCount } from "@database/provider";
-import useAlert, { AlertTypeEnum } from "@stores/alert";
+import useAlertStore, { AlertTypeEnum } from "@stores/alert";
 import {
   IconCodeAsterix,
   IconInfoCircle,
@@ -22,7 +22,7 @@ export default function Navbar({
 }) {
   const [isRefresh, setIsRefresh] = useState(false);
 
-  const alertStore = useAlert();
+  const alertStore = useAlertStore();
 
   const onRefreshModel = async () => {
     if (!providerList || isRefresh) return;

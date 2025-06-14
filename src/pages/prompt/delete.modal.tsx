@@ -1,6 +1,6 @@
 import db from "@database/config";
-import usePrompt from "@stores/prompt";
-import useSettings from "@stores/settings";
+import usePromptStore from "@stores/prompt";
+import useSettingsStore from "@stores/settings";
 import { IconX } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -8,8 +8,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 export const DeletePromptModalId = "deletePromptModal";
 
 export default function DeletePromptModal() {
-  const settingsStore = useSettings();
-  const promptStore = usePrompt();
+  const settingsStore = useSettingsStore();
+  const promptStore = usePromptStore();
   const selectedPrompt = useLiveQuery(
     async () =>
       promptStore.selectedPromptId

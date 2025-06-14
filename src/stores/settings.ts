@@ -13,7 +13,7 @@ interface SettingsState {
   setActiveConversation: (conversationId?: number) => void;
 }
 
-const useSettings = create<SettingsState>()(
+const useSettingsStore = create<SettingsState>()(
   devtools(
     persist(
       (set) => ({
@@ -43,4 +43,4 @@ const useSettings = create<SettingsState>()(
   ),
 );
 
-export default useSettings;
+export default useSettingsStore;

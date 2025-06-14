@@ -13,12 +13,12 @@ const db = new Dexie("elelem") as Dexie & {
   chat: EntityTable<Chat, "id">;
 };
 
-db.version(2).stores({
+db.version(3).stores({
   provider: "++id, baseURL, apiKey",
   model: "id, providerId",
   prompt: "++id, title, prompt",
   conversation: "++id, title, createdAt",
-  chat: "++id, conversationId, promptId, modelId, user, assistant, sendAt, receivedAt",
+  chat: "++id, conversationId, promptId, modelId, user, assistant, sendAt, parentId, replyType, retryForId, receivedAt",
 });
 
 export default db;

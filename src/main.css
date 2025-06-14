@@ -19,3 +19,9 @@ html {
 .markdown > * {
   all: revert;
 }
+.chat-bubble > p:first-child {
+  margin-top: 0 !important;
+}
+.chat-bubble > p:last-child {
+  margin-bottom: 0 !important;
+}

@@ -1,6 +1,6 @@
 import { getConversationList } from "@database/conversation";
-import useHistory from "@stores/history";
-import useSettings from "@stores/settings";
+import useHistoryStore from "@stores/history";
+import useSettingsStore from "@stores/settings";
 import { IconExternalLink, IconTrash } from "@tabler/icons-react";
 import { TIME_FORMAT } from "@utils/conversation";
 import { toggleModal, UiToggleState } from "@utils/toggle";
@@ -14,8 +14,8 @@ import DeleteConversationModal, {
 import Navbar from "./navbar";
 
 export default function History() {
-  const historyStore = useHistory();
-  const settingsStore = useSettings();
+  const historyStore = useHistoryStore();
+  const settingsStore = useSettingsStore();
   const conversationList = useLiveQuery(
     async () => await getConversationList(),
   );

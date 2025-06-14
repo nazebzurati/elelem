@@ -1,6 +1,6 @@
 import db from "@database/config";
 import { ProviderWithCount } from "@database/provider";
-import useProvider from "@stores/provider";
+import useProviderStore from "@stores/provider";
 import { IconEdit, IconList, IconTrash } from "@tabler/icons-react";
 import { toggleModal, UiToggleState } from "@utils/toggle";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -24,7 +24,7 @@ export default function Provider() {
     return _providerList;
   });
 
-  const providerStore = useProvider();
+  const providerStore = useProviderStore();
 
   return (
     <div>

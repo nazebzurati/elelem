@@ -1,65 +1,134 @@
 import andyNote from "@assets/andy-note.png";
 import CopyButton from "@components/copy-button";
-import { ChatWithDetails } from "@database/chat";
-import db from "@database/config";
 import {
-  ConversationWithDetails,
-  getConversation,
-} from "@database/conversation";
-import { getModelList, Model, ModelWithDetails } from "@database/model";
+  Chat,
+  ChatReplyTypeEnum,
+  ChatWithDetails,
+  getAltChat,
+  getChatListByRefId,
+  getPreviousChatList,
+} from "@database/chat";
+import db from "@database/config";
+import { getModelList, Model } from "@database/model";
 import { getPromptList, Prompt } from "@database/prompt";
 import useChat from "@hooks/use-chat";
-import useAlert, { AlertTypeEnum } from "@stores/alert";
-import useSettings from "@stores/settings";
-import { IconChevronUp, IconSend2 } from "@tabler/icons-react";
+import useAlertStore, { AlertTypeEnum } from "@stores/alert";
+import useChatStore from "@stores/chat";
+import useSettingsStore from "@stores/settings";
 import {
-  parseThinkingReply,
+  IconCheck,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronUp,
+  IconEdit,
+  IconReload,
+  IconSend2,
+  IconX,
+} from "@tabler/icons-react";
+import {
   prepareMessages,
+  removeThoughtFromReply,
   TIME_FORMAT,
 } from "@utils/conversation";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import OpenAI from "openai";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
 
 const INPUT_REFOCUS_DELAY_MS = 250;
 
 export default function Chats() {
-  const settingsStore = useSettings();
+  const chatStore = useChatStore();
+  const alertStore = useAlertStore();
+  const settingsStore = useSettingsStore();
 
   const modelList = useLiveQuery(async () => await getModelList());
+  const promptList = useLiveQuery(async () => await getPromptList());
 
-  const activeModel: ModelWithDetails | undefined = useMemo(() => {
-    return !modelList || !settingsStore.activeModelId
-      ? undefined
-      : modelList.find((p) => p.id === settingsStore.activeModelId);
-  }, [modelList, settingsStore.activeModelId]);
-
-  const promptList: Prompt[] | undefined = useLiveQuery(
-    async () => await getPromptList(),
-  );
-
-  const activePrompt: Prompt | undefined = useMemo(() => {
-    return !promptList || !settingsStore.activePromptId
-      ? undefined
-      : promptList.find((p) => p.id === settingsStore.activePromptId);
-  }, [promptList, settingsStore.activePromptId]);
-
-  const activeConversation: ConversationWithDetails | undefined = useLiveQuery(
-    async () =>
-      settingsStore.activeConversationId
-        ? await getConversation(settingsStore.activeConversationId)
-        : undefined,
-    [settingsStore.activeConversationId],
-  );
+  const useChatRef = useChat({
+    modelList: modelList ?? [],
+    promptList: promptList ?? [],
+  });
 
   const {
     form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
+    chat: { activeModel, activePrompt, activeConversation, activeChat },
     isThinking,
+    thoughts,
     messages,
     setMessages,
-  } = useChat();
+  } = useChatRef;
+
+  const onInputSubmit = async (data: { input: string }) => {
+    if (!activeModel?.provider) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Please select a model to proceed.",
+      });
+      return;
+    }
+
+    // create chat
+    const isNewConversation = !!activeConversation;
+    const conversationId = activeConversation
+      ? activeConversation.id
+      : await db.conversation.add({
+          title: data.input,
+          createdAt: Date.now(),
+        });
+    const chatId = await db.chat.add({
+      conversationId,
+      user: data.input,
+      sendAt: Date.now(),
+      modelId: activeModel.id,
+      parentId: activeChat?.id,
+      replyType: ChatReplyTypeEnum.NEW,
+      promptId: activePrompt?.id,
+    });
+    settingsStore.setActiveConversation(conversationId);
+
+    // send chat request
+    let fullText = "";
+    try {
+      const client = new OpenAI({
+        dangerouslyAllowBrowser: true,
+        baseURL: activeModel.provider.baseURL,
+        apiKey: activeModel.provider.apiKey,
+      });
+      const stream = await client.chat.completions.create({
+        stream: true,
+        model: activeModel.id,
+        messages: prepareMessages({
+          chats: activeConversation?.chats ?? [],
+          system: activePrompt?.prompt ?? "",
+          input: data.input,
+        }),
+      });
+
+      // stream chat
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        setMessages((prev) => [...prev, text]);
+        fullText += text;
+      }
+    } catch (_error) {
+      await db.chat.delete(chatId);
+      if (isNewConversation) await db.conversation.delete(conversationId);
+      chatStore.setSelectedChat();
+      chatStore.setSelectedChatRefId();
+      settingsStore.setActiveConversation();
+    }
+
+    // update chat when stream finish
+    await db.chat.update(chatId, {
+      assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+      receivedAt: Date.now(),
+    });
+    setTimeout(() => {
+      setFocus("input");
+    }, INPUT_REFOCUS_DELAY_MS);
+  };
 
   // autoscroll
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -72,123 +141,55 @@ export default function Chats() {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, []);
 
-  const alertStore = useAlert();
-  const onSubmit = useCallback(
-    async (data: { input: string }) => {
-      if (!activeModel?.provider) {
-        alertStore.add({
-          type: AlertTypeEnum.ERROR,
-          message: "Please select a model to proceed.",
-        });
-        return;
-      }
-
-      // create chat
-      const isNewConversation = !!activeConversation;
-      const conversationId = activeConversation
-        ? activeConversation.id
-        : await db.conversation.add({
-            title: data.input,
-            createdAt: Date.now(),
-          });
-      const chatId = await db.chat.add({
-        conversationId,
-        user: data.input,
-        sendAt: Date.now(),
-        modelId: activeModel.id,
-        promptId: activePrompt?.id,
-      });
-      settingsStore.setActiveConversation(conversationId);
-
-      // send chat request
-      let fullText = "";
-      try {
-        const client = new OpenAI({
-          dangerouslyAllowBrowser: true,
-          baseURL: activeModel.provider.baseURL,
-          apiKey: activeModel.provider.apiKey,
-        });
-        const stream = await client.chat.completions.create({
-          stream: true,
-          model: activeModel.id,
-          messages: prepareMessages({
-            chats: activeConversation?.chats ?? [],
-            system: activePrompt?.prompt ?? "",
-            input: data.input,
-          }),
-        });
-
-        // stream chat
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content ?? "";
-          setMessages((prev) => [...prev, text]);
-          fullText += text;
-        }
-      } catch (_error) {
-        await db.chat.delete(chatId);
-        if (isNewConversation) await db.conversation.delete(conversationId);
-        settingsStore.setActiveConversation();
-      }
-
-      // update chat when stream finish
-      await db.chat.update(chatId, {
-        assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
-        receivedAt: Date.now(),
-      });
-      setTimeout(() => {
-        setFocus("input");
-      }, INPUT_REFOCUS_DELAY_MS);
-    },
-    [activeModel, activeConversation, settingsStore],
-  );
-
+  // shortcut listener
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.shiftKey) {
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        !chatStore.selectedChatId
+      ) {
         event.preventDefault();
-        if (!isSubmitting) handleSubmit(onSubmit)();
+        if (!isSubmitting) handleSubmit(onInputSubmit)();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isSubmitting, handleSubmit, onSubmit]);
-
-  useEffect(() => {
-    if (isSubmitting) {
-      const textarea = document.getElementById(
-        "chatInput",
-      ) as HTMLTextAreaElement | null;
-      textarea?.setAttribute("style", "");
-    }
-  }, [isSubmitting]);
+  }, [isSubmitting, handleSubmit, onInputSubmit, chatStore.selectedChatId]);
 
   return (
     <>
       <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
         {activeConversation ? (
           <>
-            <ChatBubbles chats={activeConversation.chats} />
+            <ChatBubbles
+              useChatRef={useChatRef}
+              chats={activeConversation.chats}
+            />
             {isSubmitting && messages.length <= 0 && (
-              <div className="chat chat-start space-y-1">
-                <div className="chat-bubble py-4">
+              <div className="chat chat-start space-y-2">
+                <div className="chat-header">Sending...</div>
+                <div className="chat-bubble">
                   <span className="loading loading-dots loading-sm" />
                 </div>
               </div>
             )}
             {isThinking && (
-              <div className="chat chat-start space-y-1">
-                <div className="chat-bubble italic py-4">
-                  <span className="animate-pulse">Thinking...</span>
+              <div className="chat chat-start space-y-2">
+                <div className="chat-header">Thinking...</div>
+                <div className="chat-bubble markdown">
+                  <MarkdownRenderer>{thoughts.join("")}</MarkdownRenderer>
                 </div>
               </div>
             )}
             {!isThinking && messages.length > 0 && (
-              <div className="chat chat-start space-y-1">
-                <div className="chat-bubble markdown py-4">
+              <div className="chat chat-start space-y-2">
+                <div className="chat-header">Replying...</div>
+                <div className="chat-bubble markdown">
                   <MarkdownRenderer>
-                    {parseThinkingReply(messages.join(""))}
+                    {removeThoughtFromReply(messages.join(""))}
                   </MarkdownRenderer>
                 </div>
               </div>
@@ -208,18 +209,33 @@ export default function Chats() {
           </div>
         )}
       </div>
-      <form className="m-2 flex-none" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="m-2 flex-none"
+        onSubmit={
+          !chatStore.selectedChatId ? handleSubmit(onInputSubmit) : undefined
+        }
+      >
         <div className="card bg-base-200">
           <div className="card-body p-2">
-            <textarea
-              autoFocus
-              id="chatInput"
-              disabled={isSubmitting || isLoading}
-              className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
-              placeholder="Write here"
-              value={isSubmitting || isLoading ? "" : undefined}
-              {...(isSubmitting || isLoading ? {} : register("input"))}
-            />
+            {chatStore.selectedChatId ? (
+              <textarea
+                disabled
+                className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
+                placeholder="Chat is disabled while editing a message"
+                value=""
+              />
+            ) : (
+              <textarea
+                autoFocus
+                id="chatInput"
+                disabled={isSubmitting || isLoading}
+                className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
+                placeholder="Write here"
+                value={isSubmitting || isLoading ? "" : undefined}
+                {...(isSubmitting || isLoading ? {} : register("input"))}
+              />
+            )}
+
             <div className="flex justify-between items-center w-full">
               <div>
                 <ModelSelector
@@ -232,7 +248,11 @@ export default function Chats() {
                 />
               </div>
               <div>
-                <button type="submit" className="btn btn-ghost btn-circle">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || isLoading}
+                  className="btn btn-ghost btn-circle"
+                >
                   <IconSend2 className="h-6 w-6" />
                 </button>
               </div>
@@ -244,42 +264,411 @@ export default function Chats() {
   );
 }
 
-function ChatBubbles({ chats }: Readonly<{ chats: ChatWithDetails[] }>) {
-  return chats.map((chat) => (
+function ChatBubbles({
+  useChatRef,
+  chats,
+}: Readonly<{
+  useChatRef: any;
+  chats: ChatWithDetails[];
+}>) {
+  const chatStore = useChatStore();
+  const alertStore = useAlertStore();
+
+  const {
+    form: { register, handleSubmit, setFocus, setValue },
+    chat: { activeModel, activePrompt },
+    setMessages,
+  } = useChatRef;
+
+  const chatsWithAlt: (ChatWithDetails & {
+    alt: ChatWithDetails[];
+  })[] = useMemo(() => {
+    return getChatListByRefId(chats, chatStore.chatRefId).map((chat) => {
+      const alt = chats
+        .filter((c) => c.parentId === chat.parentId)
+        .sort((a, b) => a.id - b.id);
+      return { ...chat, alt: alt.length > 1 ? alt : [] };
+    });
+  }, [chats, chatStore.chatRefId]);
+
+  useEffect(() => {
+    if (!chatStore.selectedChatId) return;
+    if (chatStore.selectedChatType === ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+      handleSubmit(onRetrySubmit)();
+    }
+  }, [chatStore.selectedChatId, chatStore.selectedChatType]);
+
+  const onRetry = (chat: Chat) => {
+    setValue("input", chat.user);
+    chatStore.setSelectedChat(chat.id, ChatReplyTypeEnum.EDIT_CHAT_RETRY);
+  };
+
+  const onRetrySubmit = async () => {
+    if (chatStore.selectedChatType !== ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+      return;
+    }
+
+    if (!chatStore.selectedChatId) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is invalid.",
+      });
+      return;
+    }
+
+    // get current selected chat
+    const selectedChat = await db.chat.get(chatStore.selectedChatId);
+    if (!selectedChat) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is not found.",
+      });
+      return;
+    }
+
+    // create chat
+    const chatId = await db.chat.add({
+      conversationId: selectedChat.conversationId,
+      user: selectedChat.user,
+      sendAt: Date.now(),
+      modelId: activeModel?.id ?? selectedChat.modelId,
+      parentId: selectedChat.parentId,
+      replyType: ChatReplyTypeEnum.EDIT_CHAT_RETRY,
+      retryForId: selectedChat.id,
+      promptId: activePrompt?.id,
+    });
+    chatStore.setSelectedChatRefId(chatId);
+    chatStore.setSelectedChat();
+
+    // get history
+    const chats: Chat[] = await getPreviousChatList(
+      selectedChat.conversationId,
+      selectedChat.parentId,
+    );
+
+    // send chat request
+    let fullText = "";
+    try {
+      const client = new OpenAI({
+        dangerouslyAllowBrowser: true,
+        baseURL: activeModel.provider.baseURL,
+        apiKey: activeModel.provider.apiKey,
+      });
+      const stream = await client.chat.completions.create({
+        stream: true,
+        model: activeModel.id,
+        messages: prepareMessages({
+          chats,
+          system: activePrompt?.prompt ?? "",
+          input: selectedChat.user,
+        }),
+      });
+
+      // stream chat
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
+      }
+    } catch (_error) {
+      await db.chat.delete(chatId);
+    }
+
+    // update chat when stream finish
+    await db.chat.update(chatId, {
+      assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+      receivedAt: Date.now(),
+    });
+    setTimeout(() => {
+      setFocus("input");
+    }, INPUT_REFOCUS_DELAY_MS);
+  };
+
+  const onEditChat = (chat: Chat) => {
+    setValue("input", chat.user);
+    chatStore.setSelectedChat(chat.id);
+  };
+
+  const onEditChatSubmit = async (data: { input: string }) => {
+    if (chatStore.selectedChatType !== ChatReplyTypeEnum.EDIT_CHAT) {
+      return;
+    }
+
+    if (!activeModel?.provider) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Please select a model to proceed.",
+      });
+      return;
+    }
+
+    if (!chatStore.selectedChatId) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is invalid.",
+      });
+      return;
+    }
+
+    // get current selected chat
+    const selectedChat = await db.chat.get(chatStore.selectedChatId);
+    if (!selectedChat) {
+      alertStore.add({
+        type: AlertTypeEnum.ERROR,
+        message: "Chat is not found.",
+      });
+      return;
+    }
+
+    // create chat
+    const chatId = await db.chat.add({
+      conversationId: selectedChat.conversationId,
+      user: data.input,
+      sendAt: Date.now(),
+      modelId: activeModel.id,
+      parentId: selectedChat.parentId,
+      replyType: ChatReplyTypeEnum.EDIT_CHAT,
+      promptId: activePrompt?.id,
+    });
+    chatStore.setSelectedChatRefId(chatId);
+    chatStore.setSelectedChat();
+
+    // get history
+    const chats: Chat[] = await getPreviousChatList(
+      selectedChat.conversationId,
+      selectedChat.parentId,
+    );
+
+    // send chat request
+    let fullText = "";
+    try {
+      const client = new OpenAI({
+        dangerouslyAllowBrowser: true,
+        baseURL: activeModel.provider.baseURL,
+        apiKey: activeModel.provider.apiKey,
+      });
+      const stream = await client.chat.completions.create({
+        stream: true,
+        model: activeModel.id,
+        messages: prepareMessages({
+          chats,
+          system: activePrompt?.prompt ?? "",
+          input: data.input,
+        }),
+      });
+
+      // stream chat
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
+      }
+    } catch (_error) {
+      await db.chat.delete(chatId);
+    }
+
+    // update chat when stream finish
+    await db.chat.update(chatId, {
+      assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
+      receivedAt: Date.now(),
+    });
+    setTimeout(() => {
+      setFocus("input");
+    }, INPUT_REFOCUS_DELAY_MS);
+  };
+
+  const onEditChatCancel = () => {
+    setValue("input", "");
+    chatStore.setSelectedChat();
+  };
+
+  // shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        chatStore.selectedChatId
+      ) {
+        event.preventDefault();
+        handleSubmit(onEditChatSubmit)();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleSubmit, onEditChatSubmit, chatStore.selectedChatId]);
+
+  const isEditing = (chatId: number) =>
+    chatStore.selectedChatId === chatId &&
+    chatStore.selectedChatType === ChatReplyTypeEnum.EDIT_CHAT;
+
+  return chatsWithAlt.map((chat) => (
     <div key={chat.id}>
       <div className="chat chat-end space-y-2">
         <div className="chat-header">
-          You
-          <br />
-          <time className="text-xs opacity-50">
-            {dayjs(chat.sendAt).format(TIME_FORMAT)}
-          </time>
+          <div className="flex justify-between items-center">
+            <time className="text-xs opacity-50 me-2">
+              {dayjs(chat.sendAt).format(TIME_FORMAT)}
+            </time>
+            You
+          </div>
         </div>
-        <div className="chat-bubble markdown">
-          <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+        <div
+          className={`chat-bubble markdown ${isEditing(chat.id) ? "w-full" : ""}`}
+        >
+          {isEditing(chat.id) ? (
+            <form
+              id={`chatUpdateForm_${chat.id}`}
+              onSubmit={handleSubmit(onEditChatSubmit)}
+            >
+              <textarea
+                className={`textarea max-h-none ${isEditing(chat.id) ? "w-full" : ""}`}
+                {...register("input")}
+              />
+              <div className="text-xs label whitespace-normal break-words">
+                Updating this chat will create a new branch of conversation from
+                here.
+              </div>
+            </form>
+          ) : (
+            <MarkdownRenderer>{chat.user}</MarkdownRenderer>
+          )}
         </div>
-        <div className="chat-footer">
-          <CopyButton text={chat.user} />
+        <div className="chat-footer justify-end space-x-2">
+          {isEditing(chat.id) ? (
+            <>
+              <button
+                className="cursor-pointer"
+                form={`chatUpdateForm_${chat.id}`}
+              >
+                <IconCheck className="text-xs w-4 h-4 text-success" />
+              </button>
+              <button className="cursor-pointer" onClick={onEditChatCancel}>
+                <IconX className="text-xs w-4 h-4 text-error" />
+              </button>
+            </>
+          ) : (
+            <button className="cursor-pointer" onClick={() => onEditChat(chat)}>
+              <IconEdit className="text-xs w-4 h-4" />
+            </button>
+          )}
+          <CopyButton text={chat.user} />{" "}
+          <div className="flex space-x-1">
+            {!isEditing(chat.id) && (
+              <AlternateChatSelector
+                chat={chat}
+                replyType={ChatReplyTypeEnum.EDIT_CHAT}
+                alternates={chat.alt}
+              />
+            )}
+          </div>
         </div>
       </div>
       {chat.assistant && (
         <div className="chat chat-start space-y-2">
           <div className="chat-header">
             {chat.modelId} ({chat.prompt?.title ?? "No prompt"})
-            <time className="text-xs opacity-50">
+            <time className="ms-2 text-xs opacity-50">
               {dayjs(chat.receivedAt).format(TIME_FORMAT)}
             </time>
           </div>
           <div className="chat-bubble markdown">
             <MarkdownRenderer>{chat.assistant}</MarkdownRenderer>
           </div>
-          <div className="chat-footer">
+          <div className="chat-footer space-x-2">
+            <div className="flex space-x-1">
+              <AlternateChatSelector
+                chat={chat}
+                alternates={chat.alt}
+                replyType={ChatReplyTypeEnum.EDIT_CHAT_RETRY}
+              />
+            </div>
             <CopyButton text={chat.assistant} />
+            <button className="cursor-pointer" onClick={() => onRetry(chat)}>
+              <IconReload className="text-xs w-4 h-4" />
+            </button>
           </div>
         </div>
       )}
     </div>
   ));
+}
+
+function AlternateChatSelector({
+  chat,
+  replyType,
+  alternates,
+}: {
+  chat: ChatWithDetails;
+  replyType: ChatReplyTypeEnum;
+  alternates: ChatWithDetails[];
+}) {
+  const chatStore = useChatStore();
+  const alts = getAltChat(chat, alternates, replyType);
+
+  // find current index from searched chat id
+  let findChat =
+    alts.find((c) => c.id === chat.id) ??
+    alts.find((c) => c.id === chat.retryForId);
+  const currentId: number = findChat?.id ?? -1;
+  const currentIndex = alts.findIndex((c) => c.id === currentId);
+
+  const isPreviousAvailable = currentIndex > 0;
+  const isNextAvailable = currentIndex < alts.length - 1;
+
+  const onPrevious = () => {
+    if (!isPreviousAvailable) return;
+
+    // if the current chat has retry, select the latest retry
+    let refId = alts.map((c) => c.id).at(currentIndex - 1);
+    if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
+      refId = alternates
+        .filter((a) => a.id === refId || a.retryForId === refId)
+        .at(-1)?.id;
+    }
+
+    chatStore.setSelectedChatRefId(refId);
+  };
+
+  const onNext = () => {
+    if (!isNextAvailable) return;
+
+    // if the current chat has retry, select the latest retry
+    let refId = alts.map((c) => c.id).at(currentIndex + 1);
+    if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
+      refId = alternates
+        .filter((a) => a.id === refId || a.retryForId === refId)
+        .at(-1)?.id;
+    }
+
+    chatStore.setSelectedChatRefId(refId);
+  };
+
+  return (
+    alts.length > 1 && (
+      <>
+        <button
+          className="cursor-pointer disabled:text-gray-600"
+          disabled={!isPreviousAvailable}
+          onClick={onPrevious}
+        >
+          <IconChevronLeft className="text-xs w-4 h-4" />
+        </button>
+        <span>
+          {currentIndex + 1} / {alts.length}
+        </span>
+        <button
+          className="cursor-pointer disabled:text-gray-600"
+          disabled={!isNextAvailable}
+          onClick={onNext}
+        >
+          <IconChevronRight className="text-xs w-4 h-4" />
+        </button>
+      </>
+    )
+  );
 }
 
 function PromptSelector({
@@ -291,7 +680,7 @@ function PromptSelector({
 }) {
   const dropdownRef = useRef<HTMLDetailsElement>(null);
 
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
   const onSelectPrompt = (promptId?: number) => {
     settingsStore.setActivePrompt(promptId);
     dropdownRef.current?.removeAttribute("open");
@@ -347,7 +736,7 @@ function ModelSelector({
 }) {
   const dropdownRef = useRef<HTMLDetailsElement>(null);
 
-  const settingsStore = useSettings();
+  const settingsStore = useSettingsStore();
   const onSelectModel = (modelId?: string) => {
     settingsStore.setActiveModel(modelId);
     dropdownRef.current?.removeAttribute("open");

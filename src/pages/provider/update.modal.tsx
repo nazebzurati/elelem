@@ -1,7 +1,7 @@
 import SubmitButton from "@components/submit-button";
 import db from "@database/config";
 import { yupResolver } from "@hookform/resolvers/yup";
-import useProvider from "@stores/provider";
+import useProviderStore from "@stores/provider";
 import { IconCircleX, IconX } from "@tabler/icons-react";
 import { fetchModelList } from "@utils/conversation";
 import { toggleModal, UiToggleState } from "@utils/toggle";
@@ -14,7 +14,7 @@ import * as yup from "yup";
 export const UpdateProviderModalId = "updateProviderModal";
 
 export default function UpdateProviderModal() {
-  const providerStore = useProvider();
+  const providerStore = useProviderStore();
   const selectedProvider = useLiveQuery(
     async () =>
       providerStore.selectedProviderId

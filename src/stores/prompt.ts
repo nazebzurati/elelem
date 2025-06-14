@@ -7,7 +7,7 @@ interface PromptState {
   setSelectedPrompt: (id?: number) => void;
 }
 
-const usePrompt = create<PromptState>()(
+const usePromptStore = create<PromptState>()(
   devtools(
     persist(
       (set) => ({
@@ -23,4 +23,4 @@ const usePrompt = create<PromptState>()(
   ),
 );
 
-export default usePrompt;
+export default usePromptStore;

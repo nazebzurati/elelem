@@ -7,7 +7,7 @@ interface HistoryState {
   setSelectedConversation: (id?: number) => void;
 }
 
-const useHistory = create<HistoryState>()(
+const useHistoryStore = create<HistoryState>()(
   devtools(
     persist(
       (set) => ({
@@ -23,4 +23,4 @@ const useHistory = create<HistoryState>()(
   ),
 );
 
-export default useHistory;
+export default useHistoryStore;
