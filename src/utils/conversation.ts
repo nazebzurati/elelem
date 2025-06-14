@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { invoke } from "@tauri-apps/api/core";
 import { ChatCompletionMessageParam } from "openai/resources.mjs";
 import { Chat } from "../database/chat";
 
@@ -10,10 +10,14 @@ export const removeThoughtFromReply = (message: string): string => {
   return match ? match[2].trim() : message;
 };
 
-export const fetchModelList = async (baseURL?: string, apiKey?: string) => {
-  const client = new OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
-  const models = await client.models.list();
-  return models.data.map((m) => m.id);
+export const fetchModelList = async (
+  baseURL?: string,
+  apiKey?: string,
+): Promise<string[]> => {
+  return await invoke("get_model_list", {
+    base_url: baseURL,
+    api_key: apiKey,
+  });
 };
 
 export const prepareMessages = ({
