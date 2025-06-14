@@ -29,11 +29,11 @@ export interface ChatWithDetails extends Chat {
 
 export const getChatListByRefId = (data: Chat[], refId?: number): Chat[] => {
   if (data.length <= 0) return data;
-  if (!refId) {
-    refId = data
-      .filter((d) => d.parentId === undefined)
-      .sort((a, b) => b.id - a.id)[0].id;
-  }
+
+  // set refId if undefined
+  refId ??= data
+    .filter((d) => d.parentId === undefined)
+    .sort((a, b) => b.id - a.id)[0].id;
 
   // get branch up
   const up: Chat[] = [];
@@ -58,6 +58,28 @@ export const getChatListByRefId = (data: Chat[], refId?: number): Chat[] => {
   }
 
   return [...up, ...down];
+};
+
+export const getAltChat = (
+  chat: ChatWithDetails,
+  chatAlts: ChatWithDetails[],
+  replyType: ChatReplyTypeEnum,
+) => {
+  let alts: ChatWithDetails[] = [];
+  if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
+    const allowedTypes = [ChatReplyTypeEnum.EDIT_CHAT, ChatReplyTypeEnum.NEW];
+    alts = chatAlts.filter((c) => allowedTypes.includes(c.replyType));
+  } else if (replyType === ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
+    const altIds: number[] = [chat.id];
+    chatAlts.forEach((a) => {
+      if (a.retryForId === chat.id) altIds.push(a.id);
+      if (a.id === chat.retryForId) altIds.push(chat.retryForId);
+    });
+    alts = chatAlts
+      .filter((c) => altIds.includes(c.id))
+      .sort((a, b) => a.id - b.id);
+  }
+  return alts;
 };
 
 export const getPreviousChatList = async (

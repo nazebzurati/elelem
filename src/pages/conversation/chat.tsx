@@ -4,6 +4,7 @@ import {
   Chat,
   ChatReplyTypeEnum,
   ChatWithDetails,
+  getAltChat,
   getChatListByRefId,
   getPreviousChatList,
 } from "@database/chat";
@@ -605,25 +606,10 @@ function AlternateChatSelector({
   alternates: ChatWithDetails[];
 }) {
   const chatStore = useChatStore();
-
-  // filter by type or relevant chat by retryForId
-  let alts: ChatWithDetails[] = [];
-  if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
-    const allowedTypes = [ChatReplyTypeEnum.EDIT_CHAT, ChatReplyTypeEnum.NEW];
-    alts = alternates.filter((c) => allowedTypes.includes(c.replyType));
-  } else if (replyType === ChatReplyTypeEnum.EDIT_CHAT_RETRY) {
-    const altIds: number[] = [chat.id];
-    alternates.forEach((a) => {
-      if (a.retryForId === chat.id) altIds.push(a.id);
-      if (a.id === chat.retryForId) altIds.push(chat.retryForId);
-    });
-    alts = alternates
-      .filter((c) => altIds.includes(c.id))
-      .sort((a, b) => a.id - b.id);
-  }
+  const alts = getAltChat(chat, alternates, replyType);
 
   // find current index from searched chat id
-  const findChat =
+  let findChat =
     alts.find((c) => c.id === chat.id) ??
     alts.find((c) => c.id === chat.retryForId);
   const currentId: number = findChat?.id ?? -1;
@@ -634,12 +620,30 @@ function AlternateChatSelector({
 
   const onPrevious = () => {
     if (!isPreviousAvailable) return;
-    chatStore.setSelectedChatRefId(alts.map((c) => c.id).at(currentIndex - 1));
+
+    // if the current chat has retry, select the latest retry
+    let refId = alts.map((c) => c.id).at(currentIndex - 1);
+    if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
+      refId = alternates
+        .filter((a) => a.id === refId || a.retryForId === refId)
+        .at(-1)?.id;
+    }
+
+    chatStore.setSelectedChatRefId(refId);
   };
 
   const onNext = () => {
     if (!isNextAvailable) return;
-    chatStore.setSelectedChatRefId(alts.map((c) => c.id).at(currentIndex + 1));
+
+    // if the current chat has retry, select the latest retry
+    let refId = alts.map((c) => c.id).at(currentIndex + 1);
+    if (replyType === ChatReplyTypeEnum.EDIT_CHAT) {
+      refId = alternates
+        .filter((a) => a.id === refId || a.retryForId === refId)
+        .at(-1)?.id;
+    }
+
+    chatStore.setSelectedChatRefId(refId);
   };
 
   return (
