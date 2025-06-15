@@ -4,7 +4,7 @@ import { Chat } from "../database/chat";
 export const TIME_FORMAT = "DD MMM YYYY, hh:mm:ss a";
 
 export type ChatCompletionMessageParam = {
-  role: "developer" | "user" | "assistant" | "tool" | "function";
+  role: "system" | "user" | "assistant" | "tool" | "function";
   content: string;
 };
 
@@ -35,7 +35,7 @@ export const prepareMessages = ({
 }): ChatCompletionMessageParam[] => {
   const messages: ChatCompletionMessageParam[] = [];
   if (system) {
-    messages.push({ role: "developer", content: system });
+    messages.push({ role: "system", content: system });
   }
   (chats || []).forEach((chat) => {
     messages.push({ role: "user", content: chat.user });
