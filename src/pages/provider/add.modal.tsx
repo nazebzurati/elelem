@@ -42,7 +42,7 @@ export default function AddProviderModal() {
     try {
       modelIds = await fetchModelList(baseURL, data.apiKey);
     } catch (_error) {
-      setError("Failed to connect");
+      setError("Failed to connect or parse server response");
       return;
     }
     if (modelIds.length <= 0) {

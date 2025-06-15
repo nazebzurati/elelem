@@ -25,6 +25,8 @@ import {
   IconSend2,
   IconX,
 } from "@tabler/icons-react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen, once } from "@tauri-apps/api/event";
 import {
   prepareMessages,
   removeThoughtFromReply,
@@ -32,7 +34,6 @@ import {
 } from "@utils/conversation";
 import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
-import OpenAI from "openai";
 import { useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
 
@@ -91,14 +92,19 @@ export default function Chats() {
     // send chat request
     let fullText = "";
     try {
-      const client = new OpenAI({
-        dangerouslyAllowBrowser: true,
-        baseURL: activeModel.provider.baseURL,
-        apiKey: activeModel.provider.apiKey,
+      // setup a stream listener and its cleanup
+      const streamCleanUp = await listen<string>("chat_stream", (stream) => {
+        const text = stream.payload as string;
+        if (!text) return;
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
       });
-      const stream = await client.chat.completions.create({
-        stream: true,
-        model: activeModel.id,
+
+      // trigger get_chat_completion
+      await invoke("get_chat_completion", {
+        base_url: activeModel.provider.baseURL,
+        api_key: activeModel.provider.apiKey,
+        model_id: activeModel.id,
         messages: prepareMessages({
           chats: activeConversation?.chats ?? [],
           system: activePrompt?.prompt ?? "",
@@ -106,12 +112,9 @@ export default function Chats() {
         }),
       });
 
-      // stream chat
-      for await (const chunk of stream) {
-        const text = chunk.choices[0]?.delta?.content ?? "";
-        setMessages((prev) => [...prev, text]);
-        fullText += text;
-      }
+      // wait chat_complete and cleanup
+      await once("chat_complete", () => {});
+      streamCleanUp();
     } catch (_error) {
       await db.chat.delete(chatId);
       if (isNewConversation) await db.conversation.delete(conversationId);
@@ -349,14 +352,19 @@ function ChatBubbles({
     // send chat request
     let fullText = "";
     try {
-      const client = new OpenAI({
-        dangerouslyAllowBrowser: true,
-        baseURL: activeModel.provider.baseURL,
-        apiKey: activeModel.provider.apiKey,
+      // setup a stream listener and its cleanup
+      const streamCleanUp = await listen<string>("chat_stream", (stream) => {
+        const text = stream.payload as string;
+        if (!text) return;
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
       });
-      const stream = await client.chat.completions.create({
-        stream: true,
-        model: activeModel.id,
+
+      // trigger get_chat_completion
+      await invoke("get_chat_completion", {
+        base_url: activeModel.provider.baseURL,
+        api_key: activeModel.provider.apiKey,
+        model_id: activeModel.id,
         messages: prepareMessages({
           chats,
           system: activePrompt?.prompt ?? "",
@@ -364,12 +372,9 @@ function ChatBubbles({
         }),
       });
 
-      // stream chat
-      for await (const chunk of stream) {
-        const text = chunk.choices[0]?.delta?.content ?? "";
-        setMessages((prev: string[]) => [...prev, text]);
-        fullText += text;
-      }
+      // wait chat_complete and cleanup
+      await once("chat_complete", () => {});
+      streamCleanUp();
     } catch (_error) {
       await db.chat.delete(chatId);
     }
@@ -442,14 +447,19 @@ function ChatBubbles({
     // send chat request
     let fullText = "";
     try {
-      const client = new OpenAI({
-        dangerouslyAllowBrowser: true,
-        baseURL: activeModel.provider.baseURL,
-        apiKey: activeModel.provider.apiKey,
+      // setup a stream listener and its cleanup
+      const streamCleanUp = await listen<string>("chat_stream", (stream) => {
+        const text = stream.payload as string;
+        if (!text) return;
+        setMessages((prev: string[]) => [...prev, text]);
+        fullText += text;
       });
-      const stream = await client.chat.completions.create({
-        stream: true,
-        model: activeModel.id,
+
+      // trigger get_chat_completion
+      await invoke("get_chat_completion", {
+        base_url: activeModel.provider.baseURL,
+        api_key: activeModel.provider.apiKey,
+        model_id: activeModel.id,
         messages: prepareMessages({
           chats,
           system: activePrompt?.prompt ?? "",
@@ -457,12 +467,9 @@ function ChatBubbles({
         }),
       });
 
-      // stream chat
-      for await (const chunk of stream) {
-        const text = chunk.choices[0]?.delta?.content ?? "";
-        setMessages((prev: string[]) => [...prev, text]);
-        fullText += text;
-      }
+      // wait chat_complete and cleanup
+      await once("chat_complete", () => {});
+      streamCleanUp();
     } catch (_error) {
       await db.chat.delete(chatId);
     }

@@ -1,8 +1,12 @@
-import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources.mjs";
+import { invoke } from "@tauri-apps/api/core";
 import { Chat } from "../database/chat";
 
 export const TIME_FORMAT = "DD MMM YYYY, hh:mm:ss a";
+
+export type ChatCompletionMessageParam = {
+  role: "developer" | "user" | "assistant" | "tool" | "function";
+  content: string;
+};
 
 export const removeThoughtFromReply = (message: string): string => {
   const regex = /^<think>(.*?)<\/think>(.*)/s;
@@ -10,10 +14,14 @@ export const removeThoughtFromReply = (message: string): string => {
   return match ? match[2].trim() : message;
 };
 
-export const fetchModelList = async (baseURL?: string, apiKey?: string) => {
-  const client = new OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
-  const models = await client.models.list();
-  return models.data.map((m) => m.id);
+export const fetchModelList = async (
+  baseURL?: string,
+  apiKey?: string,
+): Promise<string[]> => {
+  return await invoke("get_model_list", {
+    base_url: baseURL,
+    api_key: apiKey,
+  });
 };
 
 export const prepareMessages = ({
