@@ -38,6 +38,6 @@ Elelem provides support for various standalone bundling formats, including Windo
 
 ## To Contribute
 
-1. Set up your environment by installing Tauri along with Deno and Rust.
+1. Set up your environment by installing Tauri along with node and Rust.
 
-2. Use `deno run tauri dev` to start develop with a hot module replacement (HMR) build.
+2. Use `npm run tauri dev` to start develop with a hot module replacement (HMR) build.
