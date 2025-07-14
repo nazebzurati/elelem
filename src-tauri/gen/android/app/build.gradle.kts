@@ -24,6 +24,9 @@ android {
         targetSdk = 35
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
+        ndk {
+          abiFilters += listOf("armeabi-v7a","arm64-v8a","x86","x86_64")
+        }
     }
 
     signingConfigs {

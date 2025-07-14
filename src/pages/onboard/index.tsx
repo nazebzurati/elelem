@@ -126,7 +126,7 @@ function Step2({
     try {
       modelIds = await fetchModelList(baseURL, data.apiKey);
     } catch (_error) {
-      setError("Failed to connect");
+      setError(String(_error));
       return;
     }
     if (modelIds.length <= 0) {
