@@ -13,7 +13,13 @@ class MainActivity : TauriActivity() {
         window.decorView.let { decorView ->
             ViewCompat.setOnApplyWindowInsetsListener(decorView) { view, insets ->
                 val sysInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                view.setPadding(sysInsets.left, sysInsets.top, sysInsets.right, sysInsets.bottom)
+                val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+                view.setPadding(
+                    sysInsets.left, 
+                    sysInsets.top, 
+                    sysInsets.right, 
+                    maxOf(sysInsets.bottom, imeInsets.bottom)
+                )
                 insets
             }
         }
