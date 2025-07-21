@@ -1,4 +1,3 @@
-import andyNote from "@assets/andy-note.png";
 import CopyButton from "@components/copy-button";
 import {
   Chat,
@@ -37,8 +36,6 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useMemo, useRef } from "react";
 import { MarkdownRenderer } from "./markdown";
 
-const INPUT_REFOCUS_DELAY_MS = 250;
-
 export default function Chats() {
   const chatStore = useChatStore();
   const alertStore = useAlertStore();
@@ -53,7 +50,7 @@ export default function Chats() {
   });
 
   const {
-    form: { register, handleSubmit, isLoading, isSubmitting, setFocus },
+    form: { register, handleSubmit, isLoading, isSubmitting },
     chat: { activeModel, activePrompt, activeConversation, activeChat },
     isThinking,
     thoughts,
@@ -128,21 +125,33 @@ export default function Chats() {
       assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
       receivedAt: Date.now(),
     });
-    setTimeout(() => {
-      setFocus("input");
-    }, INPUT_REFOCUS_DELAY_MS);
   };
 
   // autoscroll
+  const inputRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const paddingRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [isSubmitting, messages, activeConversation?.chats]);
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, []);
+    if (!inputRef.current || !paddingRef.current || !scrollRef.current) return;
+
+    // get height
+    const elements = scrollRef.current.querySelectorAll(".elelem-chat");
+    const lastElement = elements[elements.length - 1] as HTMLElement;
+    const lastElementHeight = lastElement?.offsetHeight ?? 0;
+    const scrollableAreaHeight = scrollRef.current.clientHeight;
+    if (scrollableAreaHeight >= scrollRef.current.scrollHeight) return;
+
+    // resize height and scrolled into
+    const paddingHeight = 30;
+    const inputAreaHeight = inputRef.current.offsetHeight;
+    const remainingHeight =
+      scrollableAreaHeight -
+      lastElementHeight -
+      inputAreaHeight +
+      paddingHeight;
+    paddingRef.current.style.height = `${remainingHeight}px`;
+    lastElement?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeChat]);
 
   // shortcut listener
   useEffect(() => {
@@ -164,54 +173,45 @@ export default function Chats() {
 
   return (
     <>
-      <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
-        {activeConversation ? (
-          <>
-            <ChatBubbles
-              useChatRef={useChatRef}
-              chats={activeConversation.chats}
-            />
-            {isSubmitting && messages.length <= 0 && (
-              <div className="chat chat-start space-y-2">
-                <div className="chat-header">Sending...</div>
-                <div className="chat-bubble">
-                  <span className="loading loading-dots loading-sm" />
-                </div>
+      {activeConversation ? (
+        <div className="px-6 py-2 flex-grow overflow-auto" ref={scrollRef}>
+          <ChatBubbles
+            useChatRef={useChatRef}
+            chats={activeConversation.chats}
+          />
+          {isSubmitting && messages.length <= 0 && (
+            <div className="chat chat-start space-y-2">
+              <div className="chat-header">Sending...</div>
+              <div className="chat-bubble">
+                <span className="loading loading-dots loading-sm" />
               </div>
-            )}
-            {isThinking && (
-              <div className="chat chat-start space-y-2">
-                <div className="chat-header">Thinking...</div>
-                <div className="chat-bubble markdown">
-                  <MarkdownRenderer>{thoughts.join("")}</MarkdownRenderer>
-                </div>
-              </div>
-            )}
-            {!isThinking && messages.length > 0 && (
-              <div className="chat chat-start space-y-2">
-                <div className="chat-header">Replying...</div>
-                <div className="chat-bubble markdown">
-                  <MarkdownRenderer>
-                    {removeThoughtFromReply(messages.join(""))}
-                  </MarkdownRenderer>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="h-full flex justify-center items-center">
-            <div className="space-y-4">
-              <img
-                width={150}
-                height={150}
-                alt="onboarding"
-                src={andyNote}
-                className="mx-auto"
-              />
             </div>
-          </div>
-        )}
-      </div>
+          )}
+          {isThinking && (
+            <div className="chat chat-start space-y-2">
+              <div className="chat-header">Thinking...</div>
+              <div className="chat-bubble markdown">
+                <MarkdownRenderer>{thoughts.join("")}</MarkdownRenderer>
+              </div>
+            </div>
+          )}
+          {!isThinking && messages.length > 0 && (
+            <div className="chat chat-start space-y-2">
+              <div className="chat-header">Replying...</div>
+              <div className="chat-bubble markdown">
+                <MarkdownRenderer>
+                  {removeThoughtFromReply(messages.join(""))}
+                </MarkdownRenderer>
+              </div>
+            </div>
+          )}
+          <div ref={paddingRef} />
+        </div>
+      ) : (
+        <div className="h-full flex justify-center items-center">
+          <p className="text-xl font-bold">Hello! How can I help?</p>
+        </div>
+      )}
       <form
         className="m-2 flex-none"
         onSubmit={
@@ -229,7 +229,6 @@ export default function Chats() {
               />
             ) : (
               <textarea
-                autoFocus
                 id="chatInput"
                 disabled={isSubmitting || isLoading}
                 className="textarea textarea-ghost resize-none w-full border-0 focus:outline-none focus:ring-0 focus:bg-transparent"
@@ -238,9 +237,11 @@ export default function Chats() {
                 {...(isSubmitting || isLoading ? {} : register("input"))}
               />
             )}
-
-            <div className="flex justify-between items-center w-full">
-              <div>
+            <div
+              ref={inputRef}
+              className="flex justify-between items-center w-full"
+            >
+              <div className="flex">
                 <ModelSelector
                   modelList={modelList}
                   activeModel={activeModel}
@@ -278,7 +279,7 @@ function ChatBubbles({
   const alertStore = useAlertStore();
 
   const {
-    form: { register, handleSubmit, setFocus, setValue },
+    form: { register, handleSubmit, setValue },
     chat: { activeModel, activePrompt },
     setMessages,
   } = useChatRef;
@@ -384,9 +385,6 @@ function ChatBubbles({
       assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
       receivedAt: Date.now(),
     });
-    setTimeout(() => {
-      setFocus("input");
-    }, INPUT_REFOCUS_DELAY_MS);
   };
 
   const onEditChat = (chat: Chat) => {
@@ -479,9 +477,6 @@ function ChatBubbles({
       assistant: fullText.replace(/<think>[\s\S]*?<\/think>/, ""),
       receivedAt: Date.now(),
     });
-    setTimeout(() => {
-      setFocus("input");
-    }, INPUT_REFOCUS_DELAY_MS);
   };
 
   const onEditChatCancel = () => {
@@ -512,7 +507,7 @@ function ChatBubbles({
     chatStore.selectedChatType === ChatReplyTypeEnum.EDIT_CHAT;
 
   return chatsWithAlt.map((chat) => (
-    <div key={chat.id}>
+    <div className="elelem-chat" key={chat.id}>
       <div className="chat chat-end space-y-2">
         <div className="chat-header">
           <div className="flex justify-between items-center">
@@ -705,7 +700,7 @@ function PromptSelector({
       ref={dropdownRef}
       className="dropdown dropdown-top"
     >
-      <summary className="list-none px-4 flex items-center gap-1 w-32 sm:w-44">
+      <summary className="list-none px-4 flex items-center gap-1">
         <span className="flex-1 line-clamp-1">
           {activePrompt?.title ?? "No prompt"}
         </span>
@@ -761,7 +756,7 @@ function ModelSelector({
       ref={dropdownRef}
       className="dropdown dropdown-top"
     >
-      <summary className="list-none px-4 flex items-center gap-1 w-32 sm:w-44">
+      <summary className="list-none px-4 flex items-center gap-1">
         <span className="flex-1 line-clamp-1">
           {activeModel?.id ?? "Select a model"}
         </span>

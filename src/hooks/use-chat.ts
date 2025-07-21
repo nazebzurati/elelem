@@ -22,7 +22,6 @@ const useChat = ({
     reset,
     register,
     handleSubmit,
-    setFocus,
     setValue,
     formState: { isLoading, isSubmitting, isSubmitSuccessful },
   } = useForm({
@@ -111,7 +110,6 @@ const useChat = ({
       handleSubmit,
       isLoading,
       isSubmitting,
-      setFocus,
       setValue,
     },
     chat: {

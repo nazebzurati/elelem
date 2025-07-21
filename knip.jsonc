@@ -2,6 +2,7 @@
   "ignoreDependencies": [
     // tauri
     "@tauri-apps/plugin-opener",
+    "@tauri-apps/plugin-http",
     // styling
     "tailwindcss",
     "daisyui"

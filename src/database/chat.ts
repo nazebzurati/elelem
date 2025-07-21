@@ -114,13 +114,3 @@ export const getChatList = async (conversationId: number) => {
     }),
   );
 };
-
-export const getChat = async (chatId: number) => {
-  const chat = await db.chat.get(chatId);
-  if (!chat) return undefined;
-  return {
-    ...chat,
-    model: await getModel(chat.modelId),
-    prompt: chat.promptId ? await getPrompt(chat.promptId) : undefined,
-  };
-};

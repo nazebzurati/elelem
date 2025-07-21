@@ -3,7 +3,7 @@ import { Chat } from "../database/chat";
 
 export const TIME_FORMAT = "DD MMM YYYY, hh:mm:ss a";
 
-export type ChatCompletionMessageParam = {
+type ChatCompletionMessageParam = {
   role: "system" | "user" | "assistant" | "tool" | "function";
   content: string;
 };
